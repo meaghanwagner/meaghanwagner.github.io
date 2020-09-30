@@ -58,6 +58,7 @@ html {
   margin:0;
 }
 body {
+  background-color: #eaeaf6;
   font-family: kepler-std, serif;
   font-weight: 300;
   font-style: normal;
@@ -73,17 +74,31 @@ header {
   color: #0e83aa;
   background-color: #171736;
   margin: 0;
-  height: 95px;
+  height: 60px;
 }
 main {
-  margin-top: 75px;
+  margin-top: 60px;
 }
 h1 {
   font-weight: 700;
   font-size: 70px;
   text-align: center;
   color: #0e83aa;
-  margin: calc((100% - 60px)/2) 0;
+  margin: calc((100vh - 80px)/2) 0;
+}
+img {
+  width:100%;
+  max-width: 100%;
+}
+figure {
+  margin: 0;
+  padding: 1vw;
+}
+footer{
+  background-color: #171736;
+  text-align: center;
+  color: white;
+  padding: 2px;
 }
 .branding {
   margin: 0;
@@ -91,7 +106,8 @@ h1 {
   font-weight: inherit;
   width: 33%;
   flex: 1 1 33%;
-  font-size: 40px;
+  font-size: calc(2.16vw +  1rem);
+  white-space: nowrap;
 }
 a {
   color: inherit;
@@ -100,18 +116,88 @@ a {
 .nav-flex{
   display: flex;
   flex-wrap: nowrap;
-  padding: 30px;
+  padding: 15px;
+}
+.flex {
+  display: flex;
+  flex-wrap: nowrap;
+  position: relative;
+  padding: 5vh 0;
 }
 .header-nav {
-  display: inline-flex;
+  display: flex;
+  flex-wrap: wrap;
   height: 100%;
+  width: 25%;
+  flex: 1 1 25%;
 }
 .header-nav-item {
-  margin:0 20px;
   font-size: 20px;
+  width: 33%;
+  text-align: center;
 }
 .wrapper{
   width: 100%;
   max-width: 1020px;
   margin:auto;
+}
+.half{
+  width: 50%;
+}
+.main-image {
+  width: 130%;
+}
+.card-wrapper {
+  padding: 15px 30px;
+  background-color: white;
+  margin: 10vh 1vw 0 0;
+  width: calc(50% - 60px);
+  position: absolute;
+  top:50;
+  right:0;
+}
+.title {
+  font-size: calc(2.16vw +  1rem);
+  color: #0e83aa;
+  margin: 1vw 0;
+}
+.subtitle {
+  color: #0e83aa;
+  font-style: italic;
+}
+.tools {
+  display: flex;
+  flex-wrap: nowrap;
+  padding: 10vh 0;
+}
+.tool {
+  text-align: center;
+  background-color:#171736;
+  color: #0e83aa;
+  width: 30vw;
+  flex: 1 1 30vw;
+  margin: 1vw 1vw;
+  border-radius: 1vw;
+}
+.tool-header {
+  font-size: calc(2.16vw +  1rem);
+  font-weight: 700;
+}
+.testimonials {
+  text-align: center;
+  background-color:#0e83aa;
+  color: white;
+  padding: 20vh 2vw;
+}
+.quote {
+  font-size: calc(1.44vw +  1rem);
+  font-weight: 700;
+  line-height: 1.4;
+}
+.questions {
+  font-weight: 700;
+  font-size: 70px;
+  text-align: center;
+  color: #0e83aa;
+  margin: calc((80vh - 80px)/2) 0;
 }
