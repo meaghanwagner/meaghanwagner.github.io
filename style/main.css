@@ -62,7 +62,7 @@ body {
   font-family: kepler-std, serif;
   font-weight: 300;
   font-style: normal;
-  line-height: 1.4em;
+  line-height:2em;
   padding:0;
   margin:0;
 }
@@ -75,9 +75,11 @@ header {
   background-color: #171736;
   margin: 0;
   height: 60px;
+  z-index: 1;
 }
 main {
   margin-top: 60px;
+  z-index: -1
 }
 h1 {
   font-weight: 700;
@@ -106,7 +108,7 @@ footer{
   font-weight: inherit;
   width: 33%;
   flex: 1 1 33%;
-  font-size: calc(2.16vw +  1rem);
+  font-size: 3rem;
   white-space: nowrap;
 }
 a {
@@ -156,12 +158,12 @@ a {
   top:50;
   right:0;
 }
-.title {
-  font-size: calc(2.16vw +  1rem);
+.card-title {
+  font-size: 3rem;
   color: #0e83aa;
   margin: 1vw 0;
 }
-.subtitle {
+.card-subtitle {
   color: #0e83aa;
   font-style: italic;
 }
@@ -178,9 +180,10 @@ a {
   flex: 1 1 30vw;
   margin: 1vw 1vw;
   border-radius: 1vw;
+  padding: 0 1vw;
 }
 .tool-header {
-  font-size: calc(2.16vw +  1rem);
+  font-size: 3rem;
   font-weight: 700;
 }
 .testimonials {
@@ -190,14 +193,96 @@ a {
   padding: 20vh 2vw;
 }
 .quote {
-  font-size: calc(1.44vw +  1rem);
+  font-size: 2rem;
   font-weight: 700;
   line-height: 1.4;
 }
 .questions {
   font-weight: 700;
-  font-size: 70px;
+  font-size: 4rem;
+  line-height: .7;
   text-align: center;
   color: #0e83aa;
   margin: calc((80vh - 80px)/2) 0;
+}
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  width: 33%
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #fff;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: #0e83aa;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {
+  background-color: #3e8e41;
+}
+.icon {
+  display: none;
+}
+@media only screen and (max-width: 665px) {
+  .header-nav {
+    background-color: #171736;
+    display: none;
+    width: 100%;
+    flex-wrap: nowrap;
+    position: absolute;
+    top:60px;
+    height:40px;
+    right: 0;
+    text-align: center;
+  }
+  .icon {
+    display:block;
+  }
+
+}
+@media only screen and (max-width: 500px) {
+  .card-title {
+    font-size: 2.5rem;
+  }
+  .branding {
+    font-size: 2.5rem;
+  }
+  .tools{
+    padding-top: 10vh;
+  }
+}
+@media only screen and (max-width: 400px) {
+  .card-title {
+    font-size: 2rem;
+  }
+  .branding {
+    font-size: 2rem;
+  }
+  .tools{
+    padding-top: 20vh;
+  }
 }
