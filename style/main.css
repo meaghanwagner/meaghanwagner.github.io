@@ -71,8 +71,8 @@ header {
   position: absolute;
   top: 0;
   width:100%;
-  color: #0e83aa;
-  background-color: #171736;
+  color: #9DB2C6;
+  background-color: #28262B;
   margin: 0;
   height: 60px;
   z-index: 1;
@@ -85,7 +85,7 @@ h1 {
   font-weight: 700;
   font-size: 70px;
   text-align: center;
-  color: #0e83aa;
+  color: #5F2F17;
   margin: calc((100vh - 80px)/2) 0;
 }
 img {
@@ -97,18 +97,19 @@ figure {
   padding: 1vw;
 }
 footer{
-  background-color: #171736;
+  background-color: #28262B;
   text-align: center;
-  color: white;
+  color: #9DB2C6;
   padding: 2px;
 }
 .branding {
+  color: #DBD282;
   margin: 0;
   line-height: .7;
   font-weight: inherit;
   width: 33%;
   flex: 1 1 33%;
-  font-size: 3rem;
+  font-size: 2.5rem;
   white-space: nowrap;
 }
 a {
@@ -160,11 +161,11 @@ a {
 }
 .card-title {
   font-size: 3rem;
-  color: #0e83aa;
+  color: #5F2F17;
   margin: 1vw 0;
 }
 .card-subtitle {
-  color: #0e83aa;
+  color: #5F2F17;
   font-style: italic;
 }
 .tools {
@@ -174,8 +175,8 @@ a {
 }
 .tool {
   text-align: center;
-  background-color:#171736;
-  color: #0e83aa;
+  background-color:#28262B;
+  color: #9DB2C6;
   width: 30vw;
   flex: 1 1 30vw;
   margin: 1vw 1vw;
@@ -183,12 +184,13 @@ a {
   padding: 0 1vw;
 }
 .tool-header {
+  color: #DBD282;
   font-size: 3rem;
   font-weight: 700;
 }
 .testimonials {
   text-align: center;
-  background-color:#0e83aa;
+  background-color:#9DB2C6;
   color: white;
   padding: 20vh 2vw;
 }
@@ -202,7 +204,7 @@ a {
   font-size: 4rem;
   line-height: .7;
   text-align: center;
-  color: #0e83aa;
+  color: #5F2F17;
   margin: calc((80vh - 80px)/2) 0;
 }
 /* The container <div> - needed to position the dropdown content */
@@ -224,7 +226,7 @@ a {
 
 /* Links inside the dropdown */
 .dropdown-content a {
-  color: #0e83aa;
+  color: #5F2F17;
   padding: 12px 16px;
   text-decoration: none;
   display: block;
@@ -249,7 +251,7 @@ a {
 }
 @media only screen and (max-width: 665px) {
   .header-nav {
-    background-color: #171736;
+    background-color: #28262B;
     display: none;
     width: 100%;
     flex-wrap: nowrap;
@@ -269,7 +271,7 @@ a {
     font-size: 2.5rem;
   }
   .branding {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
   .tools{
     padding-top: 10vh;
