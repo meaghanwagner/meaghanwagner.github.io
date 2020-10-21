@@ -90,7 +90,7 @@ h1 {
   margin: 1rem 0;
 }
 h2{
-  font-size: 2.5rem;
+  font-size: 2rem;
   text-align: center;
   margin: 1rem 0;
 }
@@ -116,8 +116,12 @@ a {
   color: inherit;
   text-decoration: none;
 }
+p > a{
+  color:#28262B;
+  text-decoration: underline;
+}
 p{
-  margin: 0;
+  margin: 0.75rem 0;
   font-size: 1.2rem;
 }
 /*Header stuff*/
@@ -238,10 +242,10 @@ p{
 /*Home Page*/
 .main-image {
   width: 130%;
-  animation: rightin .5s .1s forwards;
+  animation: rightin .6s .1s forwards;
   transform: translate(-15%, 0);
-  opacity: .5;
-  animation: recenter 1s forwards;
+  opacity: 0;
+  animation: recenter .5s forwards;
   animation-timing-function: ease-in-out;
 }
 @keyframes recenter {
@@ -262,8 +266,8 @@ p{
   padding: 15px;
   box-shadow: 5px 5px 5px rgba(0,0,0,0.2);
   transform: translate(15%, 0);
-  opacity: .5;
-  animation: recenter 1s forwards;
+  opacity: 0;
+  animation: recenter .6s forwards;
   animation-timing-function: ease-in-out;
 }
 div.min-width {
@@ -282,7 +286,7 @@ div.min-width {
   text-align: right;
 }
 .tools {
-  margin: 5vh 0 20vh 0;
+  margin: 5vh 0;
   padding: 15px 30px;
   background-color: white;
 }
@@ -313,10 +317,12 @@ div.min-width {
 }
 .important{
   background-color: #5F2F17;
+}
+.shiny{
   position: relative;
   overflow: hidden;
 }
-.important::after {
+.shiny::after {
   content: '';
   position: absolute;
   top: -25%;
@@ -324,17 +330,17 @@ div.min-width {
   bottom: -25%;
   left: -25%;
   background: linear-gradient(to bottom, rgba(209, 112, 60, 0), rgba(255, 255, 255, 0.2) 50%, rgba(209, 112, 60, 0));
-  transform: rotateZ(90deg) translate(0, 100%);
+  transform: rotateZ(90deg) translate(0, 150%);
   animation: sheen 7s .1s forwards;
   animation-delay: 1s;
   animation-iteration-count:infinite;
 }
 @keyframes sheen {
-  10% {
-    transform: rotateZ(90deg) translate(0, -100%)
+  20% {
+    transform: rotateZ(90deg) translate(0, -150%)
   }
   100% {
-    transform: rotateZ(90deg) translate(0, -100%)
+    transform: rotateZ(90deg) translate(0, -150%)
   }
 }/* The animation code */
 .important > a > .tool-header{
