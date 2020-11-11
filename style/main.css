@@ -316,7 +316,8 @@ div.min-width {
   box-shadow: 7px 7px 7px rgba(0,0,0,0.5);
 }
 .important{
-  background-color: #5F2F17;
+  background-color: #9DB2C6;
+  color: #5F2F17;
 }
 .shiny{
   position: relative;
@@ -329,7 +330,7 @@ div.min-width {
   right: -25%;
   bottom: -25%;
   left: -25%;
-  background: linear-gradient(to bottom, rgba(209, 112, 60, 0), rgba(255, 255, 255, 0.2) 50%, rgba(209, 112, 60, 0));
+  background: linear-gradient(to bottom, rgba(209, 112, 60, 0), rgba(219, 210, 130, 0.2) 50%, rgba(209, 112, 60, 0));
   transform: rotateZ(90deg) translate(0, 150%);
   animation: sheen 7s .1s forwards;
   animation-delay: 1s;
@@ -347,7 +348,7 @@ div.min-width {
   color: inherit;
 }
 .important > a > .tool-description{
-  color: white;
+  color: inherit;
 }
 .tool-header {
   color: #DBD282;
