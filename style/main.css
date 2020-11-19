@@ -283,7 +283,7 @@ div.min-width {
 }
 .card-subtitle {
   font-style: italic;
-  text-align: right;
+  text-align: left;
 }
 .tools {
   margin: 5vh 0;
