@@ -10,13 +10,14 @@
   <script src="https://apis.google.com/js/platform.js" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
   <meta name="google-signin-client_id" content="115789183473-o3tfpd9msrldlnjtuvrlfaql70u2a9vr.apps.googleusercontent.com">
+  <meta name="google-signin-scope" content="profile email https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/calendar.events">
 </head>
 
 <body>
   <section id="signed-out">
     <div id="main-holder">
       <div id="prompt">Please use the button below to sign in:</div>
-      <div id="google-btn" class="g-signin2" data-onsuccess="onSignIn"></div>
+      <div id="google-btn" class="g-signin2"></div>
     </div>
   </section>
   <section id="signed-in">
