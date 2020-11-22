@@ -1,0 +1,57 @@
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #efefef;
+}
+p {
+  margin: 0;
+}
+#prompt {
+  margin: 1vh;
+  text-align: center;
+}
+.g-signin2{
+  margin: auto;
+}
+#signed-out {
+  height: 100vh;
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  background-color: #3a3a3a;
+}
+#signed-in {
+  display: none;
+}
+#main-holder {
+  width: 30vh;
+  height: 30vh;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  background-color: white;
+  border-radius: 7px;
+  box-shadow: 0px 0px 5px 2px black;
+}
+.user {
+  margin: 2vh;
+  text-align: right;
+}
+#userimage {
+  position: relative;
+  top: .75em;
+  margin-top: -1em;
+  width: 2em;
+  line-height: 0;
+}
+#access-response {
+  margin-left: 2vh;
+}

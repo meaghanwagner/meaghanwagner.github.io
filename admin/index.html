@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="scripts.js"></script>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <script src="https://apis.google.com/js/api.js"></script>
+  <meta name="google-signin-client_id" content="443677043015-a1r5i4bu26s2vdq6kp7ksh1vb88mj1d8.apps.googleusercontent.com">
+</head>
+
+<body>
+  <section id="signed-out">
+    <div id="main-holder">
+      <div id="prompt">Please use the button below to sign in:</div>
+      <div class="g-signin2" data-onsuccess="onSignIn"></div>
+    </div>
+  </section>
+  <section id="signed-in">
+    <p class="user"><img id="userimage" src="https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png" alt="user profile image"/> <span id="username">Not Signed In</span><br/><a class="signout" href="#" onclick="signOut();">Sign out</a></p>
+    <div id="access-response">Not checked
+      <!-- Remove this once you have the calendar access worked out -->
+      <button onclick="authenticate().then(loadClient)">authorize and load</button>
+      <button onclick="execute()">execute</button>
+    </div>
+  </section>
+</body>
+
+</html>
