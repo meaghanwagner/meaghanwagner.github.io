@@ -41,9 +41,10 @@ function checkAllowed(email_address){
   }
   xhr.send('email_address=' + email_address + '&id_token=' + window.id_token);
 }
+/* Pull data from spreadsheet */
 function loadSpreadSheetData(){
   var xhr = new XMLHttpRequest();
-  xhr.open('POST', 'https://gardenlifegame.com/megs_php/checkemail.php');
+  xhr.open('POST', 'https://gardenlifegame.com/megs_php/readsheets.php');
   xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   xhr.onload = function() {
       document.getElementById('spreadsheet-data').innerHTML = xhr.responseText.substring(2);
@@ -62,33 +63,3 @@ function signOut() {
   document.getElementById('access-response').innerHTML = "Access not checked";
   window.id_token = "";
 }
-
-/*
-Calendar Authentication
-*/
-function authenticate() {
-  return gapi.auth2.getAuthInstance()
-      .signIn({scope: "https://www.googleapis.com/auth/calendar"})
-      .then(function() { console.log("Sign-in successful"); },
-            function(err) { console.error("Error signing in", err); });
-}
-function loadClient() {
-  return gapi.client.load("https://content.googleapis.com/discovery/v1/apis/calendar/v3/rest")
-      .then(function() { console.log("GAPI client loaded for API"); },
-            function(err) { console.error("Error loading GAPI client for API", err); });
-}
-// Make sure the client is loaded and sign-in is complete before calling this method.
-function execute() {
-  return gapi.client.calendar.acl.list({
-    "calendarId": "dpue6nf78ovmrqksfdvv4g9vo8@group.calendar.google.com",
-    "showDeleted": false
-  })
-      .then(function(response) {
-              // Handle the results here (response.result has the parsed body).
-              console.log("Response", response);
-            },
-            function(err) { console.error("Execute error", err); });
-}
-gapi.load("client:auth2", function() {
-  gapi.auth2.init({client_id: "115789183473-o3tfpd9msrldlnjtuvrlfaql70u2a9vr.apps.googleusercontent.com"});
-});
