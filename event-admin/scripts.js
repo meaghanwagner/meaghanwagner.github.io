@@ -1,16 +1,21 @@
+var id_token;
 function renderButton() {
   gapi.signin2.render('google-btn', {
     'scope': 'profile email https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/calendar.events',
     'width': 240,
     'height': 50,
     'longtitle': true,
-    'theme': 'dark'
+    'theme': 'dark',
+    'onsuccess': onSuccess,
+    'onfailure': onFailure
   });
 }/*
 Login authentication
 */
-var id_token;
-function onSignIn(googleUser) {
+function onFailure(error) {
+  console.log(error);
+}
+function onSuccess(googleUser) {
   window.googleUser = googleUser;
   var id_token = googleUser.getAuthResponse().id_token;
   var xhr = new XMLHttpRequest();
