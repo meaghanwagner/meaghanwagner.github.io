@@ -39,8 +39,7 @@ function checkAllowed(email_address){
       document.getElementById('access-response').innerHTML = "Access Denied for " + email_address;
     }
   }
-  xhr.send('email_address=' + email_address);
-  xhr.send('id_token=' + window.id_token);
+  xhr.send('email_address=' + email_address + '&id_token=' + window.id_token);
 }
 function loadSpreadSheetData(){
   var xhr = new XMLHttpRequest();
