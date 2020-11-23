@@ -29,6 +29,7 @@ function initClient() {
   xhr.open('GET', 'https://gardenlifegame.com/megs_php/getcreds.php');
   xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   xhr.onload = function() {
+    console.log(xhr.responseText);
     if(xhr.responseText.startsWith("0")){
       var creds = JSON.parse(xhr.responseText.substring(2));
       API_KEY = creds.developer_key;
@@ -52,9 +53,8 @@ function initClient() {
     } else {
       console.log(xhr.responseText);
       document.getElementById('prompt').innerHTML = "Could not sign in, please try again."
-    }{
-
     }
+    xhr.send();
   }
 }
 
