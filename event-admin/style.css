@@ -13,8 +13,12 @@ p {
   margin: 0;
 }
 #prompt {
-  margin: 1vh;
+  margin: 5vh 1vh 1vh 1vh;
   text-align: center;
+}
+#authorize_button {
+  margin: 1vh 1vh 5vh 1vh;
+  padding: 10px;
 }
 .g-signin2{
   margin: auto;
@@ -52,6 +56,6 @@ p {
   width: 2em;
   line-height: 0;
 }
-#access-response {
-  margin-left: 2vh;
+#content {
+  margin: 0 2vh;
 }

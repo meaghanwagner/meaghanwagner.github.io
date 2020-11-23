@@ -118,15 +118,24 @@ function displaySheetsData() {
       window.defaultFieldValues = range.values;
       appendContent(contentElement, 'H2', 'Create New Event');
       eventTypeSelect = appendContent(contentElement, 'SELECT', '');
+      eventTypeSelect.id = "event-type-select";
       for (i = 0; i < range.values.length; i++) {
         var row = range.values[i];
         optionElement = appendContent(eventTypeSelect, 'OPTION', row[0]);
         optionElement.value = i;
       }
+      lastOptionElement = appendContent(eventTypeSelect, 'OPTION', "Add new Event Type...");
+      lastOptionElement.value = range.values.length;
+      eventTypeSelect.addEventListener("change", eventTypeChanged);
     } else {
       appendContent(contentElement, 'P', 'No data found.');
     }
   }, function(response) {
     appendContent(contentElement, 'P', 'Error: ' + response.result.error.message);
   });
+}
+function eventTypeChanged(){
+  var eventTypeSelect = document.getElementById('event-type-select');
+  var row = defaultFieldValues[eventTypeSelect.value]
+  console.log("Selected " + row[0]);
 }
