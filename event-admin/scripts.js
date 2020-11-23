@@ -109,7 +109,6 @@ function appendContent(parentElement, elementType, text) {
  * https://docs.google.com/spreadsheets/d/1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E/edit
  */
 function displaySheetsData() {
-  append
   gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: '1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E',
     range: 'event-types!A2:F',
