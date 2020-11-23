@@ -13,6 +13,9 @@ var authorizeButton = document.getElementById('authorize_button');
 var signoutButton = document.getElementById('signout_button');
 var signedinElement = document.getElementById('signed-in');
 var signedoutElement = document.getElementById('signed-out');
+var contentElement = document.getElementById('content');
+
+var defaultFieldValues = [];
 /**
  *  On load, called to load the auth2 library and API client library.
  */
@@ -65,12 +68,11 @@ function updateSigninStatus(isSignedIn) {
   if (isSignedIn) {
     signedoutElement.style.display = 'none';
     signedinElement.style.display = 'block';
-
-    getData();
+    displaySheetsData();
   } else {
     signedoutElement.style.display = 'grid';
     signedinElement.style.display = 'none';
-    document.getElementById('content').innerHTML = '';
+    contentElement.innerHTML = '';
   }
 }
 
@@ -92,35 +94,40 @@ function handleSignoutClick(event) {
  * Append a pre element to the body containing the given message
  * as its text node. Used to display the results of the API call.
  *
- * @param {string} message Text to be placed in pre element.
+ * @param {string} text Text to be placed in element element.
+ * @param {string} elementType Type of element to add.
  */
-function appendPre(message) {
-  var pre = document.getElementById('content');
-  var textContent = document.createTextNode(message + '\n');
-  pre.appendChild(textContent);
+function appendContent(parentElement, elementType, text) {
+  var newElement = document.createElement(elementType);
+  var textContent = document.createTextNode(text);
+  newElement.appendChild(textContent);
+  parentElement.appendChild(newElement);
+  return newElement;
 }
 
 /**
- * Print the names and majors of students in a sample spreadsheet:
- * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+ * Loads data from this spreadsheet:
+ * https://docs.google.com/spreadsheets/d/1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E/edit
  */
-function getData() {
+function displaySheetsData() {
+  append
   gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: '1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E',
     range: 'event-types!A2:F',
   }).then(function(response) {
-    var range = response.result;
-    if (range.values.length > 0) {
-      appendPre('Event Name, Run Time, Description Max Attendees, Zoom Link, Cost:');
+      var range = response.result;
+      window.defaultFieldValues = range.values;
+      appendContent(contentElement, 'H2', 'Create New Event');
+      eventTypeSelect = appendContent(contentElement, 'SELECT', '');
       for (i = 0; i < range.values.length; i++) {
         var row = range.values[i];
-        // Print columns A and E, which correspond to indices 0 and 4.
-        appendPre(row[0] + ', ' + row[1] + ', ' + row[2] + ', ' + row[3] + ', ' + row[4] + ', ' + row[5]);
+        optionElement = appendContent(eventTypeSelect, 'OPTION', row[0]);
+        optionElement.value = i;
       }
     } else {
-      appendPre('No data found.');
+      appendContent(contentElement, 'P', 'No data found.');
     }
   }, function(response) {
-    appendPre('Error: ' + response.result.error.message);
+    appendContent(contentElement, 'P', 'Error: ' + response.result.error.message);
   });
 }
