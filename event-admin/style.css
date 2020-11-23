@@ -12,13 +12,15 @@ body {
 p {
   margin: 0;
 }
+button, input, select, option {
+  padding: 10px;
+}
 #prompt {
   margin: 5vh 1vh 1vh 1vh;
   text-align: center;
 }
 #authorize_button {
   margin: 1vh 1vh 5vh 1vh;
-  padding: 10px;
 }
 .g-signin2{
   margin: auto;

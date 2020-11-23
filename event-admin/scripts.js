@@ -124,7 +124,7 @@ function displaySheetsData() {
         optionElement = appendContent(eventTypeSelect, 'OPTION', row[0]);
         optionElement.value = i;
       }
-      lastOptionElement = appendContent(eventTypeSelect, 'OPTION', "Add new Event Type...");
+      lastOptionElement = appendContent(eventTypeSelect, 'OPTION', "Add New Event Type...");
       lastOptionElement.value = range.values.length;
       eventTypeSelect.addEventListener("change", eventTypeChanged);
     } else {
@@ -136,6 +136,10 @@ function displaySheetsData() {
 }
 function eventTypeChanged(){
   var eventTypeSelect = document.getElementById('event-type-select');
-  var row = defaultFieldValues[eventTypeSelect.value]
-  console.log("Selected " + row[0]);
+  if(eventTypeSelect.value < defaultFieldValues.length){
+    var row = defaultFieldValues[eventTypeSelect.value]
+    console.log("Selected " + row[0]);
+  } else if (eventTypeSelect.value == defaultFieldValues.length){
+    console.log("Selected Add New Event Type...");
+  }
 }
