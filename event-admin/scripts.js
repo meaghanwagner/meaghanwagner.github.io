@@ -23,7 +23,6 @@ function handleClientLoad() {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', 'https://gardenlifegame.com/megs_php/getcreds.php');
   xhr.onload = function() {
-    console.log(xhr.responseText);
     if(xhr.responseText.startsWith("0")){
       var creds = JSON.parse(xhr.responseText.substring(2));
       window.API_KEY = creds.developer_key;
@@ -31,7 +30,7 @@ function handleClientLoad() {
       gapi.load('client:auth2', initClient);
     } else {
       console.log(xhr.responseText);
-      document.getElementById('prompt').innerHTML = "Could not sign in, please try again."
+      document.getElementById('prompt').innerHTML = "Could not sign in, please try again. If the problem persists, please contact the developer."
     }
   }
   xhr.send();
