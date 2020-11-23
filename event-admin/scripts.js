@@ -1,77 +1,109 @@
-var id_token;
-function renderButton() {
-  gapi.signin2.render('google-btn', {
-    'width': 240,
-    'height': 50,
-    'longtitle': true,
-    'theme': 'dark',
-    'onsuccess': onSuccess,
-    'onfailure': onFailure
+/* google sheets stuff*/
+var CLIENT_ID = '115789183473-hdf1e0jtu9koi3rbeej60rmjc6o9gf1d.apps.googleusercontent.com';
+var API_KEY = 'AIzaSyAMzcW1qV1rnJp3MW_B7uTrBlu3mK1ZnxQ';
+
+// Array of API discovery doc URLs for APIs used by the quickstart
+var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"];
+
+// Authorization scopes required by the API; multiple scopes can be
+// included, separated by spaces.
+var SCOPES = "profile email https://www.googleapis.com/auth/spreadsheets";
+
+var authorizeButton = document.getElementById('authorize_button');
+var signoutButton = document.getElementById('signout_button');
+
+/**
+ *  On load, called to load the auth2 library and API client library.
+ */
+function handleClientLoad() {
+  gapi.load('client:auth2', initClient);
+}
+
+/**
+ *  Initializes the API client library and sets up sign-in state
+ *  listeners.
+ */
+function initClient() {
+  gapi.client.init({
+    apiKey: API_KEY,
+    clientId: CLIENT_ID,
+    discoveryDocs: DISCOVERY_DOCS,
+    scope: SCOPES
+  }).then(function () {
+    // Listen for sign-in state changes.
+    gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+    // Handle the initial sign-in state.
+    updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+    authorizeButton.onclick = handleAuthClick;
+    signoutButton.onclick = handleSignoutClick;
+  }, function(error) {
+    appendPre(JSON.stringify(error, null, 2));
   });
-}/*
-Login authentication
-*/
-function onFailure(error) {
-  console.log(error);
 }
-function onSuccess(googleUser) {
-  window.googleUser = googleUser;
-  var id_token = googleUser.getAuthResponse().id_token;
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', 'https://gardenlifegame.com/megs_php/tokensignin.php');
-  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-  xhr.onload = function() {
-    if(xhr.responseText.startsWith("0")){
-      console.log('Signed in as: ' + xhr.responseText);
-      var profile = googleUser.getBasicProfile();
-      document.getElementById('username').innerHTML = profile.getName();
-      document.getElementById('userimage').src = profile.getImageUrl();
-      document.getElementById('signed-in').style.display = "block";
-      document.getElementById('signed-out').style.display = "none";
-      checkAllowed(profile.getEmail());
-    }
-    else
-    {
-      document.getElementById('prompt').innerHTML = "Could not verify login, please try again. If the problem persists, please contact the developer.";
-    }
-  };
-  window.id_token = id_token;
-  xhr.send('id_token=' + id_token);
-}
-/* Check email allowed */
-function checkAllowed(email_address){
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', 'https://gardenlifegame.com/megs_php/checkemail.php');
-  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-  xhr.onload = function() {
-    if(xhr.responseText.startsWith("0")){
-      document.getElementById('access-response').innerHTML = xhr.responseText.substring(2);
-      loadSpreadSheetData();
-    } else {
-      document.getElementById('access-response').innerHTML = "Access Denied for " + email_address;
-    }
+
+/**
+ *  Called when the signed in status changes, to update the UI
+ *  appropriately. After a sign-in, the API is called.
+ */
+function updateSigninStatus(isSignedIn) {
+  if (isSignedIn) {
+    authorizeButton.style.display = 'none';
+    signoutButton.style.display = 'block';
+    listMajors();
+  } else {
+    authorizeButton.style.display = 'block';
+    signoutButton.style.display = 'none';
   }
-  xhr.send('email_address=' + email_address + '&id_token=' + window.id_token);
 }
-/* Pull data from spreadsheet */
-function loadSpreadSheetData(){
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', 'https://gardenlifegame.com/megs_php/readsheets.php');
-  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-  xhr.onload = function() {
-      document.getElementById('spreadsheet-data').innerHTML = xhr.responseText.substring(2);
-  };
-  xhr.send('id_token=' + window.id_token);
+
+/**
+ *  Sign in the user upon button click.
+ */
+function handleAuthClick(event) {
+  gapi.auth2.getAuthInstance().signIn();
 }
-/* Sign out of Google*/
-function signOut() {
-  window.googleUser = null;
-  var auth2 = gapi.auth2.getAuthInstance();
-  auth2.signOut().then(function () {
-    console.log('User signed out.');
+
+/**
+ *  Sign out the user upon button click.
+ */
+function handleSignoutClick(event) {
+  gapi.auth2.getAuthInstance().signOut();
+}
+
+/**
+ * Append a pre element to the body containing the given message
+ * as its text node. Used to display the results of the API call.
+ *
+ * @param {string} message Text to be placed in pre element.
+ */
+function appendPre(message) {
+  var pre = document.getElementById('content');
+  var textContent = document.createTextNode(message + '\n');
+  pre.appendChild(textContent);
+}
+
+/**
+ * Print the names and majors of students in a sample spreadsheet:
+ * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+ */
+function listMajors() {
+  gapi.client.sheets.spreadsheets.values.get({
+    spreadsheetId: '1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E',
+    range: 'event-types!A2:F',
+  }).then(function(response) {
+    var range = response.result;
+    if (range.values.length > 0) {
+      appendPre('Name, Major:');
+      for (i = 0; i < range.values.length; i++) {
+        var row = range.values[i];
+        // Print columns A and E, which correspond to indices 0 and 4.
+        appendPre(row[0] + ', ' + row[4]);
+      }
+    } else {
+      appendPre('No data found.');
+    }
+  }, function(response) {
+    appendPre('Error: ' + response.result.error.message);
   });
-  document.getElementById('signed-in').style.display = "none";
-  document.getElementById('signed-out').style.display = "grid";
-  document.getElementById('access-response').innerHTML = "Access not checked";
-  window.id_token = "";
 }
