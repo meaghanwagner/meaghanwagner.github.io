@@ -28,8 +28,7 @@ function handleClientLoad() {
 function initClient() {
   console.log("initClient worked");
   var xhr = new XMLHttpRequest();
-  xhr.open('POST', 'https://gardenlifegame.com/megs_php/getcreds.php');
-  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  xhr.open('GET', 'https://gardenlifegame.com/megs_php/getcreds.php');
   xhr.onload = function() {
     console.log(xhr.responseText);
     if(xhr.responseText.startsWith("0")){
