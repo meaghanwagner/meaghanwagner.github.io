@@ -1,3 +1,4 @@
+@import '../style/fonts.css';
 
 html {
   height: 100%;
@@ -6,7 +7,7 @@ html {
 body {
   height: 100%;
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: kepler-std, serif;
   background-color: #efefef;
 }
 p {

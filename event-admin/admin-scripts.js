@@ -65,9 +65,12 @@ function initClient() {
  */
 function updateSigninStatus(isSignedIn) {
   if (isSignedIn) {
+    displaySheetsData();
+    var profile = auth2.currentUser.get().getBasicProfile();
+    document.getElementById('username').innerHTML = profile.getName();
+    document.getElementById('userimage').src = profile.getImageUrl();
     signedoutElement.style.display = 'none';
     signedinElement.style.display = 'block';
-    displaySheetsData();
   } else {
     signedoutElement.style.display = 'grid';
     signedinElement.style.display = 'none';
@@ -109,8 +112,9 @@ function appendContent(parentElement, elementType, text) {
  * https://docs.google.com/spreadsheets/d/1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E/edit
  */
 function displaySheetsData() {
+  var sheetID = '1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E'
   gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId: '1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E',
+    spreadsheetId: sheetID,
     range: 'event-types!A2:F',
   }).then(function(response) {
     var range = response.result;
@@ -128,7 +132,7 @@ function displaySheetsData() {
       lastOptionElement.value = range.values.length;
       eventTypeSelect.addEventListener("change", eventTypeChanged);
     } else {
-      appendContent(contentElement, 'P', 'No data found.');
+      appendContent(contentElement, 'P', 'No data found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit">event-types sheet</a>.');
     }
   }, function(response) {
     appendContent(contentElement, 'P', 'Error: ' + response.result.error.message);
