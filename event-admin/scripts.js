@@ -113,8 +113,8 @@ function displaySheetsData() {
     spreadsheetId: '1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E',
     range: 'event-types!A2:F',
   }).then(function(response) {
+    var range = response.result;
     if (range.values.length > 0) {
-      var range = response.result;
       window.defaultFieldValues = range.values;
       appendContent(contentElement, 'H2', 'Create New Event');
       eventTypeSelect = appendContent(contentElement, 'SELECT', '');
