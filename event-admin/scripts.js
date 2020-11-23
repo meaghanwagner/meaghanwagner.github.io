@@ -26,7 +26,7 @@ function handleClientLoad() {
  */
 function initClient() {
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', 'https://gardenlifegame.com/megs_php/getcreds.php');
+  xhr.open('POST', 'https://gardenlifegame.com/megs_php/getcreds.php');
   xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   xhr.onload = function() {
     console.log(xhr.responseText);
