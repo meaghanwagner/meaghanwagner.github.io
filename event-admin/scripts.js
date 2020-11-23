@@ -18,6 +18,7 @@ var signedoutElement = document.getElementById('signed-out');
  */
 function handleClientLoad() {
   gapi.load('client:auth2', initClient);
+  console.log("handleClientLoad worked");
 }
 
 /**
@@ -25,6 +26,7 @@ function handleClientLoad() {
  *  listeners.
  */
 function initClient() {
+  console.log("initClient worked");
   var xhr = new XMLHttpRequest();
   xhr.open('POST', 'https://gardenlifegame.com/megs_php/getcreds.php');
   xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
