@@ -10,12 +10,17 @@
 </head>
 
 <body>
-  <div id="spreadsheet-data">
-    <button id="authorize_button" style="display: none;">Authorize</button>
-    <button id="signout_button" style="display: none;">Sign Out</button>
-    <pre id="content" style="white-space: pre-wrap;"></pre>
-  </div>
+  <section id="signed-out">
+    <div id="main-holder">
+      <div id="prompt">Please use the button below to sign in:</div>
+      <button id="authorize_button" style="display: none;">Sign In</button>
+    </div>
   </section>
+  <section id="signed-in">
+     <p class="user"><img id="userimage" src="" alt="user profile image"/> <span id="username">Not Signed In</span><br/><button id="signout_button" style="display: none;">Sign Out</button>
+     </p>
+     <pre id="content" style="white-space: pre-wrap;"></pre>
+   </section>
   <script async defer src="https://apis.google.com/js/api.js" onload="this.onload=function(){};handleClientLoad()" onreadystatechange="if (this.readyState === 'complete') this.onload()">
   </script>
 </body>

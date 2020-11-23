@@ -1,6 +1,6 @@
 /* google sheets stuff*/
-var CLIENT_ID = '115789183473-hdf1e0jtu9koi3rbeej60rmjc6o9gf1d.apps.googleusercontent.com';
-var API_KEY = 'AIzaSyAMzcW1qV1rnJp3MW_B7uTrBlu3mK1ZnxQ';
+var CLIENT_ID = 'not set';
+var API_KEY = 'not set';
 
 // Array of API discovery doc URLs for APIs used by the quickstart
 var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"];
@@ -11,7 +11,8 @@ var SCOPES = "profile email https://www.googleapis.com/auth/spreadsheets";
 
 var authorizeButton = document.getElementById('authorize_button');
 var signoutButton = document.getElementById('signout_button');
-
+var signedinElement = document.getElementById('signed-in');
+var signedoutElement = document.getElementById('signed-out');
 /**
  *  On load, called to load the auth2 library and API client library.
  */
@@ -24,22 +25,37 @@ function handleClientLoad() {
  *  listeners.
  */
 function initClient() {
-  gapi.client.init({
-    apiKey: API_KEY,
-    clientId: CLIENT_ID,
-    discoveryDocs: DISCOVERY_DOCS,
-    scope: SCOPES
-  }).then(function () {
-    // Listen for sign-in state changes.
-    gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'https://gardenlifegame.com/megs_php/getcrads.php');
+  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  xhr.onload = function() {
+    if(xhr.responseText.startsWith("0")){
+      var creds = JSON.parse(xhr.responseText.substring(2));
+      API_KEY = creds.developer_key;
+      CLIENT_ID = creds.client_id;
+      gapi.client.init({
+        apiKey: API_KEY,
+        clientId: CLIENT_ID,
+        discoveryDocs: DISCOVERY_DOCS,
+        scope: SCOPES
+      }).then(function () {
+        // Listen for sign-in state changes.
+        gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
 
-    // Handle the initial sign-in state.
-    updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-    authorizeButton.onclick = handleAuthClick;
-    signoutButton.onclick = handleSignoutClick;
-  }, function(error) {
-    appendPre(JSON.stringify(error, null, 2));
-  });
+        // Handle the initial sign-in state.
+        updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+        authorizeButton.onclick = handleAuthClick;
+        signoutButton.onclick = handleSignoutClick;
+      }, function(error) {
+        appendPre(JSON.stringify(error, null, 2));
+      });
+    } else {
+      console.log(xhr.responseText);
+      document.getElementById('prompt').innerHTML = "Could not sign in, please try again."
+    }{
+
+    }
+  }
 }
 
 /**
@@ -48,12 +64,13 @@ function initClient() {
  */
 function updateSigninStatus(isSignedIn) {
   if (isSignedIn) {
-    authorizeButton.style.display = 'none';
-    signoutButton.style.display = 'block';
-    listMajors();
+    signedoutElement.style.display = 'none';
+    signedinElement.style.display = 'block';
+    getData();
   } else {
-    authorizeButton.style.display = 'block';
-    signoutButton.style.display = 'none';
+    signedoutElement.style.display = 'block';
+    signedinElement.style.display = 'none';
+    document.getElementById('content').innerHTML = '';
   }
 }
 
@@ -87,7 +104,7 @@ function appendPre(message) {
  * Print the names and majors of students in a sample spreadsheet:
  * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
  */
-function listMajors() {
+function getData() {
   gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: '1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E',
     range: 'event-types!A2:F',
