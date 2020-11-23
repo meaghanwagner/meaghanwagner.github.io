@@ -65,9 +65,10 @@ function updateSigninStatus(isSignedIn) {
   if (isSignedIn) {
     signedoutElement.style.display = 'none';
     signedinElement.style.display = 'block';
+
     getData();
   } else {
-    signedoutElement.style.display = 'block';
+    signedoutElement.style.display = 'grid';
     signedinElement.style.display = 'none';
     document.getElementById('content').innerHTML = '';
   }
@@ -110,11 +111,11 @@ function getData() {
   }).then(function(response) {
     var range = response.result;
     if (range.values.length > 0) {
-      appendPre('Name, Major:');
+      appendPre('Event Name, Run Time, Description Max Attendees, Zoom Link, Cost:');
       for (i = 0; i < range.values.length; i++) {
         var row = range.values[i];
         // Print columns A and E, which correspond to indices 0 and 4.
-        appendPre(row[0] + ', ' + row[4]);
+        appendPre(row[0] + ', ' + row[1] + ', ' + row[2] + ', ' + row[3] + ', ' + row[4] + ', ' + row[5]);
       }
     } else {
       appendPre('No data found.');
