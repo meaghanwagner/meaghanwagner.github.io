@@ -17,8 +17,21 @@ var signedoutElement = document.getElementById('signed-out');
  *  On load, called to load the auth2 library and API client library.
  */
 function handleClientLoad() {
-  gapi.load('client:auth2', initClient);
-  console.log("handleClientLoad worked");
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'https://gardenlifegame.com/megs_php/getcreds.php');
+  xhr.onload = function() {
+    console.log(xhr.responseText);
+    if(xhr.responseText.startsWith("0")){
+      var creds = JSON.parse(xhr.responseText.substring(2));
+      window.API_KEY = creds.developer_key;
+      window.CLIENT_ID = creds.client_id;
+      gapi.load('client:auth2', initClient);
+    } else {
+      console.log(xhr.responseText);
+      document.getElementById('prompt').innerHTML = "Could not sign in, please try again."
+    }
+  }
+  xhr.send();
 }
 
 /**
@@ -26,37 +39,22 @@ function handleClientLoad() {
  *  listeners.
  */
 function initClient() {
-  console.log("initClient worked");
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', 'https://gardenlifegame.com/megs_php/getcreds.php');
-  xhr.onload = function() {
-    console.log(xhr.responseText);
-    if(xhr.responseText.startsWith("0")){
-      var creds = JSON.parse(xhr.responseText.substring(2));
-      API_KEY = creds.developer_key;
-      CLIENT_ID = creds.client_id;
-      gapi.client.init({
-        apiKey: API_KEY,
-        clientId: CLIENT_ID,
-        discoveryDocs: DISCOVERY_DOCS,
-        scope: SCOPES
-      }).then(function () {
-        // Listen for sign-in state changes.
-        gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+  gapi.client.init({
+    apiKey: API_KEY,
+    clientId: CLIENT_ID,
+    discoveryDocs: DISCOVERY_DOCS,
+    scope: SCOPES
+  }).then(function () {
+    // Listen for sign-in state changes.
+    gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
 
-        // Handle the initial sign-in state.
-        updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-        authorizeButton.onclick = handleAuthClick;
-        signoutButton.onclick = handleSignoutClick;
-      }, function(error) {
-        appendPre(JSON.stringify(error, null, 2));
-      });
-    } else {
-      console.log(xhr.responseText);
-      document.getElementById('prompt').innerHTML = "Could not sign in, please try again."
-    }
-    xhr.send();
-  }
+    // Handle the initial sign-in state.
+    updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+    authorizeButton.onclick = handleAuthClick;
+    signoutButton.onclick = handleSignoutClick;
+  }, function(error) {
+    appendPre(JSON.stringify(error, null, 2));
+  });
 }
 
 /**
