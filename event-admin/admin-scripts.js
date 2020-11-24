@@ -1,4 +1,6 @@
 /* google sheets stuff*/
+
+//window.onload = addFields;
 var CLIENT_ID = 'not set';
 var API_KEY = 'not set';
 
@@ -99,10 +101,12 @@ function handleSignoutClick(event) {
  * @param {string} text Text to be placed in element element.
  * @param {string} elementType Type of element to add.
  */
-function appendContent(parentElement, elementType, text) {
+function appendContent(parentElement, elementType, text = '') {
   var newElement = document.createElement(elementType);
-  var textContent = document.createTextNode(text);
-  newElement.appendChild(textContent);
+  if(text != ''){
+    var textContent = document.createTextNode(text);
+    newElement.appendChild(textContent);
+  }
   parentElement.appendChild(newElement);
   return newElement;
 }
@@ -111,6 +115,93 @@ function appendContent(parentElement, elementType, text) {
  * Loads data from this spreadsheet:
  * https://docs.google.com/spreadsheets/d/1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E/edit
  */
+function addFields(){
+  // add form
+  formWrapper = appendContent(contentElement, 'FORM');
+  formWrapper.id = "create-event-form";
+  formWrapper.onkeypress = function(e) {
+    var key = e.charCode || e.keyCode || 0;
+    if (key == 13) {
+      e.preventDefault();
+    }
+  }
+  // add fieldset
+  fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
+  // add legend
+  appendContent(fieldSetWrapper, 'LEGEND', 'Create New Event')
+  // add container div
+  contentHolder = appendContent(fieldSetWrapper, 'div')
+  contentHolder.id = 'content-holder'
+  // add Event Type
+  eventTypeLabel = appendContent(contentHolder, "label", 'Event Type:');
+  eventTypeLabel.for = "event-type-select";
+  appendContent(contentHolder, 'br');
+  eventTypeSelect = appendContent(contentHolder, 'SELECT');
+  eventTypeSelect.addEventListener("change", eventTypeChanged);
+  eventTypeSelect.id = "event-type-select";
+  appendContent(contentHolder, 'br');
+  // Add Date
+  dateLabel = appendContent(contentHolder, "label", 'Date:');
+  dateLabel.for = "date-picker";
+  appendContent(contentHolder, 'br');
+  datePicker = appendContent(contentHolder, 'input');
+  datePicker.type = "date";
+  datePicker.id = "date-picker";
+  datePicker.min = getDate();
+  appendContent(contentHolder, 'br');
+  // Add Start Time
+  startTimeLabel = appendContent(contentHolder, "label", 'Start Time:');
+  startTimeLabel.for = "start-time";
+  appendContent(contentHolder, 'br');
+  startTimePicker = appendContent(contentHolder, 'input');
+  startTimePicker.type = "time";
+  startTimePicker.id = "start-time";
+  startTimePicker.step = "900"
+  startTimePicker.addEventListener("change", calculateEndTime)
+  appendContent(contentHolder, 'br');
+  // Add End Time
+  endTimeLabel = appendContent(contentHolder, "label", 'End Time:');
+  endTimeLabel.for = "end-time";
+  appendContent(contentHolder, 'br');
+  endTimePicker = appendContent(contentHolder, 'input');
+  endTimePicker.type = "time";
+  endTimePicker.id = "end-time";
+  endTimePicker.step = "900"
+  appendContent(contentHolder, 'br');
+  // Add Max Attendees
+  attendeesLabel = appendContent(contentHolder, "label", 'Max Attendees:');
+  attendeesLabel.for = "attendees-input";
+  appendContent(contentHolder, 'br');
+  attendeesInput = appendContent(contentHolder, 'input');
+  attendeesInput.type = "number";
+  attendeesInput.id = "attendees-input";
+  // add zoom link
+  linkLabel = appendContent(fieldSetWrapper, "label", 'Zoom Link:');
+  linkLabel.for = "link-input";
+  appendContent(fieldSetWrapper, 'br');
+  linkInput = appendContent(fieldSetWrapper, 'input');
+  linkInput.id = "link-input";
+  appendContent(contentHolder, 'br');
+  // add create button
+  createButton = appendContent(fieldSetWrapper, "button", 'Create Event')
+  createButton.id = "create-button";
+  return eventTypeSelect;
+}
+
+function getDate(){
+  var today = new Date();
+  var dd = today.getDate();
+  var mm = today.getMonth()+1;
+  var yyyy = today.getFullYear();
+  if(dd<10){
+    dd='0'+dd;
+  }
+  if(mm<10){
+    mm='0'+mm;
+  }
+  yyyymmdd = (yyyy +'-'+ mm + '-' + dd)
+  return yyyymmdd;
+}
 function displaySheetsData() {
   var sheetID = '1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E'
   gapi.client.sheets.spreadsheets.values.get({
@@ -120,9 +211,7 @@ function displaySheetsData() {
     var range = response.result;
     if (range.values.length > 0) {
       window.defaultFieldValues = range.values;
-      appendContent(contentElement, 'H2', 'Create New Event');
-      eventTypeSelect = appendContent(contentElement, 'SELECT', '');
-      eventTypeSelect.id = "event-type-select";
+      eventTypeSelect = addFields();
       for (i = 0; i < range.values.length; i++) {
         var row = range.values[i];
         optionElement = appendContent(eventTypeSelect, 'OPTION', row[0]);
@@ -130,7 +219,6 @@ function displaySheetsData() {
       }
       lastOptionElement = appendContent(eventTypeSelect, 'OPTION', "Add New Event Type...");
       lastOptionElement.value = range.values.length;
-      eventTypeSelect.addEventListener("change", eventTypeChanged);
     } else {
       appendContent(contentElement, 'P', 'No data found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit">event-types sheet</a>.');
     }
@@ -139,11 +227,24 @@ function displaySheetsData() {
   });
 }
 function eventTypeChanged(){
-  var eventTypeSelect = document.getElementById('event-type-select');
+  eventTypeSelect = document.getElementById("event-type-select");
+  eventTypeValue = eventTypeSelect.value;
+
+
   if(eventTypeSelect.value < defaultFieldValues.length){
-    var row = defaultFieldValues[eventTypeSelect.value]
+    var row = defaultFieldValues[eventTypeValue]
     console.log("Selected " + row[0]);
   } else if (eventTypeSelect.value == defaultFieldValues.length){
     console.log("Selected Add New Event Type...");
   }
+}
+function calculateEndTime(){
+  eventTypeSelect = document.getElementById("event-type-select");
+  eventTypeValue = eventTypeSelect.value;
+  startTimePicker = document.getElementById("start-time");
+  endTimePicker = document.getElementById("end-time");
+  var row = defaultFieldValues[eventTypeValue]
+  defaultDuration = parseInt(row[1]) * 60;
+  endTimePicker.value = startTimePicker.value + defaultDuration;
+  console.log(defaultDuration);
 }

@@ -12,33 +12,49 @@ body {
 }
 p {
   margin: 0;
+  font-size: 1.2rem;
 }
-button, input, select, option {
-  padding: 10px;
+button, select, input {
+  padding: 12px;
+  background-color: #9DB2C6;
+  border-radius: 5px;
+  border: none;
+}
+label {
+  font-size: 1.4rem;
+  line-height: 1.8;
+  font-weight: 700;
+  -webkit-column-break-before: always;
+	break-before: column;
+}
+legend{
+  font-weight: 700;
+  font-size: 2em;
+}
+#content-holder {
+  column-count: 5;
+}
+#link-input {
+  width: calc(100% - 24px);
 }
 #prompt {
-  margin: 5vh 1vh 1vh 1vh;
+  margin: 10vh 1vh 1vh 1vh;
   text-align: center;
 }
 #authorize_button {
-  margin: 1vh 1vh 5vh 1vh;
-}
-.g-signin2{
-  margin: auto;
+  margin: 1vh 1vh 10vh 1vh;
 }
 #signed-out {
   height: 100vh;
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
-  display: grid;
   justify-items: center;
   align-items: center;
   background-color: #3a3a3a;
 }
-#signed-in {
-  display: none;
-}
 #main-holder {
+  min-width: 15em;
+  min-height: 15em;
   width: 30vh;
   height: 30vh;
   display: grid;
@@ -47,10 +63,6 @@ button, input, select, option {
   background-color: white;
   border-radius: 7px;
   box-shadow: 0px 0px 5px 2px black;
-}
-.user {
-  margin: 2vh;
-  text-align: right;
 }
 #userimage {
   position: relative;
@@ -61,4 +73,20 @@ button, input, select, option {
 }
 #content {
   margin: 0 2vh;
+}
+#create-button {
+  margin-top: 1em;
+  background-color: #28262B;
+  color: #DBD282;
+  font-size: 1.3em;
+  font-weight: 700;
+  width:33%;
+  margin:1em 33%;
+}
+.g-signin2{
+  margin: auto;
+}
+.user {
+  margin: 2vh;
+  text-align: right;
 }
