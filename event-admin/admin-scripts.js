@@ -68,7 +68,7 @@ function initClient() {
 function updateSigninStatus(isSignedIn) {
   if (isSignedIn) {
     displaySheetsData();
-    var profile = gapi.auth2.currentUser.get().getBasicProfile();
+    var profile = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
     document.getElementById('username').innerHTML = profile.getName();
     document.getElementById('userimage').src = profile.getImageUrl();
     signedoutElement.style.display = 'none';
