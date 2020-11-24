@@ -244,7 +244,7 @@ function calculateEndTime(){
   startTimePicker = document.getElementById("start-time");
   endTimePicker = document.getElementById("end-time");
   var row = defaultFieldValues[eventTypeValue]
-  defaultDuration = timeFromMins(parseInt(row[1]) * 60);
+  defaultDuration = timeFromMins(parseInt(row[1]));
   endTimePicker.value = addTimes(startTimePicker.value, defaultDuration);
   console.log(defaultDuration);
 }
