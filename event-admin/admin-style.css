@@ -31,8 +31,12 @@ legend{
   font-weight: 700;
   font-size: 2em;
 }
+form{
+  max-width: 1180px;
+  margin: auto;
+}
 #content-holder {
-  column-count: 5;
+  display:flex;
 }
 #link-input {
   width: calc(100% - 24px);
@@ -74,14 +78,19 @@ legend{
 #content {
   margin: 0 2vh;
 }
-#create-button {
+#button-wrapper{
+  display: flex;
+}
+.form-item{
+  margin: 1em auto;
+}
+.form-button {
   margin-top: 1em;
   background-color: #28262B;
   color: #DBD282;
   font-size: 1.3em;
   font-weight: 700;
-  width:33%;
-  margin:1em 33%;
+  margin:1em auto;
 }
 .g-signin2{
   margin: auto;
@@ -89,4 +98,9 @@ legend{
 .user {
   margin: 2vh;
   text-align: right;
+}
+@media only screen and (max-width: 850px) {
+  #content-holder, #button-holder, .form-button {
+    display: block;
+  }
 }

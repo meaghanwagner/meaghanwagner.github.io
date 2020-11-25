@@ -1,6 +1,6 @@
-/* google sheets stuff*/
 
-//window.onload = addFields;
+// window.onload = addFields;
+/* google sheets parameters*/
 var CLIENT_ID = 'not set';
 var API_KEY = 'not set';
 
@@ -9,7 +9,7 @@ var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"
 
 // Authorization scopes required by the API; multiple scopes can be
 // included, separated by spaces.
-var SCOPES = "profile email https://www.googleapis.com/auth/spreadsheets";
+var SCOPES = "profile email https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/calendar.events";
 
 var authorizeButton = document.getElementById('authorize_button');
 var signoutButton = document.getElementById('signout_button');
@@ -19,7 +19,8 @@ var contentElement = document.getElementById('content');
 
 var defaultFieldValues = [];
 /**
- *  On load, called to load the auth2 library and API client library.
+ *  On load, called to load the auth2 library and API client library
+ *  as well as the credentials from php.
  */
 function handleClientLoad() {
   var xhr = new XMLHttpRequest();
@@ -95,11 +96,12 @@ function handleSignoutClick(event) {
 }
 
 /**
- * Append a pre element to the body containing the given message
- * as its text node. Used to display the results of the API call.
+ * Function that appends an element to an existing element with
+ * an optional text string as its text node.
  *
- * @param {string} text Text to be placed in element element.
+ * @param {Object} parentElement Object that will contain the object added.
  * @param {string} elementType Type of element to add.
+ * @param {string} text Text to be placed in element element. Default is empty.
  */
 function appendContent(parentElement, elementType, text = '') {
   var newElement = document.createElement(elementType);
@@ -110,11 +112,7 @@ function appendContent(parentElement, elementType, text = '') {
   parentElement.appendChild(newElement);
   return newElement;
 }
-
-/**
- * Loads data from this spreadsheet:
- * https://docs.google.com/spreadsheets/d/1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E/edit
- */
+// Function that adds fields to contentElement
 function addFields(){
   // add form
   formWrapper = appendContent(contentElement, 'FORM');
@@ -133,46 +131,52 @@ function addFields(){
   contentHolder = appendContent(fieldSetWrapper, 'div')
   contentHolder.id = 'content-holder'
   // add Event Type
-  eventTypeLabel = appendContent(contentHolder, "label", 'Event Type:');
+  eventTypeHolder = appendContent(contentHolder, 'div')
+  eventTypeHolder.className = "form-item";
+  eventTypeLabel = appendContent(eventTypeHolder, "label", 'Event Type:');
   eventTypeLabel.for = "event-type-select";
-  appendContent(contentHolder, 'br');
-  eventTypeSelect = appendContent(contentHolder, 'SELECT');
+  appendContent(eventTypeHolder, 'br');
+  eventTypeSelect = appendContent(eventTypeHolder, 'SELECT');
   eventTypeSelect.addEventListener("change", eventTypeChanged);
   eventTypeSelect.id = "event-type-select";
-  appendContent(contentHolder, 'br');
   // Add Date
-  dateLabel = appendContent(contentHolder, "label", 'Date:');
+  dateHolder = appendContent(contentHolder, 'div')
+  dateHolder.className = "form-item";
+  dateLabel = appendContent(dateHolder, "label", 'Date:');
   dateLabel.for = "date-picker";
-  appendContent(contentHolder, 'br');
-  datePicker = appendContent(contentHolder, 'input');
+  appendContent(dateHolder, 'br');
+  datePicker = appendContent(dateHolder, 'input');
   datePicker.type = "date";
   datePicker.id = "date-picker";
   datePicker.min = getDate();
-  appendContent(contentHolder, 'br');
   // Add Start Time
-  startTimeLabel = appendContent(contentHolder, "label", 'Start Time:');
+  startTimeHolder = appendContent(contentHolder, 'div')
+  startTimeHolder.className = "form-item";
+  startTimeLabel = appendContent(startTimeHolder, "label", 'Start Time:');
   startTimeLabel.for = "start-time";
-  appendContent(contentHolder, 'br');
-  startTimePicker = appendContent(contentHolder, 'input');
+  appendContent(startTimeHolder, 'br');
+  startTimePicker = appendContent(startTimeHolder, 'input');
   startTimePicker.type = "time";
   startTimePicker.id = "start-time";
   startTimePicker.step = "900"
   startTimePicker.addEventListener("change", calculateEndTime)
-  appendContent(contentHolder, 'br');
   // Add End Time
-  endTimeLabel = appendContent(contentHolder, "label", 'End Time:');
+  endTimeHolder = appendContent(contentHolder, 'div')
+  endTimeHolder.className = "form-item";
+  endTimeLabel = appendContent(endTimeHolder, "label", 'End Time:');
   endTimeLabel.for = "end-time";
-  appendContent(contentHolder, 'br');
-  endTimePicker = appendContent(contentHolder, 'input');
+  appendContent(endTimeHolder, 'br');
+  endTimePicker = appendContent(endTimeHolder, 'input');
   endTimePicker.type = "time";
   endTimePicker.id = "end-time";
   endTimePicker.step = "900"
-  appendContent(contentHolder, 'br');
   // Add Max Attendees
-  attendeesLabel = appendContent(contentHolder, "label", 'Max Attendees:');
+  attendeesHolder = appendContent(contentHolder, 'div')
+  attendeesHolder.className = "form-item";
+  attendeesLabel = appendContent(attendeesHolder, "label", 'Max Attendees:');
   attendeesLabel.for = "attendees-input";
-  appendContent(contentHolder, 'br');
-  attendeesInput = appendContent(contentHolder, 'input');
+  appendContent(attendeesHolder, 'br');
+  attendeesInput = appendContent(attendeesHolder, 'input');
   attendeesInput.type = "number";
   attendeesInput.id = "attendees-input";
   // add zoom link
@@ -181,13 +185,20 @@ function addFields(){
   appendContent(fieldSetWrapper, 'br');
   linkInput = appendContent(fieldSetWrapper, 'input');
   linkInput.id = "link-input";
-  appendContent(contentHolder, 'br');
-  // add create button
-  createButton = appendContent(fieldSetWrapper, "button", 'Create Event')
+  appendContent(fieldSetWrapper, 'br');
+  // add buttons
+  buttonWrapper = appendContent(fieldSetWrapper, "div")
+  buttonWrapper.id = "button-wrapper";
+  editButton = appendContent(buttonWrapper, "button", 'Edit Event Type')
+  editButton.id = "edit-type-button";
+  editButton.className = "form-button";
+  editButton.addEventListener("click", editEventType);
+  createButton = appendContent(buttonWrapper, "button", 'Create Event')
   createButton.id = "create-button";
+  createButton.className = "form-button";
   return eventTypeSelect;
 }
-
+// Function to get current data in yyyymmdd format
 function getDate(){
   var today = new Date();
   var dd = today.getDate();
@@ -202,6 +213,10 @@ function getDate(){
   yyyymmdd = (yyyy +'-'+ mm + '-' + dd)
   return yyyymmdd;
 }
+/**
+ * Function that loads data from this spreadsheet:
+ * https://docs.google.com/spreadsheets/d/1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E/edit
+ */
 function displaySheetsData() {
   var sheetID = '1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E'
   gapi.client.sheets.spreadsheets.values.get({
@@ -226,6 +241,7 @@ function displaySheetsData() {
     appendContent(contentElement, 'P', 'Error: ' + response.result.error.message);
   });
 }
+// Function to update fields from defaults
 function eventTypeChanged(){
   eventTypeSelect = document.getElementById("event-type-select");
   eventTypeValue = eventTypeSelect.value;
@@ -233,37 +249,39 @@ function eventTypeChanged(){
 
   if(eventTypeSelect.value < defaultFieldValues.length){
     var row = defaultFieldValues[eventTypeValue]
-    console.log("Selected " + row[0]);
+    document.getElementById("attendees-input").value = row[3] ;
+    document.getElementById("link-input").value = row[4] ;
+    calculateEndTime();
   } else if (eventTypeSelect.value == defaultFieldValues.length){
     console.log("Selected Add New Event Type...");
   }
 }
+// Function to update end time from duration
 function calculateEndTime(){
   eventTypeSelect = document.getElementById("event-type-select");
   eventTypeValue = eventTypeSelect.value;
-  startTimePicker = document.getElementById("start-time");
   endTimePicker = document.getElementById("end-time");
   var row = defaultFieldValues[eventTypeValue]
   defaultDuration = timeFromMins(parseInt(row[1]));
   endTimePicker.value = addTimes(startTimePicker.value, defaultDuration);
   console.log(defaultDuration);
 }
-// Convert a time in hh:mm format to minutes
+// Function to convert a time in hh:mm format to minutes
 function timeToMins(time) {
   var b = time.split(':');
   return b[0]*60 + +b[1];
 }
 
-// Convert minutes to a time in format hh:mm
-// Returned value is in range 00  to 24 hrs
+// Function to convert minutes to a time in format hh:mm
 function timeFromMins(mins) {
   function z(n){return (n<10? '0':'') + n;}
   var h = (mins/60 |0) % 24;
   var m = mins % 60;
-  return z(h) + ':' + z(m);
+  return z(h) + ':' + z(m); // Returned value is in range 00  to 24 hrs
+
 }
 
-// Add two times in hh:mm format
+// Function to add two times in hh:mm format
 function addTimes(t0, t1) {
   return timeFromMins(timeToMins(t0) + timeToMins(t1));
 }
