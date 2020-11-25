@@ -1,11 +1,9 @@
-
-// window.onload = addFields;
 /* google sheets parameters*/
 var CLIENT_ID = 'not set';
 var API_KEY = 'not set';
 
 // Array of API discovery doc URLs for APIs used by the quickstart
-var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"];
+var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4", "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
 
 // Authorization scopes required by the API; multiple scopes can be
 // included, separated by spaces.
@@ -17,7 +15,7 @@ var signedinElement = document.getElementById('signed-in');
 var signedoutElement = document.getElementById('signed-out');
 var contentElement = document.getElementById('content');
 
-var defaultFieldValues = [];
+var eventTypeValues = [];
 /**
  *  On load, called to load the auth2 library and API client library
  *  as well as the credentials from php.
@@ -58,7 +56,7 @@ function initClient() {
     authorizeButton.onclick = handleAuthClick;
     signoutButton.onclick = handleSignoutClick;
   }, function(error) {
-    appendPre(JSON.stringify(error, null, 2));
+    appendContent(contentElement, 'p', JSON.stringify(error, null, 2));
   });
 }
 
@@ -67,6 +65,7 @@ function initClient() {
  *  appropriately. After a sign-in, the API is called.
  */
 function updateSigninStatus(isSignedIn) {
+  contentElement.innerHTML = '';
   if (isSignedIn) {
     displaySheetsData();
     var profile = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
@@ -77,7 +76,6 @@ function updateSigninStatus(isSignedIn) {
   } else {
     signedoutElement.style.display = 'grid';
     signedinElement.style.display = 'none';
-    contentElement.innerHTML = '';
   }
 }
 
@@ -112,8 +110,88 @@ function appendContent(parentElement, elementType, text = '') {
   parentElement.appendChild(newElement);
   return newElement;
 }
+/**
+ * Function that loads data from this spreadsheet:
+ * https://docs.google.com/spreadsheets/d/1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E/edit
+ */
+function displaySheetsData() {
+  var sheetID = '1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E'
+  gapi.client.sheets.spreadsheets.values.get({
+    spreadsheetId: sheetID,
+    range: 'event-types!A2:F',
+  }).then(function(response) {
+    var range = response.result;
+    if (range.values.length > 0) {
+      window.eventTypeValues = range.values;
+      eventTypeSelect = addCreateEventFields();
+      for (i = 0; i < range.values.length; i++) {
+        var row = range.values[i];
+        optionElement = appendContent(eventTypeSelect, 'OPTION', row[0]);
+        optionElement.value = i;
+      }
+      lastOptionElement = appendContent(eventTypeSelect, 'OPTION', "Add New Event Type...");
+      lastOptionElement.value = range.values.length;
+      listUpcomingEvents();
+    } else {
+      appendContent(contentElement, 'P', 'No data found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit">event-types sheet</a>.');
+    }
+  }, function(response) {
+    appendContent(contentElement, 'P', 'Error: ' + response.result.error.message);
+  });
+}
+/**
+ * Print the summary and start datetime/date of the next ten events in
+ * the authorized user's calendar. If no events are found an
+ * appropriate message is printed.
+ */
+function listUpcomingEvents() {
+  gapi.client.calendar.events.list({
+    'calendarId': '50be3j70c5a3rn6t55tii9r4g4@group.calendar.google.com',
+    'timeMin': (new Date()).toISOString(),
+    'showDeleted': false,
+    'singleEvents': true,
+    'maxResults': 10,
+    'orderBy': 'startTime'
+  }).then(function(response) {
+    var events = response.result.items;
+    // add calendar holder
+    calendarHolder = appendContent(contentElement, 'div');
+    calendarHolder.id = 'calendar-holder';
+    appendContent(calendarHolder, 'h2', 'Upcoming events:');
+    // create buckets for event types
+    for (i = 0; i < eventTypeValues.length; i++) {
+      var thisEventTypeName = eventTypeValues[i][0];
+      var thisEventTypeID = thisEventTypeName.toLowerCase().replace(/\W/g, '-');
+      thisEventTypeHolder = appendContent(calendarHolder, 'div');
+      thisEventTypeHolder.id = thisEventTypeID;
+      thisEventTypeHolder.className = "event-bucket";
+      appendContent(thisEventTypeHolder, 'h3', thisEventTypeName);
+    }
+    otherTypeHolder = appendContent(calendarHolder, 'div');
+    otherTypeHolder.id = "other-events";
+    otherTypeHolder.className = "event-bucket";
+
+    if (events.length > 0) {
+      for (i = 0; i < events.length; i++) {
+        var event = events[i];
+        // check if bucket exist for current event
+        var calendarEventTypeID = event.summary.toLowerCase().replace(/\W/g, '-');
+        var calendarEventTypeHolder = document.getElementById(calendarEventTypeID);
+        if(typeof(calendarEventTypeHolder) == 'undefined' || calendarEventTypeHolder == null){
+          calendarEventTypeHolder = otherTypeHolder; // set bucket to other if it doesn't
+        }
+        dateLine = appendContent(calendarEventTypeHolder, 'p');
+        linkTag = appendContent(dateLine, 'a', getFormattedDate(new Date(event.start.dateTime)));
+        linkTag.href = event.htmlLink;
+        appendContent(calendarEventTypeHolder, 'p', event.end.dateTime);
+      }
+    } else {
+      appendContent(calendarHolder, 'pre', 'No upcoming events found.');
+    }
+  });
+}
 // Function that adds fields to contentElement
-function addFields(){
+function addCreateEventFields(){
   // add form
   formWrapper = appendContent(contentElement, 'FORM');
   formWrapper.id = "create-event-form";
@@ -192,7 +270,7 @@ function addFields(){
   editButton = appendContent(buttonWrapper, "button", 'Edit Event Type')
   editButton.id = "edit-type-button";
   editButton.className = "form-button";
-  editButton.addEventListener("click", editEventType);
+  //editButton.addEventListener("click", editEventType);
   createButton = appendContent(buttonWrapper, "button", 'Create Event')
   createButton.id = "create-button";
   createButton.className = "form-button";
@@ -213,33 +291,13 @@ function getDate(){
   yyyymmdd = (yyyy +'-'+ mm + '-' + dd)
   return yyyymmdd;
 }
-/**
- * Function that loads data from this spreadsheet:
- * https://docs.google.com/spreadsheets/d/1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E/edit
- */
-function displaySheetsData() {
-  var sheetID = '1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E'
-  gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId: sheetID,
-    range: 'event-types!A2:F',
-  }).then(function(response) {
-    var range = response.result;
-    if (range.values.length > 0) {
-      window.defaultFieldValues = range.values;
-      eventTypeSelect = addFields();
-      for (i = 0; i < range.values.length; i++) {
-        var row = range.values[i];
-        optionElement = appendContent(eventTypeSelect, 'OPTION', row[0]);
-        optionElement.value = i;
-      }
-      lastOptionElement = appendContent(eventTypeSelect, 'OPTION', "Add New Event Type...");
-      lastOptionElement.value = range.values.length;
-    } else {
-      appendContent(contentElement, 'P', 'No data found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit">event-types sheet</a>.');
-    }
-  }, function(response) {
-    appendContent(contentElement, 'P', 'Error: ' + response.result.error.message);
-  });
+// Function to fprmat provided date as mm/dd/yyyy
+function getFormattedDate(date) {
+    let year = date.getFullYear();
+    let month = (1 + date.getMonth()).toString().padStart(2, '0');
+    let day = date.getDate().toString().padStart(2, '0');
+
+    return month + '/' + day + '/' + year;
 }
 // Function to update fields from defaults
 function eventTypeChanged(){
@@ -247,12 +305,12 @@ function eventTypeChanged(){
   eventTypeValue = eventTypeSelect.value;
 
 
-  if(eventTypeSelect.value < defaultFieldValues.length){
-    var row = defaultFieldValues[eventTypeValue]
+  if(eventTypeSelect.value < eventTypeValues.length){
+    var row = eventTypeValues[eventTypeValue]
     document.getElementById("attendees-input").value = row[3] ;
     document.getElementById("link-input").value = row[4] ;
     calculateEndTime();
-  } else if (eventTypeSelect.value == defaultFieldValues.length){
+  } else if (eventTypeSelect.value == eventTypeValues.length){
     console.log("Selected Add New Event Type...");
   }
 }
@@ -261,7 +319,7 @@ function calculateEndTime(){
   eventTypeSelect = document.getElementById("event-type-select");
   eventTypeValue = eventTypeSelect.value;
   endTimePicker = document.getElementById("end-time");
-  var row = defaultFieldValues[eventTypeValue]
+  var row = eventTypeValues[eventTypeValue]
   defaultDuration = timeFromMins(parseInt(row[1]));
   endTimePicker.value = addTimes(startTimePicker.value, defaultDuration);
   console.log(defaultDuration);
