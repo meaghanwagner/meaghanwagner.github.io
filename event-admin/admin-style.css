@@ -1,4 +1,4 @@
-@import '../style/fonts.css';
+@import '/style/fonts.css';
 
 html {
   height: 100%;
@@ -22,7 +22,6 @@ button, select, input {
 }
 label {
   font-size: 1.4rem;
-  line-height: 1.8;
   font-weight: 700;
   -webkit-column-break-before: always;
 	break-before: column;
@@ -31,12 +30,9 @@ legend{
   font-weight: 700;
   font-size: 2em;
 }
-form{
-  max-width: 1180px;
-  margin: auto;
-}
 #content-holder {
   display:flex;
+  justify-content: space-between;
 }
 #link-input {
   width: calc(100% - 24px);
@@ -47,6 +43,10 @@ form{
 }
 #authorize_button {
   margin: 1vh 1vh 10vh 1vh;
+}
+#signed-in{
+  max-width: 1180px;
+  margin: auto;
 }
 #signed-out {
   height: 100vh;
@@ -81,8 +81,30 @@ form{
 #button-wrapper{
   display: flex;
 }
+#calendar-holder{
+  margin-top: 1em;
+}
+#event-bucket-holder{
+  display: flex;
+  justify-content: space-between;
+}
+.event-bucket{
+  display: inline-block;
+  padding: 12px;
+  border: thick solid #9DB2C6;
+  border-radius: 5px;
+  width:20%;
+}
+.event-button{
+  font-size: 1.2em;
+  padding:5px;
+  margin:5px;
+}
+.event{
+  margin:1em 0;
+}
 .form-item{
-  margin: 1em auto;
+  margin: 1em 0;
 }
 .form-button {
   margin-top: 1em;
@@ -100,7 +122,12 @@ form{
   text-align: right;
 }
 @media only screen and (max-width: 850px) {
-  #content-holder, #button-holder, .form-button {
+  #content-holder, #button-holder, .form-button, #event-bucket-holder {
     display: block;
+  }
+  .event-bucket{
+    display: block;
+    width:auto;
+    margin: 1em;
   }
 }

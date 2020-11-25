@@ -150,26 +150,37 @@ function listUpcomingEvents() {
     'timeMin': (new Date()).toISOString(),
     'showDeleted': false,
     'singleEvents': true,
-    'maxResults': 10,
+    'maxResults': 250,
     'orderBy': 'startTime'
   }).then(function(response) {
     var events = response.result.items;
     // add calendar holder
-    calendarHolder = appendContent(contentElement, 'div');
+    calendarHolder = appendContent(contentElement, 'form');
     calendarHolder.id = 'calendar-holder';
-    appendContent(calendarHolder, 'h2', 'Upcoming events:');
+    formWrapper.onkeypress = function(e) {
+      var key = e.charCode || e.keyCode || 0;
+      if (key == 13) {
+        e.preventDefault();
+      }
+    }
+    calendarFieldset = appendContent(calendarHolder, 'fieldset');
+    appendContent(calendarFieldset, 'legend', 'Upcoming events:');
+    eventBucketHolder = appendContent(calendarFieldset, 'div');
+    eventBucketHolder.id = 'event-bucket-holder';
+
     // create buckets for event types
     for (i = 0; i < eventTypeValues.length; i++) {
       var thisEventTypeName = eventTypeValues[i][0];
       var thisEventTypeID = thisEventTypeName.toLowerCase().replace(/\W/g, '-');
-      thisEventTypeHolder = appendContent(calendarHolder, 'div');
+      thisEventTypeHolder = appendContent(eventBucketHolder, 'div');
       thisEventTypeHolder.id = thisEventTypeID;
       thisEventTypeHolder.className = "event-bucket";
-      appendContent(thisEventTypeHolder, 'h3', thisEventTypeName);
+      appendContent(thisEventTypeHolder, 'label', thisEventTypeName);
     }
-    otherTypeHolder = appendContent(calendarHolder, 'div');
+    otherTypeHolder = appendContent(eventBucketHolder, 'div');
     otherTypeHolder.id = "other-events";
     otherTypeHolder.className = "event-bucket";
+    appendContent(otherTypeHolder, 'label', 'Other Events');
 
     if (events.length > 0) {
       for (i = 0; i < events.length; i++) {
@@ -177,13 +188,36 @@ function listUpcomingEvents() {
         // check if bucket exist for current event
         var calendarEventTypeID = event.summary.toLowerCase().replace(/\W/g, '-');
         var calendarEventTypeHolder = document.getElementById(calendarEventTypeID);
+        var otherType = false;
         if(typeof(calendarEventTypeHolder) == 'undefined' || calendarEventTypeHolder == null){
           calendarEventTypeHolder = otherTypeHolder; // set bucket to other if it doesn't
+          otherType = true;
         }
-        dateLine = appendContent(calendarEventTypeHolder, 'p');
+        eventHolder = appendContent(calendarEventTypeHolder, 'div')
+        eventHolder.id = event.id;
+        eventHolder.className = "event";
+        if(otherType){
+          appendContent(eventHolder, 'p', event.summary);
+        }
+        dateLine = appendContent(eventHolder, 'p');
         linkTag = appendContent(dateLine, 'a', getFormattedDate(new Date(event.start.dateTime)));
         linkTag.href = event.htmlLink;
-        appendContent(calendarEventTypeHolder, 'p', event.end.dateTime);
+        var startDate = new Date(event.start.dateTime);
+        var endDate = new Date(event.end.dateTime);
+        appendContent(eventHolder, 'p', startDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'}));
+        appendContent(eventHolder, 'p', ((endDate-startDate)/(1000 * 60)).toString() + " mins");
+        attendeeCount = 0;
+        if(event.attendees != null){
+          attendeeCount = event.attendees.length;
+        }
+        appendContent(eventHolder, 'p', attendeeCount.toString());
+        modifyButton = appendContent(eventHolder, 'button', "Modify");
+        modifyButton.className = "event-button";
+        modifyButton.type = "button";
+        cancelButton = appendContent(eventHolder, 'button', "Cancel");
+        cancelButton.className = "event-button";
+        cancelButton.type = "button";
+
       }
     } else {
       appendContent(calendarHolder, 'pre', 'No upcoming events found.');
@@ -270,10 +304,12 @@ function addCreateEventFields(){
   editButton = appendContent(buttonWrapper, "button", 'Edit Event Type')
   editButton.id = "edit-type-button";
   editButton.className = "form-button";
+  editButton.type = "button";
   //editButton.addEventListener("click", editEventType);
   createButton = appendContent(buttonWrapper, "button", 'Create Event')
   createButton.id = "create-button";
   createButton.className = "form-button";
+  createButton.type = "button";
   return eventTypeSelect;
 }
 // Function to get current data in yyyymmdd format
