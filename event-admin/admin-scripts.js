@@ -8,6 +8,8 @@ var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"
 // Authorization scopes required by the API; multiple scopes can be
 // included, separated by spaces.
 var SCOPES = "profile email https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/calendar.events";
+var sheetID = '1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E';
+var valueInputOption = 'RAW';
 
 var authorizeButton = document.getElementById('authorize_button');
 var signoutButton = document.getElementById('signout_button');
@@ -32,7 +34,7 @@ function handleClientLoad() {
       gapi.load('client:auth2', initClient);
     } else {
       console.log(xhr.responseText);
-      document.getElementById('prompt').innerHTML = "Could not sign in, please try again. If the problem persists, please contact the developer."
+      document.getElementById('prompt').innerHTML = "Could not sign in, please try again. If the problem persists, please contact the developer.";
     }
   }
   xhr.send();
@@ -134,7 +136,6 @@ function appendContent(parentElement, elementType, text = '', idText = '', class
  * https://docs.google.com/spreadsheets/d/1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E/edit
  */
 function displaySheetsData() {
-  var sheetID = '1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E'
   gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: sheetID,
     range: 'event-types!A2:P',
@@ -150,6 +151,7 @@ function displaySheetsData() {
       }
       lastOptionElement = appendContent(eventTypeSelect, 'OPTION', "Add New Event Type...");
       lastOptionElement.value = range.values.length;
+      eventTypeChanged();
       listUpcomingEvents();
     } else {
       appendContent(contentElement, 'P', 'No data found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit">event-types sheet</a>.');
@@ -290,7 +292,7 @@ function addCreateEventFields(){
   var linkLabel = appendContent(fieldSetWrapper, "label", 'Zoom Link:');
   linkLabel.for = "link-input";
   appendContent(fieldSetWrapper, 'br');
-  var linkInput = appendContent(fieldSetWrapper, 'input', '', 'link-input');
+  var linkInput = appendContent(fieldSetWrapper, 'input', '', 'link-input', 'full-width');
   // add buttons
   var buttonWrapper = appendContent(fieldSetWrapper, "div", '', 'button-wrapper');
   var editButton = appendContent(buttonWrapper, "button", 'Edit Event Type', 'edit-type-button', 'form-button');
@@ -374,7 +376,7 @@ function addNewTypeFields(){
   // Add Cost
   var costHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
   var costLabel = appendContent(costHolder, "label", 'Cost:');
-  costLabel.for = "new-attendees-input";
+  costLabel.for = "cost-input";
   appendContent(costHolder, 'br');
   var costInput = appendContent(costHolder, 'input', '', 'cost-input');
   costInput.type = "number";
@@ -384,7 +386,7 @@ function addNewTypeFields(){
   var linkLabel = appendContent(fieldSetWrapper, "label", 'Zoom Link:');
   linkLabel.for = "new-link-input";
   appendContent(fieldSetWrapper, 'br');
-  var linkInput = appendContent(fieldSetWrapper, 'input', '', 'new-link-input');
+  var linkInput = appendContent(fieldSetWrapper, 'input', '', 'new-link-input', 'full-width');
   appendContent(fieldSetWrapper, 'br');
   // add description
   var descLabel = appendContent(fieldSetWrapper, "label", 'Description:');
@@ -452,7 +454,7 @@ function addNewTypeFields(){
   var followUpEmailCTADestLabel = appendContent(fieldSetWrapper, "label", 'Follow up Email CTA Destination:');
   followUpEmailCTADestLabel.for = "follow-up-email-cta-dest";
   appendContent(fieldSetWrapper, 'br');
-  var followUpEmailCTADestInput = appendContent(fieldSetWrapper, 'textarea', '', 'follow-up-email-cta-dest', 'rich-text');
+  var followUpEmailCTADestInput = appendContent(fieldSetWrapper, 'input', '', 'follow-up-email-cta-dest', 'full-width');
   appendContent(fieldSetWrapper, 'br');
 
   richTextInit();
@@ -464,6 +466,69 @@ function addNewTypeFields(){
   var createTypeButton = appendContent(buttonWrapper, "button", 'Add New Event Type', 'new-type-button', 'form-button');
   createTypeButton.type = "button";
   createTypeButton.addEventListener("click", addNewType);
+}
+// Function to add event type to spreadsheet
+function addNewType(){
+  var values = [
+    [
+      document.getElementById('event-type-name').value,
+      document.getElementById('run-time-input').value,
+      tinyMCE.get('desc-input').getContent(),
+      document.getElementById('new-attendees-input').value,
+      document.getElementById('new-link-input').value,
+      document.getElementById('cost-input').value,
+      tinyMCE.get('sign-up-page-copy').getContent(),
+      tinyMCE.get('sign-up-page-cta').getContent(),
+      tinyMCE.get('payment-page-copy').getContent(),
+      tinyMCE.get('thank-you-page-copy').getContent(),
+      tinyMCE.get('thank-you-page-totals-copy').getContent(),
+      tinyMCE.get('confirmation-email-copy').getContent(),
+      tinyMCE.get('reminder-email-copy').getContent(),
+      tinyMCE.get('follow-up-email-copy').getContent(),
+      tinyMCE.get('follow-up-email-cta').getContent(),
+      document.getElementById('follow-up-email-cta-dest').value
+    ],
+    // Additional rows ...
+  ];
+  var body = {
+    values: values
+  };
+  gapi.client.sheets.spreadsheets.values.append({
+     spreadsheetId: sheetID,
+     range: 'event-types',
+     valueInputOption: valueInputOption,
+     resource: body
+  }).then((response) => {
+    var result = response.result;
+    console.log(`${result.updates.updatedCells} cells appended.`)
+    removeBlocker();
+    updateEventTypes();
+  });
+}
+function updateEventTypes(){
+  gapi.client.sheets.spreadsheets.values.get({
+    spreadsheetId: sheetID,
+    range: 'event-types!A2:P',
+  }).then(function(response) {
+    var range = response.result;
+    if (range.values.length > 0) {
+      window.eventTypeValues = range.values;
+      var eventTypeSelect = document.getElementById("event-type-select");
+      eventTypeSelect.innerHTML = '';
+      for (i = 0; i < range.values.length; i++) {
+        var row = range.values[i];
+        optionElement = appendContent(eventTypeSelect, 'OPTION', row[0]);
+        optionElement.value = i;
+      }
+      lastOptionElement = appendContent(eventTypeSelect, 'OPTION', "Add New Event Type...");
+      lastOptionElement.value = range.values.length;
+      eventTypeChanged();
+    } else {
+      appendContent(contentElement, 'P', 'No data found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit">event-types sheet</a>.');
+    }
+  }, function(response) {
+    appendContent(contentElement, 'P', 'Error: ' + response.result.error.message);
+  });
 }
 // Function that adds fields to contentElement for editing event types
 function addEditTypeFields(){
@@ -519,9 +584,9 @@ function addEditTypeFields(){
   costInput.addEventListener("change", toggleCostHidden);
   // add zoom link
   var linkLabel = appendContent(fieldSetWrapper, "label", 'Zoom Link:');
-  linkLabel.for = "link-input";
+  linkLabel.for = "new-link-input";
   appendContent(fieldSetWrapper, 'br');
-  var linkInput = appendContent(fieldSetWrapper, 'input', '', 'link-input');
+  var linkInput = appendContent(fieldSetWrapper, 'input', '', 'new-link-input', 'full-width');
   linkInput.value = row[4];
   appendContent(fieldSetWrapper, 'br');
   // add description
@@ -601,7 +666,7 @@ function addEditTypeFields(){
   var followUpEmailCTADestLabel = appendContent(fieldSetWrapper, "label", 'Follow up Email CTA Destination:');
   followUpEmailCTADestLabel.for = "follow-up-email-cta-dest";
   appendContent(fieldSetWrapper, 'br');
-  var followUpEmailCTADestInput = appendContent(fieldSetWrapper, 'textarea', '', 'follow-up-email-cta-dest', 'rich-text');
+  var followUpEmailCTADestInput = appendContent(fieldSetWrapper, 'input', '', 'follow-up-email-cta-dest', 'full-width');
   followUpEmailCTADestInput.value = row[15];
   appendContent(fieldSetWrapper, 'br');
 
@@ -619,7 +684,7 @@ function addEditTypeFields(){
   updateTypeButton.id = "new-type-button";
   updateTypeButton.className = "form-button";
   updateTypeButton.type = "button";
-  updateTypeButton.addEventListener("click", updateEventType);
+  updateTypeButton.addEventListener("click", editEventType);
 }
 // Function to toggle display of cost-hidden divs
 function toggleCostHidden(){
@@ -627,7 +692,6 @@ function toggleCostHidden(){
   var costHiddenDivs = document.getElementsByClassName('cost-hidden');
   for (i = 0; i < costHiddenDivs.length; i++) {
     if(costInputValue > 0){
-      console.log(costInputValue);
       costHiddenDivs[i].style.display = "block";
     } else {
       costHiddenDivs[i].style.display = "none";
@@ -641,12 +705,44 @@ function removeBlocker(){
   theBlocker = document.getElementById("blocker");
   theBlocker.remove();
 }
-// Function to
-function addNewType(){
-  console.log(tinyMCE.get('desc-input').getContent());
-}
-function updateEventType(){
-  console.log(tinyMCE.get('desc-input').getContent());
+function editEventType(){
+  var values = [
+    [
+      document.getElementById('event-type-name').value,
+      document.getElementById('run-time-input').value,
+      tinyMCE.get('desc-input').getContent(),
+      document.getElementById('new-attendees-input').value,
+      document.getElementById('new-link-input').value,
+      document.getElementById('cost-input').value,
+      tinyMCE.get('sign-up-page-copy').getContent(),
+      tinyMCE.get('sign-up-page-cta').getContent(),
+      tinyMCE.get('payment-page-copy').getContent(),
+      tinyMCE.get('thank-you-page-copy').getContent(),
+      tinyMCE.get('thank-you-page-totals-copy').getContent(),
+      tinyMCE.get('confirmation-email-copy').getContent(),
+      tinyMCE.get('reminder-email-copy').getContent(),
+      tinyMCE.get('follow-up-email-copy').getContent(),
+      tinyMCE.get('follow-up-email-cta').getContent(),
+      document.getElementById('follow-up-email-cta-dest').value
+    ],
+  ];
+  var body = {
+    values: values
+  };
+
+  var range = "event-types!A" + (parseInt(document.getElementById("event-type-select").value) + 2).toString() + ":P";
+  console.log(range);
+  gapi.client.sheets.spreadsheets.values.update({
+     spreadsheetId: sheetID,
+     range: range,
+     valueInputOption: valueInputOption,
+     resource: body
+  }).then((response) => {
+    var result = response.result;
+    console.log(`${result.updatedCells} cells updated.`);
+    removeBlocker();
+    updateEventTypes();
+  });
 }
 // Function to update end time from duration
 function calculateEndTime(){

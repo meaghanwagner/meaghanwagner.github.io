@@ -46,9 +46,6 @@ fieldset{
   display:flex;
   justify-content: space-between;
 }
-#link-input, #desc-input, #new-link-input  {
-  width: calc(100% - 24px);
-}
 #prompt {
   margin: 10vh 1vh 1vh 1vh;
   text-align: center;
@@ -113,6 +110,9 @@ fieldset{
 }
 #new-type-form{
   margin: 10vh auto;
+}
+.full-width  {
+  width: calc(100% - 24px);
 }
 .event-bucket{
   display: inline-block;
