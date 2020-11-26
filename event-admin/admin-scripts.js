@@ -502,32 +502,8 @@ function addNewType(){
     var result = response.result;
     console.log(`${result.updates.updatedCells} cells appended.`)
     removeBlocker();
-    updateEventTypes();
-  });
-}
-function updateEventTypes(){
-  gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId: sheetID,
-    range: 'event-types!A2:P',
-  }).then(function(response) {
-    var range = response.result;
-    if (range.values.length > 0) {
-      window.eventTypeValues = range.values;
-      var eventTypeSelect = document.getElementById("event-type-select");
-      eventTypeSelect.innerHTML = '';
-      for (i = 0; i < range.values.length; i++) {
-        var row = range.values[i];
-        optionElement = appendContent(eventTypeSelect, 'OPTION', row[0]);
-        optionElement.value = i;
-      }
-      lastOptionElement = appendContent(eventTypeSelect, 'OPTION', "Add New Event Type...");
-      lastOptionElement.value = range.values.length;
-      eventTypeChanged();
-    } else {
-      appendContent(contentElement, 'P', 'No data found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit">event-types sheet</a>.');
-    }
-  }, function(response) {
-    appendContent(contentElement, 'P', 'Error: ' + response.result.error.message);
+    clearContent();
+    displaySheetsData();
   });
 }
 // Function that adds fields to contentElement for editing event types
@@ -741,7 +717,8 @@ function editEventType(){
     var result = response.result;
     console.log(`${result.updatedCells} cells updated.`);
     removeBlocker();
-    updateEventTypes();
+    clearContent();
+    displaySheetsData();
   });
 }
 // Function to update end time from duration
