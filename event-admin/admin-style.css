@@ -8,7 +8,8 @@ body {
   height: 100%;
   margin: 0;
   font-family: kepler-std, serif;
-  background-color: #efefef;
+  background-color: #dfdfdf;
+  overflow: hidden;
 }
 p {
   margin: 0;
@@ -30,11 +31,22 @@ legend{
   font-weight: 700;
   font-size: 2em;
 }
-#content-holder {
+form {
+  background-color: #fff;
+  border-radius: 5px;
+  padding: 0 5px 10px 5px;
+  max-width: 1180px;
+  margin: auto;
+}
+fieldset{
+  border-radius: 5px;
+  border: thin solid #28262B;
+}
+#content-holder, #new-content-holder{
   display:flex;
   justify-content: space-between;
 }
-#link-input {
+#link-input, #desc-input, #new-link-input  {
   width: calc(100% - 24px);
 }
 #prompt {
@@ -47,6 +59,8 @@ legend{
 #signed-in{
   max-width: 1180px;
   margin: auto;
+  height: 100%;
+  overflow: auto;
 }
 #signed-out {
   height: 100vh;
@@ -88,6 +102,18 @@ legend{
   display: flex;
   justify-content: space-between;
 }
+#blocker{
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color:rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+#new-type-form{
+  margin: 10vh auto;
+}
 .event-bucket{
   display: inline-block;
   padding: 12px;
@@ -122,7 +148,7 @@ legend{
   text-align: right;
 }
 @media only screen and (max-width: 850px) {
-  #content-holder, #button-holder, .form-button, #event-bucket-holder {
+  #content-holder, #button-holder, .form-button, #event-bucket-holder, #new-content-holder {
     display: block;
   }
   .event-bucket{
