@@ -24,6 +24,7 @@ function handleClientLoad() {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', 'https://gardenlifegame.com/megs_php/getcreds.php');
   xhr.onload = function() {
+    richTextInit();
     if(xhr.responseText.startsWith("0")){
       var creds = JSON.parse(xhr.responseText.substring(2));
       window.API_KEY = creds.developer_key;
@@ -36,7 +37,14 @@ function handleClientLoad() {
   }
   xhr.send();
 }
-
+// Function to make textareas rich text based on class
+function richTextInit(){
+  tinymce.remove();
+  tinymce.init({
+    selector: 'textarea.rich-text',
+    toolbar: false
+  });
+}
 /**
  *  Initializes the API client library and sets up sign-in state
  *  listeners.
@@ -102,13 +110,21 @@ function handleSignoutClick(event) {
  *
  * @param {Object} parentElement Object that will contain the object added.
  * @param {string} elementType Type of element to add.
- * @param {string} text Text to be placed in element element. Default is empty.
+ * @param {string} text Text to be placed in element. Default is empty.
+ * @param {string} idText ID of new element. Default is empty.
+ * @param {string} classText className of new element. Default is empty.
  */
-function appendContent(parentElement, elementType, text = '') {
+function appendContent(parentElement, elementType, text = '', idText = '', classText = '') {
   var newElement = document.createElement(elementType);
   if(text != ''){
     var textContent = document.createTextNode(text);
     newElement.appendChild(textContent);
+  }
+  if(idText != ''){
+    newElement.id = idText;
+  }
+  if(classText != ''){
+    newElement.className = classText;
   }
   parentElement.appendChild(newElement);
   return newElement;
@@ -121,12 +137,12 @@ function displaySheetsData() {
   var sheetID = '1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E'
   gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: sheetID,
-    range: 'event-types!A2:F',
+    range: 'event-types!A2:P',
   }).then(function(response) {
     var range = response.result;
     if (range.values.length > 0) {
       window.eventTypeValues = range.values;
-      eventTypeSelect = addCreateEventFields();
+      var eventTypeSelect = addCreateEventFields();
       for (i = 0; i < range.values.length; i++) {
         var row = range.values[i];
         optionElement = appendContent(eventTypeSelect, 'OPTION', row[0]);
@@ -158,26 +174,20 @@ function listUpcomingEvents() {
   }).then(function(response) {
     var events = response.result.items;
     // add calendar holder
-    calendarHolder = appendContent(contentElement, 'form');
-    calendarHolder.id = 'calendar-holder';
+    calendarHolder = appendContent(contentElement, 'form','', 'calendar-holder');
     calendarHolder.onkeypress = stopReturnSubmit(calendarHolder);
     calendarFieldset = appendContent(calendarHolder, 'fieldset');
     appendContent(calendarFieldset, 'legend', 'Upcoming events:');
-    eventBucketHolder = appendContent(calendarFieldset, 'div');
-    eventBucketHolder.id = 'event-bucket-holder';
+    eventBucketHolder = appendContent(calendarFieldset, 'div', '', 'event-bucket-holder');
 
     // create buckets for event types
     for (i = 0; i < eventTypeValues.length; i++) {
       var thisEventTypeName = eventTypeValues[i][0];
       var thisEventTypeID = thisEventTypeName.toLowerCase().replace(/\W/g, '-');
-      thisEventTypeHolder = appendContent(eventBucketHolder, 'div');
-      thisEventTypeHolder.id = thisEventTypeID;
-      thisEventTypeHolder.className = "event-bucket";
+      thisEventTypeHolder = appendContent(eventBucketHolder, 'div', '', thisEventTypeID, 'event-bucket');
       appendContent(thisEventTypeHolder, 'label', thisEventTypeName);
     }
-    otherTypeHolder = appendContent(eventBucketHolder, 'div');
-    otherTypeHolder.id = "other-events";
-    otherTypeHolder.className = "event-bucket";
+    otherTypeHolder = appendContent(eventBucketHolder, 'div', '','other-events', 'event-bucket');
     appendContent(otherTypeHolder, 'label', 'Other Events');
 
     if (events.length > 0) {
@@ -191,9 +201,7 @@ function listUpcomingEvents() {
           calendarEventTypeHolder = otherTypeHolder; // set bucket to other if it doesn't
           otherType = true;
         }
-        eventHolder = appendContent(calendarEventTypeHolder, 'div')
-        eventHolder.id = event.id;
-        eventHolder.className = "event";
+        eventHolder = appendContent(calendarEventTypeHolder, 'div', '',event.id, 'event');
         if(otherType){
           appendContent(eventHolder, 'p', event.summary);
         }
@@ -209,11 +217,9 @@ function listUpcomingEvents() {
           attendeeCount = event.attendees.length;
         }
         appendContent(eventHolder, 'p', attendeeCount.toString());
-        modifyButton = appendContent(eventHolder, 'button', "Modify");
-        modifyButton.className = "event-button";
+        modifyButton = appendContent(eventHolder, 'button', 'Modify', '', 'event-button');
         modifyButton.type = "button";
-        cancelButton = appendContent(eventHolder, 'button', "Cancel");
-        cancelButton.className = "event-button";
+        cancelButton = appendContent(eventHolder, 'button', 'Cancel', '', 'event-button');
         cancelButton.type = "button";
 
       }
@@ -231,82 +237,66 @@ function stopReturnSubmit(e){
 // Function that adds fields to contentElement for creating events
 function addCreateEventFields(){
   // add form
-  var formWrapper = appendContent(contentElement, 'FORM');
-  formWrapper.id = "create-event-form";
+  var formWrapper = appendContent(contentElement, 'FORM', '', 'create-event-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   // add legend
-  appendContent(fieldSetWrapper, 'LEGEND', 'Create New Event')
+  appendContent(fieldSetWrapper, 'LEGEND', 'Create New Event');
   // add container div
-  var contentHolder = appendContent(fieldSetWrapper, 'div')
-  contentHolder.id = 'content-holder'
+  var contentHolder = appendContent(fieldSetWrapper, 'div', '', 'content-holder');
   // add Event Type
-  var eventTypeHolder = appendContent(contentHolder, 'div')
-  eventTypeHolder.className = "form-item";
+  var eventTypeHolder = appendContent(contentHolder, 'div', '', '','form-item');
   var eventTypeLabel = appendContent(eventTypeHolder, "label", 'Event Type:');
   eventTypeLabel.for = "event-type-select";
   appendContent(eventTypeHolder, 'br');
-  var eventTypeSelect = appendContent(eventTypeHolder, 'SELECT');
+  var eventTypeSelect = appendContent(eventTypeHolder, 'SELECT', '', 'event-type-select');
   eventTypeSelect.addEventListener("change", eventTypeChanged);
-  eventTypeSelect.id = "event-type-select";
   // Add Date
-  var dateHolder = appendContent(contentHolder, 'div')
-  dateHolder.className = "form-item";
+  var dateHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
   var dateLabel = appendContent(dateHolder, "label", 'Date:');
   dateLabel.for = "date-picker";
   appendContent(dateHolder, 'br');
-  var datePicker = appendContent(dateHolder, 'input');
+  var datePicker = appendContent(dateHolder, 'input', '','date-picker');
   datePicker.type = "date";
-  datePicker.id = "date-picker";
   datePicker.min = getDate();
   // Add Start Time
-  var startTimeHolder = appendContent(contentHolder, 'div')
-  startTimeHolder.className = "form-item";
+  var startTimeHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
   var startTimeLabel = appendContent(startTimeHolder, "label", 'Start Time:');
   startTimeLabel.for = "start-time";
   appendContent(startTimeHolder, 'br');
-  var startTimePicker = appendContent(startTimeHolder, 'input');
+  var startTimePicker = appendContent(startTimeHolder, 'input', '', 'start-time');
   startTimePicker.type = "time";
-  startTimePicker.id = "start-time";
   startTimePicker.step = "900"
-  startTimePicker.addEventListener("change", calculateEndTime)
+  startTimePicker.addEventListener("change", calculateEndTime);
   // Add End Time
-  var endTimeHolder = appendContent(contentHolder, 'div')
+  var endTimeHolder = appendContent(contentHolder, 'div');
   endTimeHolder.className = "form-item";
   var endTimeLabel = appendContent(endTimeHolder, "label", 'End Time:');
   endTimeLabel.for = "end-time";
   appendContent(endTimeHolder, 'br');
-  var endTimePicker = appendContent(endTimeHolder, 'input');
+  var endTimePicker = appendContent(endTimeHolder, 'input', '', 'end-time');
   endTimePicker.type = "time";
-  endTimePicker.id = "end-time";
   endTimePicker.step = "900"
   // Add Max Attendees
-  var attendeesHolder = appendContent(contentHolder, 'div')
-  attendeesHolder.className = "form-item";
+  var attendeesHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
   var attendeesLabel = appendContent(attendeesHolder, "label", 'Max Attendees:');
   attendeesLabel.for = "attendees-input";
   appendContent(attendeesHolder, 'br');
-  var attendeesInput = appendContent(attendeesHolder, 'input');
+  var attendeesInput = appendContent(attendeesHolder, 'input', '', 'attendees-input');
   attendeesInput.type = "number";
-  attendeesInput.id = "attendees-input";
+  attendeesInput.min = 0;
   // add zoom link
   var linkLabel = appendContent(fieldSetWrapper, "label", 'Zoom Link:');
   linkLabel.for = "link-input";
   appendContent(fieldSetWrapper, 'br');
-  var linkInput = appendContent(fieldSetWrapper, 'input');
-  linkInput.id = "link-input";
+  var linkInput = appendContent(fieldSetWrapper, 'input', '', 'link-input');
   // add buttons
-  var buttonWrapper = appendContent(fieldSetWrapper, "div")
-  buttonWrapper.id = "button-wrapper";
-  var editButton = appendContent(buttonWrapper, "button", 'Edit Event Type')
-  editButton.id = "edit-type-button";
-  editButton.className = "form-button";
+  var buttonWrapper = appendContent(fieldSetWrapper, "div", '', 'button-wrapper');
+  var editButton = appendContent(buttonWrapper, "button", 'Edit Event Type', 'edit-type-button', 'form-button');
   editButton.type = "button";
   editButton.addEventListener("click", addEditTypeFields);
-  var createButton = appendContent(buttonWrapper, "button", 'Create Event')
-  createButton.id = "create-button";
-  createButton.className = "form-button";
+  var createButton = appendContent(buttonWrapper, "button", 'Create Event', 'create-button', 'form-button');
   createButton.type = "button";
   return eventTypeSelect;
 }
@@ -322,7 +312,7 @@ function getDate(){
   if(mm<10){
     mm='0'+mm;
   }
-  yyyymmdd = (yyyy +'-'+ mm + '-' + dd)
+  yyyymmdd = (yyyy +'-'+ mm + '-' + dd);
   return yyyymmdd;
 }
 // Function to fprmat provided date as mm/dd/yyyy
@@ -335,10 +325,8 @@ function getFormattedDate(date) {
 }
 // Function to update fields from defaults
 function eventTypeChanged(){
-  eventTypeSelect = document.getElementById("event-type-select");
-  eventTypeValue = eventTypeSelect.value;
-
-
+  var eventTypeSelect = document.getElementById("event-type-select");
+  var eventTypeValue = eventTypeSelect.value;
   if(eventTypeSelect.value < eventTypeValues.length){
     var row = eventTypeValues[eventTypeValue]
     document.getElementById("attendees-input").value = row[3] ;
@@ -351,141 +339,300 @@ function eventTypeChanged(){
 // Function that adds fields to contentElement for adding new event types
 function addNewTypeFields(){
   // add blocker to prevent accidentally clicking other buttons
-  var blockerDiv = appendContent(signedinElement,"div")
-  blockerDiv.id="blocker";
+  var blockerDiv = appendContent(signedinElement,'div', '', 'blocker');
   // add form
-  var formWrapper = appendContent(blockerDiv, 'FORM');
-  formWrapper.id = "new-type-form";
+  var formWrapper = appendContent(blockerDiv, 'FORM', '', 'new-type-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   // add legend
-  appendContent(fieldSetWrapper, 'LEGEND', 'Add New Event Type')
+  appendContent(fieldSetWrapper, 'LEGEND', 'Add New Event Type');
   // add container div
-  var contentHolder = appendContent(fieldSetWrapper, 'div')
-  contentHolder.id = 'new-content-holder'
+  var contentHolder = appendContent(fieldSetWrapper, 'div', '', 'new-content-holder');
   // add Title
-  var eventTypeHolder = appendContent(contentHolder, 'div')
-  eventTypeHolder.className = "form-item";
+  var eventTypeHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
   var eventTypeLabel = appendContent(eventTypeHolder, "label", 'Title:');
   eventTypeLabel.for = "event-type-name";
   appendContent(eventTypeHolder, 'br');
-  var eventTypeInput = appendContent(eventTypeHolder, 'input');
-  eventTypeInput.id = "event-type-name";
+  var eventTypeInput = appendContent(eventTypeHolder, 'input', '', 'event-type-name');
   // Add Run Time
-  var runTimeHolder = appendContent(contentHolder, 'div')
-  runTimeHolder.className = "form-item";
+  var runTimeHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
   var runTimeLabel = appendContent(runTimeHolder, "label", 'Run Time:');
   runTimeLabel.for = "run-time-input";
   appendContent(runTimeHolder, 'br');
-  var runTimeInput = appendContent(runTimeHolder, 'input');
+  var runTimeInput = appendContent(runTimeHolder, 'input', '', 'run-time-input');
   runTimeInput.type = "number";
-  runTimeInput.id = "run-time-input";
+  runTimeInput.min = 0;
   // Add Max Attendees
-  var attendeesHolder = appendContent(contentHolder, 'div')
-  attendeesHolder.className = "form-item";
+  var attendeesHolder = appendContent(contentHolder, 'div' , '', '', 'form-item');
   var attendeesLabel = appendContent(attendeesHolder, "label", 'Max Attendees:');
   attendeesLabel.for = "new-attendees-input";
   appendContent(attendeesHolder, 'br');
-  var attendeesInput = appendContent(attendeesHolder, 'input');
+  var attendeesInput = appendContent(attendeesHolder, 'input', '','new-attendees-input');
   attendeesInput.type = "number";
-  attendeesInput.id = "new-attendees-input";
-  // add description
-  var descLabel = appendContent(fieldSetWrapper, "label", 'Description:');
-  descLabel.for = "desc-input";
-  appendContent(fieldSetWrapper, 'br');
-  var descInput = appendContent(fieldSetWrapper, 'input');
-  descInput.id = "desc-input";
-  appendContent(fieldSetWrapper, 'br');
+  attendeesInput.min = 0;
+  // Add Cost
+  var costHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
+  var costLabel = appendContent(costHolder, "label", 'Cost:');
+  costLabel.for = "new-attendees-input";
+  appendContent(costHolder, 'br');
+  var costInput = appendContent(costHolder, 'input', '', 'cost-input');
+  costInput.type = "number";
+  costInput.min = 0;
+  costInput.addEventListener("change", toggleCostHidden);
   // add zoom link
   var linkLabel = appendContent(fieldSetWrapper, "label", 'Zoom Link:');
   linkLabel.for = "new-link-input";
   appendContent(fieldSetWrapper, 'br');
-  var linkInput = appendContent(fieldSetWrapper, 'input');
-  linkInput.id = "new-link-input";
-  // add buttons
-  var buttonWrapper = appendContent(fieldSetWrapper, "div")
-  buttonWrapper.id = "button-wrapper";
-  var cancelTypeButton = appendContent(buttonWrapper, "button", 'Cancel')
-  cancelTypeButton.id = "cancel-button";
-  cancelTypeButton.className = "form-button";
-  cancelTypeButton.type = "button";
-  cancelTypeButton.addEventListener("click", removeBlocker);
-  var createTypeButton = appendContent(buttonWrapper, "button", 'Add New Event Type')
-  createTypeButton.id = "new-type-button";
-  createTypeButton.className = "form-button";
-  createTypeButton.type = "button";
-  createTypeButton.addEventListener("click", addNewType());
-}
-// Function that adds fields to contentElement for editing event types
-function addEditTypeFields(){
-
-  // add blocker to prevent accidentally clicking other buttons
-  var blockerDiv = appendContent(signedinElement,"div")
-  blockerDiv.id="blocker";
-  // add form
-  var formWrapper = appendContent(blockerDiv, 'FORM');
-  formWrapper.id = "new-type-form";
-  formWrapper.onkeypress = stopReturnSubmit(formWrapper);
-  // add fieldset
-  var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
-  // add legend
-  appendContent(fieldSetWrapper, 'LEGEND', 'Edit Event Type')
-  // add container div
-  var contentHolder = appendContent(fieldSetWrapper, 'div')
-  contentHolder.id = 'new-content-holder'
-  // add Title
-  var eventTypeHolder = appendContent(contentHolder, 'div')
-  eventTypeHolder.className = "form-item";
-  var eventTypeLabel = appendContent(eventTypeHolder, "label", 'Title:');
-  eventTypeLabel.for = "event-type-name";
-  appendContent(eventTypeHolder, 'br');
-  var eventTypeInput = appendContent(eventTypeHolder, 'input');
-  eventTypeInput.id = "event-type-name";
-  // Add Run Time
-  var runTimeHolder = appendContent(contentHolder, 'div')
-  runTimeHolder.className = "form-item";
-  var runTimeLabel = appendContent(runTimeHolder, "label", 'Run Time:');
-  runTimeLabel.for = "run-time-input";
-  appendContent(runTimeHolder, 'br');
-  var runTimeInput = appendContent(runTimeHolder, 'input');
-  runTimeInput.type = "number";
-  runTimeInput.id = "run-time-input";
-  // Add Max Attendees
-  var attendeesHolder = appendContent(contentHolder, 'div')
-  attendeesHolder.className = "form-item";
-  var attendeesLabel = appendContent(attendeesHolder, "label", 'Max Attendees:');
-  attendeesLabel.for = "new-attendees-input";
-  appendContent(attendeesHolder, 'br');
-  var attendeesInput = appendContent(attendeesHolder, 'input');
-  attendeesInput.type = "number";
-  attendeesInput.id = "new-attendees-input";
+  var linkInput = appendContent(fieldSetWrapper, 'input', '', 'new-link-input');
+  appendContent(fieldSetWrapper, 'br');
   // add description
   var descLabel = appendContent(fieldSetWrapper, "label", 'Description:');
   descLabel.for = "desc-input";
   appendContent(fieldSetWrapper, 'br');
-  var descInput = appendContent(fieldSetWrapper, 'input');
-  descInput.id = "desc-input";
+  var descInput = appendContent(fieldSetWrapper, 'textarea', '', 'desc-input', 'rich-text');
   appendContent(fieldSetWrapper, 'br');
+  // add Sign Up Page Copy
+  var signUpCopyLabel = appendContent(fieldSetWrapper, "label", 'Sign Up Page Copy:');
+  signUpCopyLabel.for = "sign-up-page-copy";
+  appendContent(fieldSetWrapper, 'br');
+  var signUpCopyInput = appendContent(fieldSetWrapper, 'textarea', '', 'sign-up-page-copy', 'rich-text');
+  appendContent(fieldSetWrapper, 'br');
+  // add Sign Up Page CTA
+  var signUpCTALabel = appendContent(fieldSetWrapper, "label", 'Sign Up Page CTA:');
+  signUpCTALabel.for = "sign-up-page-cta";
+  appendContent(fieldSetWrapper, 'br');
+  var signUpCTAInput = appendContent(fieldSetWrapper, 'textarea', '', 'sign-up-page-cta', 'rich-text');
+  appendContent(fieldSetWrapper, 'br');
+  // add Payment Page Copy
+  var costDiv = appendContent(fieldSetWrapper, 'div', '', '', 'cost-hidden')
+  var payementPageCopyLabel = appendContent(costDiv, "label", 'Payment Page Copy:');
+  payementPageCopyLabel.for = "payment-page-copy";
+  appendContent(costDiv, 'br');
+  var payementPageCopyInput = appendContent(costDiv, 'textarea', '', 'payment-page-copy', 'rich-text');
+  appendContent(costDiv, 'br');
+  // add Thank You Page copy
+  var thankYouPageLabel = appendContent(fieldSetWrapper, "label", 'Thank You Page Copy:');
+  thankYouPageLabel.for = "thank-you-page-copy";
+  appendContent(fieldSetWrapper, 'br');
+  var thankYouPageInput = appendContent(fieldSetWrapper, 'textarea', '', 'thank-you-page-copy', 'rich-text');
+  appendContent(fieldSetWrapper, 'br');
+  // add Thank You Page Totals
+  var costDiv = appendContent(fieldSetWrapper, 'div', '', '', 'cost-hidden')
+  var thankYouPageTotalsLabel = appendContent(costDiv, "label", 'Thank You Page Totals Copy:');
+  thankYouPageTotalsLabel.for = "thank-you-page-totals-copy";
+  appendContent(costDiv, 'br');
+  var thankYouPageTotalsInput = appendContent(costDiv, 'textarea', '', 'thank-you-page-totals-copy', 'rich-text');
+  appendContent(costDiv, 'br');
+  // add Confirmation Email Copy
+  var confirmationEmailCopyLabel = appendContent(fieldSetWrapper, "label", 'Confirmation Email Copy:');
+  confirmationEmailCopyLabel.for = "confirmation-email-copy";
+  appendContent(fieldSetWrapper, 'br');
+  var confirmationEmailCopyInput = appendContent(fieldSetWrapper, 'textarea', '', 'confirmation-email-copy', 'rich-text');
+  appendContent(fieldSetWrapper, 'br');
+  // add Reminder Email Copy
+  var reminderEmailCopyLabel = appendContent(fieldSetWrapper, "label", 'Reminder Email Copy:');
+  reminderEmailCopyLabel.for = "reminder-email-copy";
+  appendContent(fieldSetWrapper, 'br');
+  var reminderEmailCopyInput = appendContent(fieldSetWrapper, 'textarea', '', 'reminder-email-copy', 'rich-text');
+  appendContent(fieldSetWrapper, 'br');
+  // add Follow up Email Copy
+  var followUpEmailCopyLabel = appendContent(fieldSetWrapper, "label", 'Follow up Email Copy:');
+  followUpEmailCopyLabel.for = "follow-up-email-copy";
+  appendContent(fieldSetWrapper, 'br');
+  var followUpEmailCopyInput = appendContent(fieldSetWrapper, 'textarea', '', 'follow-up-email-copy', 'rich-text');
+  appendContent(fieldSetWrapper, 'br');
+  // add Follow up Email CTA
+  var followUpEmailCTALabel = appendContent(fieldSetWrapper, "label", 'Follow up Email CTA:');
+  followUpEmailCTALabel.for = "follow-up-email-cta";
+  appendContent(fieldSetWrapper, 'br');
+  var followUpEmailCTAInput = appendContent(fieldSetWrapper, 'textarea', '', 'follow-up-email-cta', 'rich-text');
+  appendContent(fieldSetWrapper, 'br');
+  // add Follow up Email CTA Destination
+  var followUpEmailCTADestLabel = appendContent(fieldSetWrapper, "label", 'Follow up Email CTA Destination:');
+  followUpEmailCTADestLabel.for = "follow-up-email-cta-dest";
+  appendContent(fieldSetWrapper, 'br');
+  var followUpEmailCTADestInput = appendContent(fieldSetWrapper, 'textarea', '', 'follow-up-email-cta-dest', 'rich-text');
+  appendContent(fieldSetWrapper, 'br');
+
+  richTextInit();
+  // add buttons
+  var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
+  var cancelTypeButton = appendContent(buttonWrapper, "button", 'Cancel', 'cancel-button', 'form-button');
+  cancelTypeButton.type = "button";
+  cancelTypeButton.addEventListener("click", removeBlocker);
+  var createTypeButton = appendContent(buttonWrapper, "button", 'Add New Event Type', 'new-type-button', 'form-button');
+  createTypeButton.type = "button";
+  createTypeButton.addEventListener("click", addNewType);
+}
+// Function that adds fields to contentElement for editing event types
+function addEditTypeFields(){
+  // get current event type
+  var eventTypeSelect = document.getElementById("event-type-select");
+  var eventTypeValue = eventTypeSelect.value;
+  var row = eventTypeValues[eventTypeValue]
+  // add blocker to prevent accidentally clicking other buttons
+  var blockerDiv = appendContent(signedinElement,'div', '', 'blocker');
+  // add form
+  var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-type-form');
+  formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  // add fieldset
+  var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
+  // add legend
+  appendContent(fieldSetWrapper, 'LEGEND', 'Edit Event Type');
+  // add container div
+  var contentHolder = appendContent(fieldSetWrapper, 'div', '', 'new-content-holder');
+  // add Title
+  var eventTypeHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
+  var eventTypeLabel = appendContent(eventTypeHolder, "label", 'Title:');
+  eventTypeLabel.for = "event-type-name";
+  appendContent(eventTypeHolder, 'br');
+  var eventTypeInput = appendContent(eventTypeHolder, 'input', '', 'event-type-name');
+  eventTypeInput.value = row[0];
+  // Add Run Time
+  var runTimeHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
+  var runTimeLabel = appendContent(runTimeHolder, "label", 'Run Time:');
+  runTimeLabel.for = "run-time-input";
+  appendContent(runTimeHolder, 'br');
+  var runTimeInput = appendContent(runTimeHolder, 'input', '', 'run-time-input');
+  runTimeInput.type = "number";
+  runTimeInput.min = 0;
+  runTimeInput.value = row[1];
+  // Add Max Attendees
+  var attendeesHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
+  var attendeesLabel = appendContent(attendeesHolder, "label", 'Max Attendees:');
+  attendeesLabel.for = "new-attendees-input";
+  appendContent(attendeesHolder, 'br');
+  var attendeesInput = appendContent(attendeesHolder, 'input', '' ,'new-attendees-input');
+  attendeesInput.type = "number";
+  attendeesInput.min = 0;
+  attendeesInput.value = row[3];
+  // Add Cost
+  var costHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
+  var costLabel = appendContent(costHolder, "label", 'Cost:');
+  costLabel.for = "new-attendees-input";
+  appendContent(costHolder, 'br');
+  var costInput = appendContent(costHolder, 'input', '', 'cost-input');
+  costInput.type = "number";
+  costInput.min = 0;
+  costInput.value = row[5];
+  costInput.addEventListener("change", toggleCostHidden);
   // add zoom link
   var linkLabel = appendContent(fieldSetWrapper, "label", 'Zoom Link:');
   linkLabel.for = "link-input";
   appendContent(fieldSetWrapper, 'br');
-  var linkInput = appendContent(fieldSetWrapper, 'input');
-  linkInput.id = "link-input";
+  var linkInput = appendContent(fieldSetWrapper, 'input', '', 'link-input');
+  linkInput.value = row[4];
+  appendContent(fieldSetWrapper, 'br');
+  // add description
+  var descLabel = appendContent(fieldSetWrapper, "label", 'Description:');
+  descLabel.for = "desc-input";
+  appendContent(fieldSetWrapper, 'br');
+  var descInput = appendContent(fieldSetWrapper, 'textarea', '', 'desc-input', 'rich-text');
+  descInput.onkeypress
+  descInput.value = row[2];
+  appendContent(fieldSetWrapper, 'br');
+  // add Sign Up Page Copy
+  var signUpCopyLabel = appendContent(fieldSetWrapper, "label", 'Sign Up Page Copy:');
+  signUpCopyLabel.for = "sign-up-page-copy";
+  appendContent(fieldSetWrapper, 'br');
+  var signUpCopyInput = appendContent(fieldSetWrapper, 'textarea', '', 'sign-up-page-copy', 'rich-text');
+  signUpCopyInput.value = row[6];
+  appendContent(fieldSetWrapper, 'br');
+  // add Sign Up Page CTA
+  var signUpCTALabel = appendContent(fieldSetWrapper, "label", 'Sign Up Page CTA:');
+  signUpCTALabel.for = "sign-up-page-cta";
+  appendContent(fieldSetWrapper, 'br');
+  var signUpCTAInput = appendContent(fieldSetWrapper, 'textarea', '', 'sign-up-page-cta', 'rich-text');
+  signUpCTAInput.value = row[7];
+  appendContent(fieldSetWrapper, 'br');
+  // add Payment Page Copy
+  var costDiv = appendContent(fieldSetWrapper, 'div', '', '', 'cost-hidden')
+  var payementPageCopyLabel = appendContent(costDiv, "label", 'Payment Page Copy:');
+  payementPageCopyLabel.for = "payment-page-copy";
+  appendContent(costDiv, 'br');
+  var payementPageCopyInput = appendContent(costDiv, 'textarea', '', 'payment-page-copy', 'rich-text');
+  payementPageCopyInput.value = row[8];
+  appendContent(costDiv, 'br');
+  // add Thank You Page copy
+  var thankYouPageLabel = appendContent(fieldSetWrapper, "label", 'Thank You Page Copy:');
+  thankYouPageLabel.for = "thank-you-page-copy";
+  appendContent(fieldSetWrapper, 'br');
+  var thankYouPageInput = appendContent(fieldSetWrapper, 'textarea', '', 'thank-you-page-copy', 'rich-text');
+  thankYouPageInput.value = row[9];
+  appendContent(fieldSetWrapper, 'br');
+  // add Thank You Page Totals
+  var costDiv = appendContent(fieldSetWrapper, 'div', '', '', 'cost-hidden')
+  var thankYouPageTotalsLabel = appendContent(costDiv, "label", 'Thank You Page Totals Copy:');
+  thankYouPageTotalsLabel.for = "thank-you-page-totals-copy";
+  appendContent(costDiv, 'br');
+  var thankYouPageTotalsInput = appendContent(costDiv, 'textarea', '', 'thank-you-page-totals-copy', 'rich-text');
+  thankYouPageTotalsInput.value = row[10];
+  appendContent(costDiv, 'br');
+  // add Confirmation Email Copy
+  var confirmationEmailCopyLabel = appendContent(fieldSetWrapper, "label", 'Confirmation Email Copy:');
+  confirmationEmailCopyLabel.for = "confirmation-email-copy";
+  appendContent(fieldSetWrapper, 'br');
+  var confirmationEmailCopyInput = appendContent(fieldSetWrapper, 'textarea', '', 'confirmation-email-copy', 'rich-text');
+  confirmationEmailCopyInput.value = row[11];
+  appendContent(fieldSetWrapper, 'br');
+  // add Reminder Email Copy
+  var reminderEmailCopyLabel = appendContent(fieldSetWrapper, "label", 'Reminder Email Copy:');
+  reminderEmailCopyLabel.for = "reminder-email-copy";
+  appendContent(fieldSetWrapper, 'br');
+  var reminderEmailCopyInput = appendContent(fieldSetWrapper, 'textarea', '', 'reminder-email-copy', 'rich-text');
+  reminderEmailCopyInput.value = row[12];
+  appendContent(fieldSetWrapper, 'br');
+  // add Follow up Email Copy
+  var followUpEmailCopyLabel = appendContent(fieldSetWrapper, "label", 'Follow up Email Copy:');
+  followUpEmailCopyLabel.for = "follow-up-email-copy";
+  appendContent(fieldSetWrapper, 'br');
+  var followUpEmailCopyInput = appendContent(fieldSetWrapper, 'textarea', '', 'follow-up-email-copy', 'rich-text');
+  followUpEmailCopyInput.value = row[13];
+  appendContent(fieldSetWrapper, 'br');
+  // add Follow up Email CTA
+  var followUpEmailCTALabel = appendContent(fieldSetWrapper, "label", 'Follow up Email CTA:');
+  followUpEmailCTALabel.for = "follow-up-email-cta";
+  appendContent(fieldSetWrapper, 'br');
+  var followUpEmailCTAInput = appendContent(fieldSetWrapper, 'textarea', '', 'follow-up-email-cta', 'rich-text');
+  followUpEmailCTAInput.value = row[14];
+  appendContent(fieldSetWrapper, 'br');
+  // add Follow up Email CTA Destination
+  var followUpEmailCTADestLabel = appendContent(fieldSetWrapper, "label", 'Follow up Email CTA Destination:');
+  followUpEmailCTADestLabel.for = "follow-up-email-cta-dest";
+  appendContent(fieldSetWrapper, 'br');
+  var followUpEmailCTADestInput = appendContent(fieldSetWrapper, 'textarea', '', 'follow-up-email-cta-dest', 'rich-text');
+  followUpEmailCTADestInput.value = row[15];
+  appendContent(fieldSetWrapper, 'br');
+
+  // Enable rich text editors
+  richTextInit();
   // add buttons
-  var buttonWrapper = appendContent(fieldSetWrapper, "div")
+  var buttonWrapper = appendContent(fieldSetWrapper, "div");
   buttonWrapper.id = "button-wrapper";
-  var cancelTypeButton = appendContent(buttonWrapper, "button", 'Cancel')
+  var cancelTypeButton = appendContent(buttonWrapper, "button", 'Cancel');
   cancelTypeButton.id = "cancel-button";
   cancelTypeButton.className = "form-button";
   cancelTypeButton.type = "button";
   cancelTypeButton.addEventListener("click", removeBlocker);
-  var createTypeButton = appendContent(buttonWrapper, "button", 'Add New Event Type')
-  createTypeButton.id = "new-type-button";
-  createTypeButton.className = "form-button";
-  createTypeButton.type = "button";
-  createTypeButton.addEventListener("click", addNewType());
+  var updateTypeButton = appendContent(buttonWrapper, "button", 'Update Event Type');
+  updateTypeButton.id = "new-type-button";
+  updateTypeButton.className = "form-button";
+  updateTypeButton.type = "button";
+  updateTypeButton.addEventListener("click", updateEventType);
+}
+// Function to toggle display of cost-hidden divs
+function toggleCostHidden(){
+  var costInputValue = document.getElementById('cost-input').value;
+  var costHiddenDivs = document.getElementsByClassName('cost-hidden');
+  for (i = 0; i < costHiddenDivs.length; i++) {
+    if(costInputValue > 0){
+      console.log(costInputValue);
+      costHiddenDivs[i].style.display = "block";
+    } else {
+      costHiddenDivs[i].style.display = "none";
+    }
+  }
 }
 // Function to remove blocker div
 function removeBlocker(){
@@ -494,16 +641,20 @@ function removeBlocker(){
   theBlocker = document.getElementById("blocker");
   theBlocker.remove();
 }
+// Function to
 function addNewType(){
-  console.log("working on it...");
+  console.log(tinyMCE.get('desc-input').getContent());
+}
+function updateEventType(){
+  console.log(tinyMCE.get('desc-input').getContent());
 }
 // Function to update end time from duration
 function calculateEndTime(){
   var eventTypeSelect = document.getElementById("event-type-select");
-  eventTypeValue = eventTypeSelect.value;
+  var eventTypeValue = eventTypeSelect.value;
+  var row = eventTypeValues[eventTypeValue]
   var startTimePicker = document.getElementById("start-time");
   var endTimePicker = document.getElementById("end-time");
-  var row = eventTypeValues[eventTypeValue]
   var defaultDuration = timeFromMins(parseInt(row[1]));
   endTimePicker.value = addTimes(startTimePicker.value, defaultDuration);
 }

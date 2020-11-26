@@ -109,7 +109,7 @@ fieldset{
   bottom: 0;
   right: 0;
   background-color:rgba(0,0,0,0.3);
-  overflow: hidden;
+  overflow: auto;
 }
 #new-type-form{
   margin: 10vh auto;
@@ -146,6 +146,9 @@ fieldset{
 .user {
   margin: 2vh;
   text-align: right;
+}
+.cost-hidden{
+  display: none;
 }
 @media only screen and (max-width: 850px) {
   #content-holder, #button-holder, .form-button, #event-bucket-holder, #new-content-holder {
