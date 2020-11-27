@@ -44,7 +44,10 @@ function richTextInit(){
   tinymce.remove();
   tinymce.init({
     selector: 'textarea.rich-text',
-    toolbar: false
+    toolbar: false,
+    mobile: {
+      menubar: true
+    }
   });
 }
 /**
