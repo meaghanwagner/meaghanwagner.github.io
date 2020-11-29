@@ -111,6 +111,16 @@ fieldset{
 #new-type-form{
   margin: 10vh auto;
 }
+#x-button{
+  float: right;
+  padding: 0 5px;
+  background-color: #fff;
+  border: thin solid black;
+  border-radius: 10px;
+  margin: -45px -20px;
+  font-size: 1.5em;
+  line-height: .9;
+}
 .full-width  {
   width: calc(100% - 24px);
 }

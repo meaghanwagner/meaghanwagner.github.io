@@ -44,7 +44,22 @@ function richTextInit(){
   tinymce.remove();
   tinymce.init({
     selector: 'textarea.rich-text',
-    toolbar: false,
+    autosave_ask_before_unload: false,
+    powerpaste_allow_local_images: true,
+    plugins: [
+      'a11ychecker advcode advlist anchor autolink codesample fullscreen help image imagetools tinydrive',
+      ' lists link media noneditable powerpaste preview',
+      ' searchreplace table template tinymcespellchecker visualblocks wordcount'
+    ],
+    toolbar:
+      'insertfile a11ycheck undo redo | bold italic | forecolor backcolor | template codesample | alignleft aligncenter alignright alignjustify | bullist numlist | link image tinydrive',
+    spellchecker_dialog: true,
+    spellchecker_whitelist: ['Ephox', 'Moxiecode'],
+    tinydrive_demo_files_url: '/docs/demo/tiny-drive-demo/demo_files.json',
+    tinydrive_token_provider: function (success, failure) {
+      success({ token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huZG9lIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.Ks_BdfH4CWilyzLNk8S2gDARFhuxIauLa8PwhdEQhEo' });
+    },
+    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
     mobile: {
       menubar: true
     }
@@ -184,18 +199,17 @@ function listUpcomingEvents() {
     calendarFieldset = appendContent(calendarHolder, 'fieldset');
     appendContent(calendarFieldset, 'legend', 'Upcoming events:');
     eventBucketHolder = appendContent(calendarFieldset, 'div', '', 'event-bucket-holder');
-
-    // create buckets for event types
-    for (i = 0; i < eventTypeValues.length; i++) {
-      var thisEventTypeName = eventTypeValues[i][0];
-      var thisEventTypeID = thisEventTypeName.toLowerCase().replace(/\W/g, '-');
-      thisEventTypeHolder = appendContent(eventBucketHolder, 'div', '', thisEventTypeID, 'event-bucket');
-      appendContent(thisEventTypeHolder, 'label', thisEventTypeName);
-    }
-    otherTypeHolder = appendContent(eventBucketHolder, 'div', '','other-events', 'event-bucket');
-    appendContent(otherTypeHolder, 'label', 'Other Events');
-
     if (events.length > 0) {
+      // create buckets for event types
+      for (i = 0; i < eventTypeValues.length; i++) {
+        var thisEventTypeName = eventTypeValues[i][0];
+        var thisEventTypeID = thisEventTypeName.toLowerCase().replace(/\W/g, '-');
+        thisEventTypeHolder = appendContent(eventBucketHolder, 'div', '', thisEventTypeID, 'event-bucket');
+        appendContent(thisEventTypeHolder, 'label', thisEventTypeName);
+      }
+      otherTypeHolder = appendContent(eventBucketHolder, 'div', '','other-events', 'event-bucket');
+      appendContent(otherTypeHolder, 'label', 'Other Events');
+
       for (i = 0; i < events.length; i++) {
         var event = events[i];
         // check if bucket exist for current event
@@ -229,14 +243,29 @@ function listUpcomingEvents() {
 
       }
     } else {
-      appendContent(calendarHolder, 'pre', 'No upcoming events found.');
+      appendContent(eventBucketHolder, 'h2', 'No upcoming events found.');
     }
   });
 }
+document.onkeydown = function(evt) {
+  evt = evt || window.event;
+  var isEscape = false;
+  if ("key" in evt) {
+    isEscape = (evt.key === "Escape" || evt.key === "Esc");
+  } else {
+    isEscape = (evt.keyCode === 27);
+  }
+  if (isEscape) {
+    removeBlocker();
+  }
+};
+
 function stopReturnSubmit(e){
-  var key = e.charCode || e.keyCode || 0;
-  if (key == 13) {
+  if (e.keyCode == 13) {
     e.preventDefault();
+  }
+  if (e.keyCode == 27) {
+    removeBlocker();
   }
 }
 // Function that adds fields to contentElement for creating events
@@ -298,12 +327,17 @@ function addCreateEventFields(){
   var linkInput = appendContent(fieldSetWrapper, 'input', '', 'link-input', 'full-width');
   // add buttons
   var buttonWrapper = appendContent(fieldSetWrapper, "div", '', 'button-wrapper');
+  var createButton = appendContent(buttonWrapper, "button", 'Create Event', 'create-button', 'form-button');
+  createButton.type = "button";
+  createButton.addEventListener("click", createCalendarEvent);
+
   var editButton = appendContent(buttonWrapper, "button", 'Edit Event Type', 'edit-type-button', 'form-button');
   editButton.type = "button";
   editButton.addEventListener("click", addEditTypeFields);
-  var createButton = appendContent(buttonWrapper, "button", 'Create Event', 'create-button', 'form-button');
-  createButton.type = "button";
   return eventTypeSelect;
+}
+function createCalendarEvent(){
+  console.log("Need to implement calendar creation");
 }
 // Function to get current data in yyyymmdd format
 function getDate(){
@@ -346,10 +380,12 @@ function addNewTypeFields(){
   // add blocker to prevent accidentally clicking other buttons
   var blockerDiv = appendContent(signedinElement,'div', '', 'blocker');
   // add form
-  var formWrapper = appendContent(blockerDiv, 'FORM', '', 'new-type-form');
+  var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-type-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
+  var xButton = appendContent(fieldSetWrapper, 'a', 'x', 'x-button');
+  xButton.addEventListener("click", removeBlocker);
   // add legend
   appendContent(fieldSetWrapper, 'LEGEND', 'Add New Event Type');
   // add container div
@@ -522,6 +558,8 @@ function addEditTypeFields(){
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
+  var xButton = appendContent(fieldSetWrapper, 'a', 'x', 'x-button');
+  xButton.addEventListener("click", removeBlocker);
   // add legend
   appendContent(fieldSetWrapper, 'LEGEND', 'Edit Event Type');
   // add container div
@@ -679,10 +717,12 @@ function toggleCostHidden(){
 }
 // Function to remove blocker div
 function removeBlocker(){
-  document.getElementById("event-type-select").selectedIndex = 0;
-  eventTypeChanged();
   theBlocker = document.getElementById("blocker");
-  theBlocker.remove();
+  if(theBlocker != null){
+    document.getElementById("event-type-select").selectedIndex = 0;
+    eventTypeChanged();
+    theBlocker.remove();
+  }
 }
 function editEventType(){
   var values = [
