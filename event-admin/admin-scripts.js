@@ -49,10 +49,10 @@ function richTextInit(){
     plugins: [
       'a11ychecker advcode advlist anchor autolink codesample fullscreen help image imagetools tinydrive',
       ' lists link media noneditable powerpaste preview',
-      ' searchreplace table template tinymcespellchecker visualblocks wordcount'
+      ' searchreplace table tinymcespellchecker visualblocks wordcount'
     ],
     toolbar:
-      'insertfile a11ycheck undo redo | bold italic | forecolor backcolor | template codesample | alignleft aligncenter alignright alignjustify | bullist numlist | link image tinydrive',
+      'insertfile a11ycheck undo redo | bold italic | forecolor backcolor | codesample | alignleft aligncenter alignright alignjustify | bullist numlist | link image tinydrive',
     spellchecker_dialog: true,
     spellchecker_whitelist: ['Ephox', 'Moxiecode'],
     tinydrive_demo_files_url: '/docs/demo/tiny-drive-demo/demo_files.json',
@@ -61,7 +61,9 @@ function richTextInit(){
     },
     content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
     mobile: {
-      menubar: true
+      menubar: true,
+      toolbar1: 'insertfile a11ycheck undo redo | bold italic | forecolor backcolor',
+      toolbar2:  'codesample | alignleft aligncenter alignright alignjustify | bullist numlist | link image tinydrive'
     }
   });
 }
