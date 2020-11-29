@@ -63,7 +63,9 @@ function richTextInit(){
     mobile: {
       menubar: true,
       toolbar1: 'insertfile a11ycheck undo redo | bold italic | forecolor backcolor',
-      toolbar2:  'codesample | alignleft aligncenter alignright alignjustify | bullist numlist | link image tinydrive'
+      toolbar2: 'codesample | alignleft aligncenter alignright alignjustify | bullist numlist',
+      toolbar3: 'link image tinydrive',
+      height: '60vh'
     }
   });
 }
