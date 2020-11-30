@@ -9,6 +9,7 @@ var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"
 // included, separated by spaces.
 var SCOPES = "profile email https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/calendar.events";
 var sheetID = '1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E';
+var calendarID = '50be3j70c5a3rn6t55tii9r4g4@group.calendar.google.com';
 var valueInputOption = 'RAW';
 
 var authorizeButton = document.getElementById('authorize_button');
@@ -189,7 +190,7 @@ function displaySheetsData() {
  */
 function listUpcomingEvents() {
   gapi.client.calendar.events.list({
-    'calendarId': '50be3j70c5a3rn6t55tii9r4g4@group.calendar.google.com',
+    'calendarId': calendarID,
     'timeMin': (new Date()).toISOString(),
     'showDeleted': false,
     'singleEvents': true,
@@ -229,7 +230,7 @@ function listUpcomingEvents() {
           appendContent(eventHolder, 'p', event.summary);
         }
         dateLine = appendContent(eventHolder, 'p');
-        linkTag = appendContent(dateLine, 'a', getFormattedDate(new Date(event.start.dateTime)));
+        linkTag = appendContent(dateLine, 'a', getDateForInput(new Date(event.start.dateTime)));
         linkTag.href = event.htmlLink;
         var startDate = new Date(event.start.dateTime);
         var endDate = new Date(event.end.dateTime);
@@ -341,7 +342,35 @@ function addCreateEventFields(){
   return eventTypeSelect;
 }
 function createCalendarEvent(){
-  console.log("Need to implement calendar creation");
+  var eventSelect = document.getElementById('event-type-select');
+  var datePicker = document.getElementById('date-picker');
+  var startTimePicker = document.getElementById('start-time');
+  startDateTime = (new Date(datePicker.value + ' ' + startTimePicker.value + ":00").toISOString());
+  var endTimePicker = document.getElementById('end-time');
+  endDateTime = (new Date(datePicker.value + ' ' + endTimePicker.value + ":00").toISOString());
+  var newEvent = {
+    'summary': eventSelect.options[eventSelect.selectedIndex].text,
+    'location': document.getElementById('link-input').value,
+    'start': {
+      'dateTime': startDateTime,
+    },
+    'end': {
+      'dateTime': endDateTime,
+    },
+  }
+  var request = gapi.client.calendar.events.insert({
+    'calendarId': calendarID,
+    'resource': newEvent
+  });
+  request.execute(function(event) {
+    var blockerDiv = appendContent(signedinElement,'div', '', 'blocker');
+    var alertDiv = appendContent(blockerDiv, 'div', '', 'alert');
+    var alertHeader = appendContent(alertDiv, 'h2');
+    var alertLink = appendContent(alertHeader, 'a', 'New Event Created!');
+    alertLink.href = event.htmlLink;
+    var alertButton = appendContent(alertDiv, 'button', 'OK', '', 'form-button');
+    alertButton.addEventListener('click', refreshData);
+  });
 }
 // Function to get current data in yyyymmdd format
 function getDate(){
@@ -359,7 +388,7 @@ function getDate(){
   return yyyymmdd;
 }
 // Function to fprmat provided date as mm/dd/yyyy
-function getFormattedDate(date) {
+function getDateForInput(date) {
     let year = date.getFullYear();
     let month = (1 + date.getMonth()).toString().padStart(2, '0');
     let day = date.getDate().toString().padStart(2, '0');
@@ -544,10 +573,13 @@ function addNewType(){
   }).then((response) => {
     var result = response.result;
     console.log(`${result.updates.updatedCells} cells appended.`)
-    removeBlocker();
-    clearContent();
-    displaySheetsData();
+    refreshData();
   });
+}
+function refreshData(){
+  removeBlocker();
+  clearContent();
+  displaySheetsData();
 }
 // Function that adds fields to contentElement for editing event types
 function addEditTypeFields(){
@@ -763,9 +795,7 @@ function editEventType(){
   }).then((response) => {
     var result = response.result;
     console.log(`${result.updatedCells} cells updated.`);
-    removeBlocker();
-    clearContent();
-    displaySheetsData();
+    refreshData();
   });
 }
 // Function to update end time from duration
