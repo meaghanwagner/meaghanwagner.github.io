@@ -334,10 +334,11 @@ function addCreateEventFields(){
   attendeesInput.type = "number";
   attendeesInput.min = 0;
   // add zoom link
-  var linkLabel = appendContent(fieldSetWrapper, "label", 'Zoom Link:');
+  var linkHolder = appendContent(fieldSetWrapper, "div", '', '', 'form-item');
+  var linkLabel = appendContent(linkHolder, "label", 'Zoom Link:');
   linkLabel.for = "link-input";
   appendContent(fieldSetWrapper, 'br');
-  var linkInput = appendContent(fieldSetWrapper, 'input', '', 'link-input', 'full-width');
+  var linkInput = appendContent(linkHolder, 'input', '', 'link-input', 'full-width');
   // add buttons
   var buttonWrapper = appendContent(fieldSetWrapper, "div", '', 'button-wrapper');
   var createButton = appendContent(buttonWrapper, "button", 'Create Event', 'create-button', 'form-button');
@@ -471,79 +472,80 @@ function addNewTypeFields(){
   costInput.min = 0;
   costInput.addEventListener("change", toggleCostHidden);
   // add zoom link
-  var linkLabel = appendContent(fieldSetWrapper, "label", 'Zoom Link:');
+  var linkHolder = appendContent(fieldSetWrapper, "div", '', '', 'form-item');
+  var linkLabel = appendContent(linkHolder, "label", 'Zoom Link:');
   linkLabel.for = "new-link-input";
-  appendContent(fieldSetWrapper, 'br');
-  var linkInput = appendContent(fieldSetWrapper, 'input', '', 'new-link-input', 'full-width');
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
+  var linkInput = appendContent(linkHolder, 'input', '', 'new-link-input', 'full-width');
+  appendContent(linkHolder, 'br');
   // add description
-  var descLabel = appendContent(fieldSetWrapper, "label", 'Description:');
+  var descLabel = appendContent(linkHolder, "label", 'Description:');
   descLabel.for = "desc-input";
-  appendContent(fieldSetWrapper, 'br');
-  var descInput = appendContent(fieldSetWrapper, 'textarea', '', 'desc-input', 'rich-text');
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
+  var descInput = appendContent(linkHolder, 'textarea', '', 'desc-input', 'rich-text');
+  appendContent(linkHolder, 'br');
   // add Sign Up Page Copy
-  var signUpCopyLabel = appendContent(fieldSetWrapper, "label", 'Sign Up Page Copy:');
+  var signUpCopyLabel = appendContent(linkHolder, "label", 'Sign Up Page Copy:');
   signUpCopyLabel.for = "sign-up-page-copy";
-  appendContent(fieldSetWrapper, 'br');
-  var signUpCopyInput = appendContent(fieldSetWrapper, 'textarea', '', 'sign-up-page-copy', 'rich-text');
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
+  var signUpCopyInput = appendContent(linkHolder, 'textarea', '', 'sign-up-page-copy', 'rich-text');
+  appendContent(linkHolder, 'br');
   // add Sign Up Page CTA
-  var signUpCTALabel = appendContent(fieldSetWrapper, "label", 'Sign Up Page CTA:');
+  var signUpCTALabel = appendContent(linkHolder, "label", 'Sign Up Page CTA:');
   signUpCTALabel.for = "sign-up-page-cta";
-  appendContent(fieldSetWrapper, 'br');
-  var signUpCTAInput = appendContent(fieldSetWrapper, 'textarea', '', 'sign-up-page-cta', 'rich-text');
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
+  var signUpCTAInput = appendContent(linkHolder, 'textarea', '', 'sign-up-page-cta', 'rich-text');
+  appendContent(linkHolder, 'br');
   // add Payment Page Copy
-  var costDiv = appendContent(fieldSetWrapper, 'div', '', '', 'cost-hidden')
+  var costDiv = appendContent(linkHolder, 'div', '', '', 'cost-hidden')
   var payementPageCopyLabel = appendContent(costDiv, "label", 'Payment Page Copy:');
   payementPageCopyLabel.for = "payment-page-copy";
   appendContent(costDiv, 'br');
   var payementPageCopyInput = appendContent(costDiv, 'textarea', '', 'payment-page-copy', 'rich-text');
   appendContent(costDiv, 'br');
   // add Thank You Page copy
-  var thankYouPageLabel = appendContent(fieldSetWrapper, "label", 'Thank You Page Copy:');
+  var thankYouPageLabel = appendContent(linkHolder, "label", 'Thank You Page Copy:');
   thankYouPageLabel.for = "thank-you-page-copy";
-  appendContent(fieldSetWrapper, 'br');
-  var thankYouPageInput = appendContent(fieldSetWrapper, 'textarea', '', 'thank-you-page-copy', 'rich-text');
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
+  var thankYouPageInput = appendContent(linkHolder, 'textarea', '', 'thank-you-page-copy', 'rich-text');
+  appendContent(linkHolder, 'br');
   // add Thank You Page Totals
-  var costDiv = appendContent(fieldSetWrapper, 'div', '', '', 'cost-hidden')
+  var costDiv = appendContent(linkHolder, 'div', '', '', 'cost-hidden')
   var thankYouPageTotalsLabel = appendContent(costDiv, "label", 'Thank You Page Totals Copy:');
   thankYouPageTotalsLabel.for = "thank-you-page-totals-copy";
   appendContent(costDiv, 'br');
   var thankYouPageTotalsInput = appendContent(costDiv, 'textarea', '', 'thank-you-page-totals-copy', 'rich-text');
   appendContent(costDiv, 'br');
   // add Confirmation Email Copy
-  var confirmationEmailCopyLabel = appendContent(fieldSetWrapper, "label", 'Confirmation Email Copy:');
+  var confirmationEmailCopyLabel = appendContent(linkHolder, "label", 'Confirmation Email Copy:');
   confirmationEmailCopyLabel.for = "confirmation-email-copy";
-  appendContent(fieldSetWrapper, 'br');
-  var confirmationEmailCopyInput = appendContent(fieldSetWrapper, 'textarea', '', 'confirmation-email-copy', 'rich-text');
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
+  var confirmationEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'confirmation-email-copy', 'rich-text');
+  appendContent(linkHolder, 'br');
   // add Reminder Email Copy
-  var reminderEmailCopyLabel = appendContent(fieldSetWrapper, "label", 'Reminder Email Copy:');
+  var reminderEmailCopyLabel = appendContent(linkHolder, "label", 'Reminder Email Copy:');
   reminderEmailCopyLabel.for = "reminder-email-copy";
-  appendContent(fieldSetWrapper, 'br');
-  var reminderEmailCopyInput = appendContent(fieldSetWrapper, 'textarea', '', 'reminder-email-copy', 'rich-text');
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
+  var reminderEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'reminder-email-copy', 'rich-text');
+  appendContent(linkHolder, 'br');
   // add Follow up Email Copy
-  var followUpEmailCopyLabel = appendContent(fieldSetWrapper, "label", 'Follow up Email Copy:');
+  var followUpEmailCopyLabel = appendContent(linkHolder, "label", 'Follow up Email Copy:');
   followUpEmailCopyLabel.for = "follow-up-email-copy";
-  appendContent(fieldSetWrapper, 'br');
-  var followUpEmailCopyInput = appendContent(fieldSetWrapper, 'textarea', '', 'follow-up-email-copy', 'rich-text');
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
+  var followUpEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'follow-up-email-copy', 'rich-text');
+  appendContent(linkHolder, 'br');
   // add Follow up Email CTA
-  var followUpEmailCTALabel = appendContent(fieldSetWrapper, "label", 'Follow up Email CTA:');
+  var followUpEmailCTALabel = appendContent(linkHolder, "label", 'Follow up Email CTA:');
   followUpEmailCTALabel.for = "follow-up-email-cta";
-  appendContent(fieldSetWrapper, 'br');
-  var followUpEmailCTAInput = appendContent(fieldSetWrapper, 'textarea', '', 'follow-up-email-cta', 'rich-text');
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
+  var followUpEmailCTAInput = appendContent(linkHolder, 'textarea', '', 'follow-up-email-cta', 'rich-text');
+  appendContent(linkHolder, 'br');
   // add Follow up Email CTA Destination
-  var followUpEmailCTADestLabel = appendContent(fieldSetWrapper, "label", 'Follow up Email CTA Destination:');
+  var followUpEmailCTADestLabel = appendContent(linkHolder, "label", 'Follow up Email CTA Destination:');
   followUpEmailCTADestLabel.for = "follow-up-email-cta-dest";
-  appendContent(fieldSetWrapper, 'br');
-  var followUpEmailCTADestInput = appendContent(fieldSetWrapper, 'input', '', 'follow-up-email-cta-dest', 'full-width');
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
+  var followUpEmailCTADestInput = appendContent(linkHolder, 'input', '', 'follow-up-email-cta-dest', 'full-width');
+  appendContent(linkHolder, 'br');
 
   richTextInit();
   // add buttons
@@ -653,36 +655,37 @@ function addEditTypeFields(){
   costInput.value = row[5];
   costInput.addEventListener("change", toggleCostHidden);
   // add zoom link
-  var linkLabel = appendContent(fieldSetWrapper, "label", 'Zoom Link:');
+  var linkHolder = appendContent(fieldSetWrapper, "div", '', '', 'form-item');
+  var linkLabel = appendContent(linkHolder, "label", 'Zoom Link:');
   linkLabel.for = "new-link-input";
-  appendContent(fieldSetWrapper, 'br');
-  var linkInput = appendContent(fieldSetWrapper, 'input', '', 'new-link-input', 'full-width');
+  appendContent(linkHolder, 'br');
+  var linkInput = appendContent(linkHolder, 'input', '', 'new-link-input', 'full-width');
   linkInput.value = row[4];
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
   // add description
-  var descLabel = appendContent(fieldSetWrapper, "label", 'Description:');
+  var descLabel = appendContent(linkHolder, "label", 'Description:');
   descLabel.for = "desc-input";
-  appendContent(fieldSetWrapper, 'br');
-  var descInput = appendContent(fieldSetWrapper, 'textarea', '', 'desc-input', 'rich-text');
+  appendContent(linkHolder, 'br');
+  var descInput = appendContent(linkHolder, 'textarea', '', 'desc-input', 'rich-text');
   descInput.onkeypress
   descInput.value = row[2];
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
   // add Sign Up Page Copy
-  var signUpCopyLabel = appendContent(fieldSetWrapper, "label", 'Sign Up Page Copy:');
+  var signUpCopyLabel = appendContent(linkHolder, "label", 'Sign Up Page Copy:');
   signUpCopyLabel.for = "sign-up-page-copy";
-  appendContent(fieldSetWrapper, 'br');
-  var signUpCopyInput = appendContent(fieldSetWrapper, 'textarea', '', 'sign-up-page-copy', 'rich-text');
+  appendContent(linkHolder, 'br');
+  var signUpCopyInput = appendContent(linkHolder, 'textarea', '', 'sign-up-page-copy', 'rich-text');
   signUpCopyInput.value = row[6];
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
   // add Sign Up Page CTA
-  var signUpCTALabel = appendContent(fieldSetWrapper, "label", 'Sign Up Page CTA:');
+  var signUpCTALabel = appendContent(linkHolder, "label", 'Sign Up Page CTA:');
   signUpCTALabel.for = "sign-up-page-cta";
-  appendContent(fieldSetWrapper, 'br');
-  var signUpCTAInput = appendContent(fieldSetWrapper, 'textarea', '', 'sign-up-page-cta', 'rich-text');
+  appendContent(linkHolder, 'br');
+  var signUpCTAInput = appendContent(linkHolder, 'textarea', '', 'sign-up-page-cta', 'rich-text');
   signUpCTAInput.value = row[7];
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
   // add Payment Page Copy
-  var costDiv = appendContent(fieldSetWrapper, 'div', '', '', 'cost-hidden')
+  var costDiv = appendContent(linkHolder, 'div', '', '', 'cost-hidden')
   var payementPageCopyLabel = appendContent(costDiv, "label", 'Payment Page Copy:');
   payementPageCopyLabel.for = "payment-page-copy";
   appendContent(costDiv, 'br');
@@ -690,14 +693,14 @@ function addEditTypeFields(){
   payementPageCopyInput.value = row[8];
   appendContent(costDiv, 'br');
   // add Thank You Page copy
-  var thankYouPageLabel = appendContent(fieldSetWrapper, "label", 'Thank You Page Copy:');
+  var thankYouPageLabel = appendContent(linkHolder, "label", 'Thank You Page Copy:');
   thankYouPageLabel.for = "thank-you-page-copy";
-  appendContent(fieldSetWrapper, 'br');
-  var thankYouPageInput = appendContent(fieldSetWrapper, 'textarea', '', 'thank-you-page-copy', 'rich-text');
+  appendContent(linkHolder, 'br');
+  var thankYouPageInput = appendContent(linkHolder, 'textarea', '', 'thank-you-page-copy', 'rich-text');
   thankYouPageInput.value = row[9];
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
   // add Thank You Page Totals
-  var costDiv = appendContent(fieldSetWrapper, 'div', '', '', 'cost-hidden')
+  var costDiv = appendContent(linkHolder, 'div', '', '', 'cost-hidden')
   var thankYouPageTotalsLabel = appendContent(costDiv, "label", 'Thank You Page Totals Copy:');
   thankYouPageTotalsLabel.for = "thank-you-page-totals-copy";
   appendContent(costDiv, 'br');
@@ -705,40 +708,40 @@ function addEditTypeFields(){
   thankYouPageTotalsInput.value = row[10];
   appendContent(costDiv, 'br');
   // add Confirmation Email Copy
-  var confirmationEmailCopyLabel = appendContent(fieldSetWrapper, "label", 'Confirmation Email Copy:');
+  var confirmationEmailCopyLabel = appendContent(linkHolder, "label", 'Confirmation Email Copy:');
   confirmationEmailCopyLabel.for = "confirmation-email-copy";
-  appendContent(fieldSetWrapper, 'br');
-  var confirmationEmailCopyInput = appendContent(fieldSetWrapper, 'textarea', '', 'confirmation-email-copy', 'rich-text');
+  appendContent(linkHolder, 'br');
+  var confirmationEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'confirmation-email-copy', 'rich-text');
   confirmationEmailCopyInput.value = row[11];
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
   // add Reminder Email Copy
-  var reminderEmailCopyLabel = appendContent(fieldSetWrapper, "label", 'Reminder Email Copy:');
+  var reminderEmailCopyLabel = appendContent(linkHolder, "label", 'Reminder Email Copy:');
   reminderEmailCopyLabel.for = "reminder-email-copy";
-  appendContent(fieldSetWrapper, 'br');
-  var reminderEmailCopyInput = appendContent(fieldSetWrapper, 'textarea', '', 'reminder-email-copy', 'rich-text');
+  appendContent(linkHolder, 'br');
+  var reminderEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'reminder-email-copy', 'rich-text');
   reminderEmailCopyInput.value = row[12];
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
   // add Follow up Email Copy
-  var followUpEmailCopyLabel = appendContent(fieldSetWrapper, "label", 'Follow up Email Copy:');
+  var followUpEmailCopyLabel = appendContent(linkHolder, "label", 'Follow up Email Copy:');
   followUpEmailCopyLabel.for = "follow-up-email-copy";
-  appendContent(fieldSetWrapper, 'br');
-  var followUpEmailCopyInput = appendContent(fieldSetWrapper, 'textarea', '', 'follow-up-email-copy', 'rich-text');
+  appendContent(linkHolder, 'br');
+  var followUpEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'follow-up-email-copy', 'rich-text');
   followUpEmailCopyInput.value = row[13];
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
   // add Follow up Email CTA
-  var followUpEmailCTALabel = appendContent(fieldSetWrapper, "label", 'Follow up Email CTA:');
+  var followUpEmailCTALabel = appendContent(linkHolder, "label", 'Follow up Email CTA:');
   followUpEmailCTALabel.for = "follow-up-email-cta";
-  appendContent(fieldSetWrapper, 'br');
-  var followUpEmailCTAInput = appendContent(fieldSetWrapper, 'textarea', '', 'follow-up-email-cta', 'rich-text');
+  appendContent(linkHolder, 'br');
+  var followUpEmailCTAInput = appendContent(linkHolder, 'textarea', '', 'follow-up-email-cta', 'rich-text');
   followUpEmailCTAInput.value = row[14];
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
   // add Follow up Email CTA Destination
-  var followUpEmailCTADestLabel = appendContent(fieldSetWrapper, "label", 'Follow up Email CTA Destination:');
+  var followUpEmailCTADestLabel = appendContent(linkHolder, "label", 'Follow up Email CTA Destination:');
   followUpEmailCTADestLabel.for = "follow-up-email-cta-dest";
-  appendContent(fieldSetWrapper, 'br');
-  var followUpEmailCTADestInput = appendContent(fieldSetWrapper, 'input', '', 'follow-up-email-cta-dest', 'full-width');
+  appendContent(linkHolder, 'br');
+  var followUpEmailCTADestInput = appendContent(linkHolder, 'input', '', 'follow-up-email-cta-dest', 'full-width');
   followUpEmailCTADestInput.value = row[15];
-  appendContent(fieldSetWrapper, 'br');
+  appendContent(linkHolder, 'br');
 
   // Enable rich text editors
   richTextInit();

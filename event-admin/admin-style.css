@@ -15,6 +15,9 @@ p {
   margin: 0;
   font-size: 1.2rem;
 }
+a:hover{
+  cursor: pointer;
+}
 button, select, input {
   padding: 12px;
   background-color: #9DB2C6;
@@ -85,6 +88,7 @@ fieldset{
 }
 #button-wrapper{
   display: flex;
+  margin: 5px;
 }
 #calendar-holder{
   margin-top: 1em;
@@ -140,7 +144,7 @@ fieldset{
   border-radius: 5px;
 }
 .form-item{
-  margin: 1em 0;
+  margin: 5px;
 }
 .form-button {
   margin-top: 1em;
