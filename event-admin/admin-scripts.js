@@ -12,6 +12,8 @@ var sheetID = '1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E';
 var calendarID = '50be3j70c5a3rn6t55tii9r4g4@group.calendar.google.com';
 var valueInputOption = 'RAW';
 
+var promptElement = document.getElementById('prompt');
+var signInButton = document.getElementById('authorize_button');
 var authorizeButton = document.getElementById('authorize_button');
 var signoutButton = document.getElementById('signout_button');
 var signedinElement = document.getElementById('signed-in');
@@ -35,7 +37,7 @@ function handleClientLoad() {
       gapi.load('client:auth2', initClient);
     } else {
       console.log(xhr.responseText);
-      document.getElementById('prompt').innerHTML = "Could not sign in, please try again. If the problem persists, please contact the developer.";
+      promptElement.innerHTML = "Could not sign in, please try again. If the problem persists, please contact the developer.";
     }
   }
   xhr.send();
@@ -104,9 +106,13 @@ function updateSigninStatus(isSignedIn) {
     var profile = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
     document.getElementById('username').innerHTML = profile.getName();
     document.getElementById('userimage').src = profile.getImageUrl();
+    promptElement.innerHTML = "Checking if signed in...";
+    signInButton.style.display = "none"
     signedoutElement.style.display = 'none';
     signedinElement.style.display = 'block';
   } else {
+    promptElement.innerHTML = "Please use the button below to sign in:";
+    signInButton.style.display = "inline-block"
     signedoutElement.style.display = 'grid';
     signedinElement.style.display = 'none';
   }
@@ -163,6 +169,7 @@ function displaySheetsData() {
     spreadsheetId: sheetID,
     range: 'event-types!A2:P',
   }).then(function(response) {
+    clearContent();
     var range = response.result;
     if (range.values.length > 0) {
       window.eventTypeValues = range.values;
@@ -177,7 +184,7 @@ function displaySheetsData() {
       eventTypeChanged();
       listUpcomingEvents();
     } else {
-      appendContent(contentElement, 'P', 'No data found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit">event-types sheet</a>.');
+      appendContent(contentElement, 'P', 'No data found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit" target="_blank">event-types sheet</a>.');
     }
   }, function(response) {
     appendContent(contentElement, 'P', 'Error: ' + response.result.error.message);
@@ -232,6 +239,7 @@ function listUpcomingEvents() {
         dateLine = appendContent(eventHolder, 'p');
         linkTag = appendContent(dateLine, 'a', getDateForInput(new Date(event.start.dateTime)));
         linkTag.href = event.htmlLink;
+        linkTag.target = '_blank';
         var startDate = new Date(event.start.dateTime);
         var endDate = new Date(event.end.dateTime);
         appendContent(eventHolder, 'p', startDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'}));
@@ -345,32 +353,40 @@ function createCalendarEvent(){
   var eventSelect = document.getElementById('event-type-select');
   var datePicker = document.getElementById('date-picker');
   var startTimePicker = document.getElementById('start-time');
-  startDateTime = (new Date(datePicker.value + ' ' + startTimePicker.value + ":00").toISOString());
   var endTimePicker = document.getElementById('end-time');
-  endDateTime = (new Date(datePicker.value + ' ' + endTimePicker.value + ":00").toISOString());
-  var newEvent = {
-    'summary': eventSelect.options[eventSelect.selectedIndex].text,
-    'location': document.getElementById('link-input').value,
-    'start': {
-      'dateTime': startDateTime,
-    },
-    'end': {
-      'dateTime': endDateTime,
-    },
-  }
-  var request = gapi.client.calendar.events.insert({
-    'calendarId': calendarID,
-    'resource': newEvent
-  });
-  request.execute(function(event) {
+  if(datePicker.value == '' || startTimePicker.value == '' || endTimePicker.value == ''){
+    alert('Please fill out all of the fields in the new event form before creating an event.');
+  } else {
+    startDateTime = (new Date(datePicker.value + ' ' + startTimePicker.value + ":00").toISOString());
+    endDateTime = (new Date(datePicker.value + ' ' + endTimePicker.value + ":00").toISOString());
+    var newEvent = {
+      'summary': eventSelect.options[eventSelect.selectedIndex].text,
+      'location': document.getElementById('link-input').value,
+      'start': {
+        'dateTime': startDateTime,
+      },
+      'end': {
+        'dateTime': endDateTime,
+      },
+    }
+    var request = gapi.client.calendar.events.insert({
+      'calendarId': calendarID,
+      'resource': newEvent
+    });
     var blockerDiv = appendContent(signedinElement,'div', '', 'blocker');
     var alertDiv = appendContent(blockerDiv, 'div', '', 'alert');
-    var alertHeader = appendContent(alertDiv, 'h2');
-    var alertLink = appendContent(alertHeader, 'a', 'New Event Created!');
-    alertLink.href = event.htmlLink;
-    var alertButton = appendContent(alertDiv, 'button', 'OK', '', 'form-button');
-    alertButton.addEventListener('click', refreshData);
-  });
+    var alertHeader = appendContent(alertDiv, 'h2', 'Creating event...');
+    request.execute(function(event) {
+      alertHeader.innerHTML = '';
+      var alertLink = appendContent(alertHeader, 'a', 'New Event Created!');
+      alertLink.href = event.htmlLink;
+      alertLink.target = '_blank';
+      appendContent(alertHeader, 'br');
+      appendContent(alertHeader, 'br');
+      var alertButton = appendContent(alertHeader, 'button', 'OK', '', 'form-button');
+      alertButton.addEventListener('click', refreshData);
+    });
+  }
 }
 // Function to get current data in yyyymmdd format
 function getDate(){
@@ -579,6 +595,7 @@ function addNewType(){
 function refreshData(){
   removeBlocker();
   clearContent();
+  appendContent(contentElement, 'h2', 'Refreshing data...');
   displaySheetsData();
 }
 // Function that adds fields to contentElement for editing event types

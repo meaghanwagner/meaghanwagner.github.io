@@ -42,25 +42,9 @@ fieldset{
   border-radius: 5px;
   border: thin solid #28262B;
 }
-#alert{
-  margin-top:10vh;
-  background-color: #fff;
-  border-radius: 5px;
-  padding: 15px;
-  width: 50vw;
-  margin: auto;
-  text-align: center;
-}
 #content-holder, #new-content-holder{
   display:flex;
   justify-content: space-between;
-}
-#prompt {
-  margin: 10vh 1vh 1vh 1vh;
-  text-align: center;
-}
-#authorize_button {
-  margin: 1vh 1vh 10vh 1vh;
 }
 #signed-in{
   max-width: 1180px;
@@ -76,7 +60,7 @@ fieldset{
   align-items: center;
   background-color: #3a3a3a;
 }
-#main-holder {
+#main-holder, #alert {
   min-width: 15em;
   min-height: 15em;
   width: 30vh;
@@ -87,6 +71,7 @@ fieldset{
   background-color: white;
   border-radius: 7px;
   box-shadow: 0px 0px 5px 2px black;
+  text-align: center;
 }
 #userimage {
   position: relative;
@@ -116,6 +101,9 @@ fieldset{
   right: 0;
   background-color:rgba(0,0,0,0.3);
   overflow: auto;
+  display: grid;
+  justify-items: center;
+  align-items: center;
 }
 #new-type-form{
   margin: 10vh auto;
@@ -146,7 +134,10 @@ fieldset{
   margin:5px;
 }
 .event{
-  margin:1em 0;
+  margin:.25em;
+  padding:.25em;
+  border:thin solid black;
+  border-radius: 5px;
 }
 .form-item{
   margin: 1em 0;
