@@ -188,10 +188,10 @@ function displaySheetsData() {
     if (range.values.length > 0) {
       window.eventTypeSheetsValues = range.values;
       var eventTypeSelect = addCreateEventFields();
-      for (i = 0; i < range.values.length; i++) {
-        var row = range.values[i];
+      for (var sheetIndex = 0; sheetIndex < range.values.length; sheetIndex++) {
+        var row = range.values[sheetIndex];
         optionElement = appendContent(eventTypeSelect, 'OPTION', row[0]);
-        optionElement.value = i;
+        optionElement.value = sheetIndex;
       }
       lastOptionElement = appendContent(eventTypeSelect, 'OPTION', "Add New Event Type...");
       lastOptionElement.value = range.values.length;
@@ -228,8 +228,8 @@ function listUpcomingEvents() {
     eventBucketHolder = appendContent(calendarFieldset, 'div', '', 'event-bucket-holder');
     if (events.length > 0) {
       // create buckets for event types
-      for (i = 0; i < eventTypeSheetsValues.length; i++) {
-        var thisEventTypeName = eventTypeSheetsValues[i][0];
+      for (var typeIndex = 0; typeIndex < eventTypeSheetsValues.length; typeIndex++) {
+        var thisEventTypeName = eventTypeSheetsValues[typeIndex][0];
         var thisEventTypeID = thisEventTypeName.toLowerCase().replace(/\W/g, '-');
         thisEventTypeHolder = appendContent(eventBucketHolder, 'div', '', thisEventTypeID, 'event-bucket');
         appendContent(thisEventTypeHolder, 'label', thisEventTypeName);
@@ -237,8 +237,8 @@ function listUpcomingEvents() {
       otherTypeHolder = appendContent(eventBucketHolder, 'div', '','other-events', 'event-bucket');
       appendContent(otherTypeHolder, 'label', 'Other Events');
 
-      for (i = 0; i < events.length; i++) {
-        var event = events[i];
+      for (var eventIndex = 0; eventIndex < events.length; eventIndex++) {
+        var event = events[eventIndex];
         // check if bucket exist for current event
         var calendarEventTypeID = event.summary.toLowerCase().replace(/\W/g, '-');
         var calendarEventTypeHolder = document.getElementById(calendarEventTypeID);
@@ -252,24 +252,26 @@ function listUpcomingEvents() {
           appendContent(eventHolder, 'p', event.summary);
         }
         dateLine = appendContent(eventHolder, 'p');
-        linkTag = appendContent(dateLine, 'a', getDateForInput(new Date(event.start.dateTime)));
+        linkTag = appendContent(dateLine, 'a', getDateForDisplay(new Date(event.start.dateTime)));
         linkTag.href = event.htmlLink;
         linkTag.target = '_blank';
         var startDate = new Date(event.start.dateTime);
         var endDate = new Date(event.end.dateTime);
-        appendContent(eventHolder, 'p', startDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'}));
+        appendContent(eventHolder, 'p', timeFromDate12(startDate));
         appendContent(eventHolder, 'p', ((endDate-startDate)/(1000 * 60)).toString() + " mins");
         attendeeCount = 0;
         if(event.attendees != null){
           attendeeCount = event.attendees.length;
         }
-        appendContent(eventHolder, 'p', attendeeCount.toString());
-        var modifyButton = appendContent(eventHolder, 'button', 'Modify', event.id, 'event-button');
+        appendContent(eventHolder, 'p', "Attendees: " + attendeeCount.toString());
+        var modifyButton = appendContent(eventHolder, 'button', 'Modify', '', 'event-button');
         modifyButton.type = "button";
-        modifyButton.addEventListener("click", function() {addModifyEventFields(modifyButton);});
+        modifyButton.setAttribute("data-event-id", event.id);
+        modifyButton.setAttribute("onclick", 'addModifyEventFields(this)');
         var cancelButton = appendContent(eventHolder, 'button', 'Cancel', '', 'event-button');
         cancelButton.type = "button";
-        cancelButton.addEventListener("click", function() {addCancelEventFields(event.id);});
+        cancelButton.setAttribute("data-event-id", event.id);
+        cancelButton.setAttribute("onclick", 'addCancelEventFields(this)');
       }
     } else {
       appendContent(eventBucketHolder, 'h2', 'No upcoming events found.');
@@ -286,13 +288,13 @@ function stopReturnSubmit(e){
   }
 }
 // Function that adds fields to blockerDiv for modifying events
-function addModifyEventFields(theElement){
-  var eventID = theElement.id;
-  console.log(eventID);
+function addModifyEventFields(element){
+  // get event id from element
+  var eventID = element.getAttribute("data-event-id");
   // add blocker to prevent accidentally clicking other buttons
   var blockerDiv = appendContent(signedinElement,'div', '', 'blocker');
   // add form
-  var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-type-form');
+  var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'modify-event-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
@@ -309,94 +311,321 @@ function addModifyEventFields(theElement){
     range: 'events!A2:M',
   }).then(function(response) {
     var range = response.result;
+    // check if data was returned
     if (range.values.length > 0) {
       var eventFoundInSheets = false;
-      for (i = 0; i < range.values.length; i++) {
-        var row = range.values[i];
-        if(row[0] = eventID){
+      // loop through data from sheets
+      for (var sheetsIndex = 0; sheetsIndex < range.values.length; sheetsIndex++) {
+        var row = range.values[sheetsIndex];
+        if(row[0] == eventID){
+          // found event in sheets
           eventFoundInSheets = true;
           eventFoundInCalendar = false;
-          for (i = 0; i < calendarEvents.length; i++) {
-            var thisEvent = calendarEvents[i];
+          var rowNumber = sheetsIndex + 2;
+          var rowRange = "events!A" + rowNumber.toString() + ":B";
+          // loop through data in calendar events
+          for (var eventIndex = 0; eventIndex < calendarEvents.length; eventIndex++) {
+            var thisEvent = calendarEvents[eventIndex];
             if(thisEvent.id == eventID){
-              console.log(thisEvent.id);
+              // found event in calendar events
               eventFoundInCalendar = true;
               contentHolder.innerHTML = '';
-              titleElement.innerHTML = 'Modifying: ' + thisEvent.summary;
+              titleElement.innerHTML = 'Modifying: ';
+              var eventLink = appendContent(titleElement, 'a', thisEvent.summary, 'title-text');
+              eventLink.href = thisEvent.htmlLink;
+              eventLink.target = '_blank';
               // Add Date
               var dateHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
               var dateLabel = appendContent(dateHolder, "label", 'Date:');
-              dateLabel.for = "date-picker";
+              dateLabel.for = "new-date-picker";
               appendContent(dateHolder, 'br');
-              var datePicker = appendContent(dateHolder, 'input', '','date-picker');
+              var datePicker = appendContent(dateHolder, 'input', '','new-date-picker');
               datePicker.type = "date";
               datePicker.min = getDate();
-              datePicker.value = thisEvent.start.dateTime;
+              var eventDate = getDateForInput(new Date(thisEvent.start.dateTime));
+              datePicker.value = eventDate;
               // Add Start Time
               var startTimeHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
               var startTimeLabel = appendContent(startTimeHolder, "label", 'Start Time:');
-              startTimeLabel.for = "start-time";
+              startTimeLabel.for = "new-start-time";
               appendContent(startTimeHolder, 'br');
-              var startTimePicker = appendContent(startTimeHolder, 'input', '', 'start-time');
+              var startTimePicker = appendContent(startTimeHolder, 'input', '', 'new-start-time');
               startTimePicker.type = "time";
               startTimePicker.step = "900"
-              startTimePicker.addEventListener("change", calculateEndTime);
-              startTimePicker.value = new Date(thisEvent.start.dateTime);
+              startTimePicker.addEventListener("change", calculateNewEndTime);
+              var eventStart = timeFromDate24(new Date(thisEvent.start.dateTime));
+              startTimePicker.value = eventStart;
+              var eventDuration = new Date(thisEvent.end.dateTime) - new Date(thisEvent.start.dateTime);
+              startTimePicker.setAttribute("data-event-duration", eventDuration)
               // Add End Time
               var endTimeHolder = appendContent(contentHolder, 'div');
               endTimeHolder.className = "form-item";
               var endTimeLabel = appendContent(endTimeHolder, "label", 'End Time:');
-              endTimeLabel.for = "end-time";
+              endTimeLabel.for = "new-end-time";
               appendContent(endTimeHolder, 'br');
-              var endTimePicker = appendContent(endTimeHolder, 'input', '', 'end-time');
+              var endTimePicker = appendContent(endTimeHolder, 'input', '', 'new-end-time');
               endTimePicker.type = "time";
               endTimePicker.step = "900"
-              startTimePicker.value = new Date(thisEvent.end.dateTime);
+              var eventEnd = timeFromDate24(new Date(thisEvent.end.dateTime));
+              endTimePicker.value = eventEnd;
               // Add Max Attendees
               var attendeesHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
               var attendeesLabel = appendContent(attendeesHolder, "label", 'Max Attendees:');
-              attendeesLabel.for = "attendees-input";
+              attendeesLabel.for = "new-attendees-input";
               appendContent(attendeesHolder, 'br');
-              var attendeesInput = appendContent(attendeesHolder, 'input', '', 'attendees-input');
+              var attendeesInput = appendContent(attendeesHolder, 'input', '', 'new-attendees-input');
               attendeesInput.type = "number";
               attendeesInput.min = 0;
               attendeesInput.value = row[1];
               // add zoom link
               var linkHolder = appendContent(fieldSetWrapper, "div", '', '', 'form-item');
               var linkLabel = appendContent(linkHolder, "label", 'Zoom Link:');
-              linkLabel.for = "link-input";
+              linkLabel.for = "new-link-input";
               appendContent(fieldSetWrapper, 'br');
-              var linkInput = appendContent(linkHolder, 'input', '', 'link-input', 'full-width');
+              var linkInput = appendContent(linkHolder, 'input', '', 'new-link-input', 'full-width');
               linkInput.value = thisEvent.location;
               // add description
               var descLabel = appendContent(linkHolder, "label", 'Description:');
               descLabel.for = "desc-input";
               appendContent(linkHolder, 'br');
               var descInput = appendContent(linkHolder, 'textarea', '', 'desc-input', 'rich-text');
+              descInput.value = thisEvent.description;
               appendContent(linkHolder, 'br');
+              // add modify message
+              var messageLabel = appendContent(linkHolder, "label", 'Update Message:');
+              messageLabel.for = "message-input";
+              appendContent(linkHolder, 'br');
+              var messageInput = appendContent(linkHolder, 'textarea', '', 'message-input', 'rich-text');
               richTextInit();
+              // add buttons
+              var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
+              var cancelTypeButton = appendContent(buttonWrapper, "button", 'Cancel', 'cancel-button', 'form-button');
+              cancelTypeButton.type = "button";
+              cancelTypeButton.addEventListener("click", removeBlocker);
+              var modifyButton = appendContent(buttonWrapper, "button", 'Update Event', 'modify-event-button', 'form-button');
+              modifyButton.type = "button";
+              modifyButton.setAttribute("data-event-id", thisEvent.id);
+              modifyButton.setAttribute("data-sheet-range", rowRange);
+              modifyButton.setAttribute("onclick", 'modifyEvent(this)');
+              break;
             }
           }
           if(!eventFoundInCalendar){
-            appendContent(contentHolder, 'P', 'No data for this event found in <a href="https://calendar.google.com/calendar/embed?src=50be3j70c5a3rn6t55tii9r4g4%40group.calendar.google.com&ctz=America%2FNew_York" target="_blank">events calendar</a>. Please contact the developer.');
+            alertElement = appendContent(contentHolder, 'P');
+            alertElement.innerHTML = 'No data for this event found in <a href="https://calendar.google.com/calendar/embed?src=50be3j70c5a3rn6t55tii9r4g4%40group.calendar.google.com&ctz=America%2FNew_York" target="_blank">events calendar</a>. Please contact the developer.';
           }
+          break;
         }
       }
       if(!eventFoundInSheets){
-        appendContent(contentHolder, 'P', 'No data for this event found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit#gid=433114330" target="_blank">events sheet</a>. Please contact the developer.');
+        alertElement = appendContent(contentHolder, 'P');
+        alertElement.innerHTML = 'No data for this event found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit#gid=433114330" target="_blank">events sheet</a>. Please contact the developer.';
       }
     } else {
-      appendContent(contentHolder, 'P', 'No data for events found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit#gid=433114330" target="_blank">events sheet</a>.');
+      alertElement = appendContent(contentHolder, 'P');
+      alertElement.innerHTML = 'No data for events found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit#gid=433114330" target="_blank">events sheet</a>. Please contact the developer.';
     }
   }, function(response) {
     appendContent(contentHolder, 'P', 'Error: ' + response.result.error.message);
   });
 }
-// Function that adds fields to blockerDiv for cancelling events
-function addCancelEventFields(){
-  console.log("not implemented yet");
-  // TODO: finish filling out cancel event form
+// Function to modify event in sheets & calendar
+function modifyEvent(element){
+  // getting info from button
+  var eventID = element.getAttribute("data-event-id");
+  var sheetRange = element.getAttribute("data-sheet-range");
+  // setting up data for sheets
+  var values = [
+    [
+      eventID,
+      document.getElementById('new-attendees-input').value
+    ]
+  ];
+  var body = {
+    values: values
+  };
+  var modifyForm = document.getElementById('modify-event-form');
+  modifyForm.style.display = "none";
+  var blockerDiv = document.getElementById('blocker');
+  var alertDiv = appendContent(blockerDiv, 'div', '', 'alert');
+  var alertHeader = appendContent(alertDiv, 'h2', 'Updating event...','alert-header');
+  // updating sheet
+  gapi.client.sheets.spreadsheets.values.update({
+     spreadsheetId: sheetID,
+     range: sheetRange,
+     valueInputOption: valueInputOption,
+     resource: body
+  }).then((response) => {
+    var result = response.result;
+    console.log(`${result.updatedCells} cells updated.`);
+    // setting up data for calendar
+    var newDate = document.getElementById('new-date-picker').value;
+    var newStart = document.getElementById('new-start-time').value;
+    var newEnd = document.getElementById('new-end-time').value;
+    startDateTime = (new Date(newDate + ' ' + newStart + ":00").toISOString());
+    endDateTime = (new Date(newDate + ' ' + newEnd + ":00").toISOString());
+    var newEvent = {
+      'summary': document.getElementById('title-text').textContent,
+      'location': document.getElementById('new-link-input').value,
+      'description': tinyMCE.get('desc-input').getContent(),
+      'start': {
+        'dateTime': startDateTime,
+      },
+      'end': {
+        'dateTime': endDateTime,
+      },
+    }
+    var request = gapi.client.calendar.events.patch({
+      'calendarId': calendarID,
+      'eventId': eventID,
+      'resource': newEvent
+    });
+    request.execute(function(event) {
+      refreshData();
+    });
+  }, function(response) {
+    appendContent(contentElement, 'P', 'Error: ' + response.result.error.message);
+  });
 }
+// Function that adds fields to blockerDiv for cancelling events
+function addCancelEventFields(element){
+  // get event id from element
+  var eventID = element.getAttribute("data-event-id");
+  // add blocker to prevent accidentally clicking other buttons
+  var blockerDiv = appendContent(signedinElement,'div', '', 'blocker');
+  // add form
+  var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'cancel-event-form');
+  formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  // add fieldset
+  var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
+  var xButton = appendContent(fieldSetWrapper, 'a', 'x', 'x-button');
+  xButton.addEventListener("click", removeBlocker);
+  // add legend
+  appendContent(fieldSetWrapper, 'LEGEND', 'Cancel Event');
+  // add container div
+  var titleElement = appendContent(fieldSetWrapper, 'h2', 'Loading event data...');
+  var contentHolder = appendContent(fieldSetWrapper, 'div', '', 'new-content-holder');
+  // Pull event data from sheet
+  gapi.client.sheets.spreadsheets.values.get({
+    spreadsheetId: sheetID,
+    range: 'events!A2:M',
+  }).then(function(response) {
+    var range = response.result;
+    // check if data was returned
+    if (range.values.length > 0) {
+      var eventFoundInSheets = false;
+      // loop through data from sheets
+      for (var sheetsIndex = 0; sheetsIndex < range.values.length; sheetsIndex++) {
+        var row = range.values[sheetsIndex];
+        if(row[0] == eventID){
+          // found event in sheets
+          eventFoundInSheets = true;
+          eventFoundInCalendar = false;
+          var rowNumber = sheetsIndex + 1;
+          var rowRange = rowNumber.toString();
+          // loop through data in calendar events
+          for (var eventIndex = 0; eventIndex < calendarEvents.length; eventIndex++) {
+            var thisEvent = calendarEvents[eventIndex];
+            if(thisEvent.id == eventID){
+              // found event in calendar events
+              eventFoundInCalendar = true;
+              contentHolder.innerHTML = '';
+              titleElement.innerHTML = 'Canceling: ';
+              var eventLink = appendContent(titleElement, 'a', thisEvent.summary, 'title-text');
+              eventLink.href = thisEvent.htmlLink;
+              eventLink.target = '_blank';
+              var startDate = new Date(thisEvent.start.dateTime);
+              var endDate = new Date(thisEvent.end.dateTime);
+              appendContent(fieldSetWrapper, 'p', timeFromDate12(startDate));
+              appendContent(fieldSetWrapper, 'p', ((endDate-startDate)/(1000 * 60)).toString() + " mins");
+              attendeeCount = 0;
+              if(thisEvent.attendees != null){
+                attendeeCount = thisEvent.attendees.length;
+              }
+              appendContent(fieldSetWrapper, 'p', "Attendees: " + attendeeCount.toString());
+              appendContent(fieldSetWrapper, 'br');
+              // add modify message
+              var messageLabel = appendContent(fieldSetWrapper, "label", 'Cancel Message:');
+              messageLabel.for = "message-input";
+              appendContent(fieldSetWrapper, 'br');
+              var messageInput = appendContent(fieldSetWrapper, 'textarea', '', 'message-input', 'rich-text');
+              richTextInit();
+              // add buttons
+              var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
+              var backButton = appendContent(buttonWrapper, "button", 'Back', 'cancel-button', 'form-button');
+              backButton.type = "button";
+              backButton.addEventListener("click", removeBlocker);
+              var cancelEventButton = appendContent(buttonWrapper, "button", 'Cancel Event', 'cancel-event-button', 'form-button');
+              cancelEventButton.type = "button";
+              cancelEventButton.setAttribute("data-event-id", thisEvent.id);
+              cancelEventButton.setAttribute("data-sheet-range", rowRange);
+              cancelEventButton.setAttribute("onclick", 'cancelEvent(this)');
+              break;
+            }
+          }
+          if(!eventFoundInCalendar){
+            alertElement = appendContent(contentHolder, 'P');
+            alertElement.innerHTML = 'No data for this event found in <a href="https://calendar.google.com/calendar/embed?src=50be3j70c5a3rn6t55tii9r4g4%40group.calendar.google.com&ctz=America%2FNew_York" target="_blank">events calendar</a>. Please contact the developer.';
+          }
+          break;
+        }
+      }
+      if(!eventFoundInSheets){
+        alertElement = appendContent(contentHolder, 'P');
+        alertElement.innerHTML = 'No data for this event found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit#gid=433114330" target="_blank">events sheet</a>. Please contact the developer.';
+      }
+    } else {
+      alertElement = appendContent(contentHolder, 'P');
+      alertElement.innerHTML = 'No data for events found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit#gid=433114330" target="_blank">events sheet</a>. Please contact the developer.';
+    }
+  }, function(response) {
+    appendContent(contentHolder, 'P', 'Error: ' + response.result.error.message);
+  });
+}
+function cancelEvent(element){
+  // getting info from button
+  var eventID = element.getAttribute("data-event-id");
+  var startRow = parseInt(element.getAttribute("data-sheet-range"));
+  // updating display message
+  var cancelForm = document.getElementById('cancel-event-form');
+  cancelForm.style.display = "none";
+  var blockerDiv = document.getElementById('blocker');
+  var alertDiv = appendContent(blockerDiv, 'div', '', 'alert');
+  var alertHeader = appendContent(alertDiv, 'h2', 'Canceling event...','alert-header');
+  gapi.client.sheets.spreadsheets.batchUpdate({
+    spreadsheetId: sheetID,
+    resource: {
+      "requests":
+      [
+        {
+          "deleteRange":
+          {
+            "range":
+            {
+              "sheetId": 433114330,
+              "startRowIndex": startRow,
+              "endRowIndex": startRow + 1
+            },
+            "shiftDimension": "ROWS"
+          }
+        }
+      ]
+    }
+  }).then((response) => {
+    var result = response.result;
+    console.log(result);
+    var request = gapi.client.calendar.events.delete({
+      'calendarId': calendarID,
+      'eventId': eventID
+    });
+    request.execute(function(event) {
+      refreshData();
+    });
+  }, function(response) {
+    appendContent(contentElement, 'P', 'Error: ' + response.result.error.message);
+  });
+}
+
 // Function that adds fields to contentElement for creating events
 function addCreateEventFields(){
   // add form
@@ -559,13 +788,21 @@ function getDate(){
   yyyymmdd = (yyyy +'-'+ mm + '-' + dd);
   return yyyymmdd;
 }
-// Function to fprmat provided date as mm/dd/yyyy
-function getDateForInput(date) {
+// Function to format provided date as mm/dd/yyyy
+function getDateForDisplay(date) {
     let year = date.getFullYear();
     let month = (1 + date.getMonth()).toString().padStart(2, '0');
     let day = date.getDate().toString().padStart(2, '0');
 
     return month + '/' + day + '/' + year;
+}
+// Function to format provided date as yyyy-mm-dd
+function getDateForInput(date) {
+    let year = date.getFullYear();
+    let month = (1 + date.getMonth()).toString().padStart(2, '0');
+    let day = date.getDate().toString().padStart(2, '0');
+
+    return year + "-" + month + '-' + day;
 }
 // Function to update fields from defaults
 function eventTypeChanged(){
@@ -736,6 +973,10 @@ function addNewType(){
   var body = {
     values: values
   };
+  var blockerDiv = document.getElementById('blocker');
+  blockerDiv.innerHTML = '';
+  var alertDiv = appendContent(blockerDiv, 'div', '', 'alert');
+  var alertHeader = appendContent(alertDiv, 'h2', 'Creating event...','alert-header');
   gapi.client.sheets.spreadsheets.values.append({
      spreadsheetId: sheetID,
      range: 'event-types',
@@ -917,11 +1158,11 @@ function addEditTypeFields(){
 function toggleCostHidden(){
   var costInputValue = document.getElementById('cost-input').value;
   var costHiddenDivs = document.getElementsByClassName('cost-hidden');
-  for (i = 0; i < costHiddenDivs.length; i++) {
+  for (var divIndex = 0; divIndex < costHiddenDivs.length; divIndex++) {
     if(costInputValue > 0){
-      costHiddenDivs[i].style.display = "block";
+      costHiddenDivs[divIndex].style.display = "block";
     } else {
-      costHiddenDivs[i].style.display = "none";
+      costHiddenDivs[divIndex].style.display = "none";
     }
   }
 }
@@ -961,6 +1202,10 @@ function editEventType(){
 
   var range = "event-types!A" + (parseInt(document.getElementById("event-type-select").value) + 2).toString() + ":P";
   console.log(range);
+  var blockerDiv = document.getElementById('blocker');
+  blockerDiv.innerHTML = '';
+  var alertDiv = appendContent(blockerDiv, 'div', '', 'alert');
+  var alertHeader = appendContent(alertDiv, 'h2', 'Creating event...','alert-header');
   gapi.client.sheets.spreadsheets.values.update({
      spreadsheetId: sheetID,
      range: range,
@@ -974,13 +1219,27 @@ function editEventType(){
 }
 // Function to update end time from duration
 function calculateEndTime(){
-  var eventTypeSelect = document.getElementById("event-type-select");
-  var eventTypeValue = eventTypeSelect.value;
-  var row = eventTypeSheetsValues[eventTypeValue]
   var startTimePicker = document.getElementById("start-time");
-  var endTimePicker = document.getElementById("end-time");
-  var defaultDuration = timeFromMins(parseInt(row[1]));
-  endTimePicker.value = addTimes(startTimePicker.value, defaultDuration);
+  if(startTimePicker.value !=''){
+    var eventTypeSelect = document.getElementById("event-type-select");
+    var eventTypeValue = eventTypeSelect.value;
+    var row = eventTypeSheetsValues[eventTypeValue]
+    var endTimePicker = document.getElementById("end-time");
+    var defaultDuration = timeFromMins(parseInt(row[1]));
+    endTimePicker.value = addTimes(startTimePicker.value, defaultDuration);
+  }
+}
+function calculateNewEndTime(){
+  var startTimePicker = document.getElementById("new-start-time");
+  if(startTimePicker.value !=''){
+    var newDate = document.getElementById('new-date-picker').value;
+    var newStart = startTimePicker.value;
+    var endTimePicker = document.getElementById('new-end-time');
+    var startDateTime = Date.parse(newDate + ' ' + newStart);
+    var eventDuration = parseInt(startTimePicker.getAttribute("data-event-duration"));
+    endDateTime = new Date(startDateTime + eventDuration);
+    endTimePicker.value = timeFromDate24(endDateTime);
+  }
 }
 // Function to convert a time in hh:mm format to minutes
 function timeToMins(time) {
@@ -1000,4 +1259,11 @@ function timeFromMins(mins) {
 // Function to add two times in hh:mm format
 function addTimes(t0, t1) {
   return timeFromMins(timeToMins(t0) + timeToMins(t1));
+}
+
+function timeFromDate12(date){
+  return date.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+}
+function timeFromDate24(date){
+  return date.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
 }
