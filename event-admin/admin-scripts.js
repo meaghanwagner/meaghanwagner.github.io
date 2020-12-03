@@ -204,6 +204,153 @@ function displaySheetsData() {
     appendContent(contentElement, 'P', 'Error: ' + response.result.error.message);
   });
 }
+// Function that adds fields to contentElement for creating events
+function addCreateEventFields(){
+  // add form
+  var formWrapper = appendContent(contentElement, 'FORM', '', 'create-event-form');
+  formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  // add fieldset
+  var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
+  // add legend
+  appendContent(fieldSetWrapper, 'LEGEND', 'Create New Event');
+  // add container div
+  var contentHolder = appendContent(fieldSetWrapper, 'div', '', 'content-holder');
+  // add Event Type
+  var eventTypeHolder = appendContent(contentHolder, 'div', '', '','form-item');
+  var eventTypeLabel = appendContent(eventTypeHolder, "label", 'Event Type:');
+  eventTypeLabel.for = "event-type-select";
+  appendContent(eventTypeHolder, 'br');
+  var eventTypeSelect = appendContent(eventTypeHolder, 'SELECT', '', 'event-type-select');
+  eventTypeSelect.addEventListener("change", eventTypeChanged);
+  // Add Date
+  var dateHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
+  var dateLabel = appendContent(dateHolder, "label", 'Date:');
+  dateLabel.for = "date-picker";
+  appendContent(dateHolder, 'br');
+  var datePicker = appendContent(dateHolder, 'input', '','date-picker');
+  datePicker.type = "date";
+  datePicker.min = getDate();
+  // Add Start Time
+  var startTimeHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
+  var startTimeLabel = appendContent(startTimeHolder, "label", 'Start Time:');
+  startTimeLabel.for = "start-time";
+  appendContent(startTimeHolder, 'br');
+  var startTimePicker = appendContent(startTimeHolder, 'input', '', 'start-time');
+  startTimePicker.type = "time";
+  startTimePicker.step = "900"
+  startTimePicker.addEventListener("change", calculateEndTime);
+  // Add End Time
+  var endTimeHolder = appendContent(contentHolder, 'div');
+  endTimeHolder.className = "form-item";
+  var endTimeLabel = appendContent(endTimeHolder, "label", 'End Time:');
+  endTimeLabel.for = "end-time";
+  appendContent(endTimeHolder, 'br');
+  var endTimePicker = appendContent(endTimeHolder, 'input', '', 'end-time');
+  endTimePicker.type = "time";
+  endTimePicker.step = "900"
+  // Add Max Attendees
+  var attendeesHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
+  var attendeesLabel = appendContent(attendeesHolder, "label", 'Max Attendees:');
+  attendeesLabel.for = "attendees-input";
+  appendContent(attendeesHolder, 'br');
+  var attendeesInput = appendContent(attendeesHolder, 'input', '', 'attendees-input');
+  attendeesInput.type = "number";
+  attendeesInput.min = 0;
+  // add zoom link
+  var linkHolder = appendContent(fieldSetWrapper, "div", '', '', 'form-item');
+  var linkLabel = appendContent(linkHolder, "label", 'Zoom Link:');
+  linkLabel.for = "link-input";
+  appendContent(fieldSetWrapper, 'br');
+  var linkInput = appendContent(linkHolder, 'input', '', 'link-input', 'full-width');
+  // add buttons
+  var buttonWrapper = appendContent(fieldSetWrapper, "div", '', 'button-wrapper');
+  var createButton = appendContent(buttonWrapper, "button", 'Create Event', 'create-button', 'form-button');
+  createButton.type = "button";
+  createButton.addEventListener("click", createCalendarEvent);
+
+  var editButton = appendContent(buttonWrapper, "button", 'Edit Event Type', 'edit-type-button', 'form-button');
+  editButton.type = "button";
+  editButton.addEventListener("click", addEditTypeFields);
+  return eventTypeSelect;
+}
+// Function to create new calendar event from the create event form
+function createCalendarEvent(){
+  var eventSelect = document.getElementById('event-type-select');
+  var datePicker = document.getElementById('date-picker');
+  var startTimePicker = document.getElementById('start-time');
+  var endTimePicker = document.getElementById('end-time');
+  if(datePicker.value == '' || startTimePicker.value == '' || endTimePicker.value == ''){
+    alert('Please fill out all of the fields in the new event form before creating an event.');
+  } else {
+    startDateTime = (new Date(datePicker.value + ' ' + startTimePicker.value + ":00").toISOString());
+    endDateTime = (new Date(datePicker.value + ' ' + endTimePicker.value + ":00").toISOString());
+    var newEvent = {
+      'summary': eventSelect.options[eventSelect.selectedIndex].text,
+      'location': document.getElementById('link-input').value,
+      'description': eventTypeSheetsValues[eventSelect.value][2],
+      'start': {
+        'dateTime': startDateTime,
+      },
+      'end': {
+        'dateTime': endDateTime,
+      },
+    }
+    var request = gapi.client.calendar.events.insert({
+      'calendarId': calendarID,
+      'resource': newEvent
+    });
+    var blockerDiv = appendContent(signedinElement,'div', '', 'blocker');
+    var alertDiv = appendContent(blockerDiv, 'div', '', 'alert');
+    var alertHeader = appendContent(alertDiv, 'h2', 'Creating event...','alert-header');
+    request.execute(function(event) {
+      addEventToSheet(event);
+    });
+  }
+}
+// Function to add event to sheet
+function addEventToSheet(event){
+  var eventSelect = document.getElementById('event-type-select');
+  var currentEventValues = eventTypeSheetsValues[eventSelect.value];
+  var values = [
+    [
+      event.id,
+      currentEventValues[3],
+      currentEventValues[5],
+      currentEventValues[6],
+      currentEventValues[7],
+      currentEventValues[8],
+      currentEventValues[9],
+      currentEventValues[10],
+      currentEventValues[11],
+      currentEventValues[12],
+      currentEventValues[13],
+      currentEventValues[14],
+      currentEventValues[15]
+    ],
+  ];
+  var body = {
+    values: values
+  };
+  gapi.client.sheets.spreadsheets.values.append({
+     spreadsheetId: sheetID,
+     range: 'events',
+     valueInputOption: valueInputOption,
+     resource: body
+  }).then((response) => {
+    var result = response.result;
+    console.log(`${result.updates.updatedCells} cells appended.`)
+    var alertHeader = document.getElementById('alert-header');
+    alertHeader.innerHTML = '';
+    var alertLink = appendContent(alertHeader, 'a', 'New Event Created!');
+    alertLink.href = event.htmlLink;
+    alertLink.target = '_blank';
+    appendContent(alertHeader, 'br');
+    appendContent(alertHeader, 'br');
+    var alertButton = appendContent(alertHeader, 'button', 'OK', '', 'form-button');
+    alertButton.addEventListener('click', refreshData);
+  });
+
+}
 /**
  * Print the summary and start datetime/date of the next ten events in
  * the authorized user's calendar. If no events are found an
@@ -624,154 +771,6 @@ function cancelEvent(element){
   }, function(response) {
     appendContent(contentElement, 'P', 'Error: ' + response.result.error.message);
   });
-}
-
-// Function that adds fields to contentElement for creating events
-function addCreateEventFields(){
-  // add form
-  var formWrapper = appendContent(contentElement, 'FORM', '', 'create-event-form');
-  formWrapper.onkeypress = stopReturnSubmit(formWrapper);
-  // add fieldset
-  var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
-  // add legend
-  appendContent(fieldSetWrapper, 'LEGEND', 'Create New Event');
-  // add container div
-  var contentHolder = appendContent(fieldSetWrapper, 'div', '', 'content-holder');
-  // add Event Type
-  var eventTypeHolder = appendContent(contentHolder, 'div', '', '','form-item');
-  var eventTypeLabel = appendContent(eventTypeHolder, "label", 'Event Type:');
-  eventTypeLabel.for = "event-type-select";
-  appendContent(eventTypeHolder, 'br');
-  var eventTypeSelect = appendContent(eventTypeHolder, 'SELECT', '', 'event-type-select');
-  eventTypeSelect.addEventListener("change", eventTypeChanged);
-  // Add Date
-  var dateHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
-  var dateLabel = appendContent(dateHolder, "label", 'Date:');
-  dateLabel.for = "date-picker";
-  appendContent(dateHolder, 'br');
-  var datePicker = appendContent(dateHolder, 'input', '','date-picker');
-  datePicker.type = "date";
-  datePicker.min = getDate();
-  // Add Start Time
-  var startTimeHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
-  var startTimeLabel = appendContent(startTimeHolder, "label", 'Start Time:');
-  startTimeLabel.for = "start-time";
-  appendContent(startTimeHolder, 'br');
-  var startTimePicker = appendContent(startTimeHolder, 'input', '', 'start-time');
-  startTimePicker.type = "time";
-  startTimePicker.step = "900"
-  startTimePicker.addEventListener("change", calculateEndTime);
-  // Add End Time
-  var endTimeHolder = appendContent(contentHolder, 'div');
-  endTimeHolder.className = "form-item";
-  var endTimeLabel = appendContent(endTimeHolder, "label", 'End Time:');
-  endTimeLabel.for = "end-time";
-  appendContent(endTimeHolder, 'br');
-  var endTimePicker = appendContent(endTimeHolder, 'input', '', 'end-time');
-  endTimePicker.type = "time";
-  endTimePicker.step = "900"
-  // Add Max Attendees
-  var attendeesHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
-  var attendeesLabel = appendContent(attendeesHolder, "label", 'Max Attendees:');
-  attendeesLabel.for = "attendees-input";
-  appendContent(attendeesHolder, 'br');
-  var attendeesInput = appendContent(attendeesHolder, 'input', '', 'attendees-input');
-  attendeesInput.type = "number";
-  attendeesInput.min = 0;
-  // add zoom link
-  var linkHolder = appendContent(fieldSetWrapper, "div", '', '', 'form-item');
-  var linkLabel = appendContent(linkHolder, "label", 'Zoom Link:');
-  linkLabel.for = "link-input";
-  appendContent(fieldSetWrapper, 'br');
-  var linkInput = appendContent(linkHolder, 'input', '', 'link-input', 'full-width');
-  // add buttons
-  var buttonWrapper = appendContent(fieldSetWrapper, "div", '', 'button-wrapper');
-  var createButton = appendContent(buttonWrapper, "button", 'Create Event', 'create-button', 'form-button');
-  createButton.type = "button";
-  createButton.addEventListener("click", createCalendarEvent);
-
-  var editButton = appendContent(buttonWrapper, "button", 'Edit Event Type', 'edit-type-button', 'form-button');
-  editButton.type = "button";
-  editButton.addEventListener("click", addEditTypeFields);
-  return eventTypeSelect;
-}
-// Function to create new calendar event from the create event form
-function createCalendarEvent(){
-  var eventSelect = document.getElementById('event-type-select');
-  var datePicker = document.getElementById('date-picker');
-  var startTimePicker = document.getElementById('start-time');
-  var endTimePicker = document.getElementById('end-time');
-  if(datePicker.value == '' || startTimePicker.value == '' || endTimePicker.value == ''){
-    alert('Please fill out all of the fields in the new event form before creating an event.');
-  } else {
-    startDateTime = (new Date(datePicker.value + ' ' + startTimePicker.value + ":00").toISOString());
-    endDateTime = (new Date(datePicker.value + ' ' + endTimePicker.value + ":00").toISOString());
-    var newEvent = {
-      'summary': eventSelect.options[eventSelect.selectedIndex].text,
-      'location': document.getElementById('link-input').value,
-      'description': eventTypeSheetsValues[eventSelect.value][2],
-      'start': {
-        'dateTime': startDateTime,
-      },
-      'end': {
-        'dateTime': endDateTime,
-      },
-    }
-    var request = gapi.client.calendar.events.insert({
-      'calendarId': calendarID,
-      'resource': newEvent
-    });
-    var blockerDiv = appendContent(signedinElement,'div', '', 'blocker');
-    var alertDiv = appendContent(blockerDiv, 'div', '', 'alert');
-    var alertHeader = appendContent(alertDiv, 'h2', 'Creating event...','alert-header');
-    request.execute(function(event) {
-      addEventToSheet(event);
-    });
-  }
-}
-// Function to add event to sheet
-function addEventToSheet(event){
-  var eventSelect = document.getElementById('event-type-select');
-  var currentEventValues = eventTypeSheetsValues[eventSelect.value];
-  var values = [
-    [
-      event.id,
-      currentEventValues[3],
-      currentEventValues[5],
-      currentEventValues[6],
-      currentEventValues[7],
-      currentEventValues[8],
-      currentEventValues[9],
-      currentEventValues[10],
-      currentEventValues[11],
-      currentEventValues[12],
-      currentEventValues[13],
-      currentEventValues[14],
-      currentEventValues[15]
-    ],
-  ];
-  var body = {
-    values: values
-  };
-  gapi.client.sheets.spreadsheets.values.append({
-     spreadsheetId: sheetID,
-     range: 'events',
-     valueInputOption: valueInputOption,
-     resource: body
-  }).then((response) => {
-    var result = response.result;
-    console.log(`${result.updates.updatedCells} cells appended.`)
-    var alertHeader = document.getElementById('alert-header');
-    alertHeader.innerHTML = '';
-    var alertLink = appendContent(alertHeader, 'a', 'New Event Created!');
-    alertLink.href = event.htmlLink;
-    alertLink.target = '_blank';
-    appendContent(alertHeader, 'br');
-    appendContent(alertHeader, 'br');
-    var alertButton = appendContent(alertHeader, 'button', 'OK', '', 'form-button');
-    alertButton.addEventListener('click', refreshData);
-  });
-
 }
 // Function to get current data in yyyymmdd format
 function getDate(){

@@ -70,6 +70,22 @@ p > a{
 p{
   margin: 0.75rem 0;
 }
+.brown {
+  color: #5F2F17;
+}
+.yellow {
+  color: #DBD282;
+}
+.white {
+  color: white;
+}
+.light-blue {
+  color: #9DB2C6;
+}
+.dark-blue {
+  color: #28262B;
+}
+
 /*Header stuff*/
 .branding {
   color: #DBD282;
@@ -162,20 +178,17 @@ p{
   padding: 1.5rem;
   width: calc(100% - 6rem)
 }
-.pad-20{
+.pad-20 {
   padding:20vh 1.5rem;
 }
-.pad-10{
+.pad-10 {
   padding:10vh 1.5rem;
 }
-.brown{
-  color: #5F2F17;
+.pad-10-top {
+  padding:10vh 1.5rem 0 1.5rem;
 }
-.blue {
-  color: white;
-}
-.white {
-  color: white;
+.pad-5 {
+  padding:5vh 1.5rem;
 }
 .wrapper{
   width: 100%;
@@ -320,8 +333,9 @@ div.min-width {
   color: #5F2F17;
 }
 /*work with me*/
-.apply{
+.button{
   padding: 15px;
+  display: block;
   border-radius: 15px;
   background-color:#5F2F17;
   color: white;
@@ -331,7 +345,7 @@ div.min-width {
   margin: 1rem auto;
   box-shadow: 5px 5px 5px rgba(0,0,0,0.3);
 }
-.apply:hover{
+.button:hover{
   box-shadow: 7px 7px 7px rgba(0,0,0,0.5);
 
 }

@@ -6,3 +6,12 @@ function burgerToggle() {
     x.style.display = "flex";
   }
 }
+
+function getHost(){
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'https://gardenlifegame.com/megs_php/check_host.php');
+  xhr.onload = function() {
+    alert(xhr.responseText);
+  }
+  xhr.send();
+}
