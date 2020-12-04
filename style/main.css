@@ -185,6 +185,28 @@ p{
   display: none;
 }
 /*Reusable Classes*/
+.yellow-button{
+  padding: 15px;
+  display: block;
+  border-radius: 15px;
+  background-color:#DBD282;
+  color: #28262B;
+  font-size: 1.5rem;
+  width: min-content;
+  white-space: nowrap;
+  margin: 1rem auto;
+}
+.light-blue-button {
+  padding: 15px;
+  display: block;
+  border-radius: 15px;
+  background-color:#9DB2C6;
+  color: white;
+  font-size: 1.5rem;
+  width: min-content;
+  white-space: nowrap;
+  margin: 1rem auto;
+}
 .white-box {
   background-color: white;
   margin: 1.5rem;
@@ -368,7 +390,24 @@ div.min-width {
   background-color: #9DB2C6;
   color: #5F2F17;
 }
-.shiny{
+.shiny-white{
+  position: relative;
+  overflow: hidden;
+}
+.shiny-white::after {
+  content: '';
+  position: absolute;
+  top: -25%;
+  right: -25%;
+  bottom: -25%;
+  left: -25%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0));
+  transform: rotateZ(90deg) translate(0, 150%);
+  animation: sheen 5s .1s forwards;
+  animation-delay: 1s;
+  animation-iteration-count:infinite;
+}
+.shiny {
   position: relative;
   overflow: hidden;
 }
@@ -381,7 +420,7 @@ div.min-width {
   left: -25%;
   background: linear-gradient(to bottom, rgba(209, 112, 60, 0), rgba(219, 210, 130, 0.2) 50%, rgba(209, 112, 60, 0));
   transform: rotateZ(90deg) translate(0, 150%);
-  animation: sheen 7s .1s forwards;
+  animation: sheen 5s .1s forwards;
   animation-delay: 1s;
   animation-iteration-count:infinite;
 }
@@ -423,17 +462,7 @@ div.min-width {
   color: #5F2F17;
 }
 /*work with me*/
-.button{
-  padding: 15px;
-  display: block;
-  border-radius: 15px;
-  background-color:#5F2F17;
-  color: white;
-  font-size: 1.5rem;
-  width: min-content;
-  white-space: nowrap;
-  margin: 1rem auto;
-}
+
 @media only screen and (max-width: 850px) {
   #button-wrapper, #name-holder {
     display: block;
