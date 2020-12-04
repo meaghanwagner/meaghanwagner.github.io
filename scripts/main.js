@@ -168,7 +168,6 @@ function tryTheRevolution(){
               emailInput.required = true;
               // add confirm button
               var confirmButton = appendContent(buttonWrapper, 'button', 'Confirm', 'modify-event-button', 'form-button');
-              confirmButton.type = 'submit';
             } else {
               loadNoEventsFoundError(eventHolder);
             }
@@ -195,7 +194,8 @@ function loadNoEventsFoundError(eventHolder){
 }
 
 // Function to add an attendee to sheets
-function addAttendee(){
+function addAttendee(e){
+  e.preventDefault();
   var eventID = '';
   var eventSelects = document.getElementsByName('event');
   for (var i = 0, length = eventSelects.length; i < length; i++) {
@@ -207,8 +207,8 @@ function addAttendee(){
   if(eventID != ''){
     emailAddress = document.getElementById('email-input').value;
     firstName = document.getElementById('first-name-input').value;
-    lastNAme = document.getElementById('last-name-input').value;
-    if(emailAddress == '' || firstName == '' || lastNAme == ''){
+    lastName = document.getElementById('last-name-input').value;
+    if(emailAddress == '' || firstName == '' || lastName == ''){
       alert('Please fill out the form with your info!');
     } else {
       var attendeeXHR = new XMLHttpRequest();
@@ -216,15 +216,30 @@ function addAttendee(){
       attendeeXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
       attendeeXHR.onload = function() {
         console.log(attendeeXHR.responseText);
-
+        var attendeeArray = {eventId: eventID, firstName: firstName, lastName: lastName, email: emailAddress};
+        showThankYouPage(attendeeArray);
       }
-      attendeeXHR.send('event_id=' + eventID + '&email_address=' + emailAddress + '&first_name=' + firstName + '&last_name=' + lastNAme);
+      attendeeXHR.send('event_id=' + eventID + '&email_address=' + emailAddress + '&first_name=' + firstName + '&last_name=' + lastName);
     }
   } else {
     alert('Please select an event to sign up for!');
   }
 }
-
+// Function to show thank you page
+function showThankYouPage(attendeeArray){
+  var blockerDiv = document.getElementById('blocker');
+  blockerDiv.innerHTML = '';
+  var formWrapper = appendContent(blockerDiv, 'form' ,'', 'thank-you');
+  formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  formWrapper.addEventListener('submit', removeBlocker);
+  var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
+  var legendElement = appendContent(fieldSetWrapper, 'LEGEND', 'Thank You!');
+  appendContent(fieldSetWrapper, 'p', 'Thank you for joining the New Year’s Revolution ' + attendeeArray.firstName + '! An email confirmation will follow shortly. In the meantime, add these events to your calendar.')
+  appendContent(fieldSetWrapper, 'p', 'Calendar Invites TK');
+  confirmationElement = appendContent(fieldSetWrapper, 'p');
+  confirmationElement.innerHTML = 'If you don’t receive a confirmation, please email <a href="mailto:info@meaghanwagner.com">info@meaghanwagner.com</a>.';
+  appendContent(fieldSetWrapper, 'button', 'Close', '' , 'form-button');
+}
 // Function to format provided date as mm/dd/yyyy
 function getDateForDisplay(date) {
     let year = date.getFullYear();
