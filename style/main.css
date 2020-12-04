@@ -59,6 +59,28 @@ footer{
   color: #9DB2C6;
   padding: 2px;
 }
+form {
+  background-color: #fff;
+  border-radius: 5px;
+  padding: 0 5px 10px 5px;
+  max-width: 1180px;
+  margin: 10vh auto;
+}
+fieldset{
+  border-radius: 5px;
+  border: thin solid #28262B;
+}
+legend{
+  font-weight: 700;
+  font-size: 2em;
+}
+button, select, input {
+  padding: 12px;
+  background-color: #9DB2C6;
+  border-radius: 5px;
+  border: none;
+  margin: 2px;
+}
 a {
   color: inherit;
   text-decoration: none;
@@ -198,6 +220,34 @@ p{
 .half{
   width: 50%;
 }
+/* pop ups */
+#blocker{
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color:rgba(0,0,0,0.3);
+  overflow: auto;
+  justify-items: center;
+}
+#try-the-revolution {
+  margin-top: 10vh;
+}
+#button-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 5px;
+}
+.form-button {
+  margin-top: 1em;
+  background-color: #28262B;
+  color: #DBD282;
+  font-size: 1.3em;
+  font-weight: 700;
+  margin:1em;
+}
+
 /*Home Page*/
 .main-image {
   width: 130%;
@@ -348,6 +398,11 @@ div.min-width {
 .button:hover{
   box-shadow: 7px 7px 7px rgba(0,0,0,0.5);
 
+}
+@media only screen and (max-width: 850px) {
+  #button-wrapper {
+    display: block;
+  }
 }
 @media only screen and (max-width: 800px) {
   .card-title{

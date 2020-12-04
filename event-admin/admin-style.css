@@ -1,4 +1,5 @@
 @import '/style/fonts.css';
+@import '/style/main.css';
 
 html {
   height: 100%;
@@ -18,32 +19,11 @@ p {
 a:hover{
   cursor: pointer;
 }
-button, select, input {
-  padding: 12px;
-  background-color: #9DB2C6;
-  border-radius: 5px;
-  border: none;
-}
 label {
   font-size: 1.4rem;
   font-weight: 700;
   -webkit-column-break-before: always;
 	break-before: column;
-}
-legend{
-  font-weight: 700;
-  font-size: 2em;
-}
-form {
-  background-color: #fff;
-  border-radius: 5px;
-  padding: 0 5px 10px 5px;
-  max-width: 1180px;
-  margin: auto;
-}
-fieldset{
-  border-radius: 5px;
-  border: thin solid #28262B;
 }
 #content-holder, #new-content-holder{
   display:flex;
@@ -87,31 +67,12 @@ fieldset{
 #content {
   margin: 0 2vh;
 }
-#button-wrapper{
-  display: flex;
-  margin: 5px;
-}
 #calendar-holder{
   margin-top: 1em;
 }
 #event-bucket-holder{
   display: flex;
   justify-content: space-between;
-}
-#blocker{
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background-color:rgba(0,0,0,0.3);
-  overflow: auto;
-  display: grid;
-  justify-items: center;
-  align-items: center;
-}
-#new-type-form{
-  margin: 10vh auto;
 }
 #x-button{
   float: right;
@@ -166,7 +127,7 @@ fieldset{
   display: none;
 }
 @media only screen and (max-width: 850px) {
-  #content-holder, #button-holder, .form-button, #event-bucket-holder, #new-content-holder {
+  #content-holder, .form-button, #event-bucket-holder, #new-content-holder {
     display: block;
   }
   .event-bucket{
