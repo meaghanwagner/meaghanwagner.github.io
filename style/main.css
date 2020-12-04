@@ -67,8 +67,7 @@ form {
   margin: 10vh auto;
 }
 fieldset{
-  border-radius: 5px;
-  border: thin solid #28262B;
+  border: none;
 }
 legend{
   font-weight: 700;
@@ -80,6 +79,12 @@ button, select, input {
   border-radius: 5px;
   border: none;
   margin: 2px;
+}
+button{
+  box-shadow: 5px 5px 5px rgba(0,0,0,0.3);
+}
+button:hover{
+  box-shadow: 7px 7px 7px rgba(0,0,0,0.5);
 }
 a {
   color: inherit;
@@ -229,7 +234,6 @@ p{
   right: 0;
   background-color:rgba(0,0,0,0.3);
   overflow: auto;
-  justify-items: center;
 }
 #try-the-revolution {
   margin-top: 10vh;
@@ -239,13 +243,49 @@ p{
   justify-content: center;
   margin: 5px;
 }
+#name-holder {
+  display:flex;
+  justify-content: center;
+}
+#email-label {
+  width:95%;
+  display:flex;
+  align-items: center;
+  margin: 0 2.5%;
+}
+#email-label > input{
+  margin-left: 5px;
+  flex-grow: 10;
+}
+#event-holder{
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3em;
+  text-align: center;
+}
+.form-label{
+  width:45%;
+  display:flex;
+  align-items: center;
+  margin: 2.5%;
+}
+.form-label > input{
+  margin-left: 5px;
+  flex-grow: 10;
+}
 .form-button {
-  margin-top: 1em;
   background-color: #28262B;
   color: #DBD282;
   font-size: 1.3em;
   font-weight: 700;
-  margin:1em;
+  margin:.5em;
+}
+.event-date{
+  font-weight: 700;
+}
+.event-seats {
+  break-inside: avoid;
 }
 
 /*Home Page*/
@@ -393,15 +433,13 @@ div.min-width {
   width: min-content;
   white-space: nowrap;
   margin: 1rem auto;
-  box-shadow: 5px 5px 5px rgba(0,0,0,0.3);
-}
-.button:hover{
-  box-shadow: 7px 7px 7px rgba(0,0,0,0.5);
-
 }
 @media only screen and (max-width: 850px) {
-  #button-wrapper {
+  #button-wrapper, #name-holder {
     display: block;
+  }
+  .form-label{
+    width:95%;
   }
 }
 @media only screen and (max-width: 800px) {

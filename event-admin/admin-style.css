@@ -25,6 +25,7 @@ label {
   -webkit-column-break-before: always;
 	break-before: column;
 }
+
 #content-holder, #new-content-holder{
   display:flex;
   justify-content: space-between;
@@ -56,6 +57,7 @@ label {
   box-shadow: 0px 0px 5px 2px black;
   text-align: center;
   padding: 7px;
+  margin: 10vh auto;
 }
 #userimage {
   position: relative;
@@ -109,12 +111,11 @@ label {
   margin: 5px;
 }
 .form-button {
-  margin-top: 1em;
   background-color: #28262B;
   color: #DBD282;
   font-size: 1.3em;
   font-weight: 700;
-  margin:1em auto;
+  margin:1em;
 }
 .g-signin2{
   margin: auto;

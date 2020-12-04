@@ -1,9 +1,9 @@
 function burgerToggle() {
-  var x = document.getElementsByClassName("header-nav")[0];
-  if (x.style.display === "flex") {
-    x.style.display = "none";
+  var x = document.getElementsByClassName('header-nav')[0];
+  if (x.style.display === 'flex') {
+    x.style.display = 'none';
   } else {
-    x.style.display = "flex";
+    x.style.display = 'flex';
   }
 }
 
@@ -34,7 +34,7 @@ function appendContent(parentElement, elementType, text = '', idText = '', class
 }
 // Function to remove blocker div
 function removeBlocker(){
-  theBlocker = document.getElementById("blocker");
+  theBlocker = document.getElementById('blocker');
   if(theBlocker != null){
     theBlocker.remove();
   }
@@ -57,31 +57,20 @@ function tryTheRevolution(){
   // add form
   var formWrapper = appendContent(blockerDiv, 'form' ,'', 'try-the-revolution');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  formWrapper.addEventListener('submit', addAttendee);
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
-  appendContent(fieldSetWrapper, 'LEGEND', 'Welcome to the Revolution! Claim your seat:');
+  var legendElement = appendContent(fieldSetWrapper, 'LEGEND');
+  legendElement.innerHTML = 'Welcome to the Revolution!<br>Claim your seat:';
   // add event holder
-  var eventHolder = appendContent(fieldSetWrapper, 'div', '','date-holder');
-  appendContent(eventHolder, "h2", "Loading Upcoming Events...");
-  // add inputs
-  var firstNameLabel = appendContent(fieldSetWrapper, "label", 'First Name:');
-  firstNameLabel.for = "first-name-input";
-  var firstNameInput = appendContent(fieldSetWrapper, 'input', '','first-name-input');
-  appendContent(fieldSetWrapper, "br");
-  var lastNameLabel = appendContent(fieldSetWrapper, "label", 'Last Name:');
-  lastNameLabel.for = "last-name-input";
-  var lastNameInput = appendContent(fieldSetWrapper, 'input', '','last-name-input');
-  appendContent(fieldSetWrapper, "br");
-  var emailLabel = appendContent(fieldSetWrapper, "label", 'Email:');
-  emailLabel.for = "email-input";
-  var emailInput = appendContent(fieldSetWrapper, 'input', '','email-input');
-  // add buttons
+  var eventHolder = appendContent(fieldSetWrapper, 'div', '','event-holder');
+  appendContent(eventHolder, 'p', 'Loading Upcoming Events...');
+  // add input holder
+  var inputHolder = appendContent(fieldSetWrapper, 'div', '','input-holder');
+  // add cancel button
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
-  var cancelTypeButton = appendContent(buttonWrapper, "button", 'Cancel', 'cancel-button', 'form-button');
-  cancelTypeButton.type = "button";
-  cancelTypeButton.addEventListener("click", removeBlocker);
-  var confirmButton = appendContent(buttonWrapper, "button", 'Confirm', 'modify-event-button', 'form-button');
-  confirmButton.type = "button";
-  confirmButton.addEventListener("click", addAttendee);
+  var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
+  cancelTypeButton.type = 'button';
+  cancelTypeButton.addEventListener('click', removeBlocker);
 
   var eventsAdded = [];
   // get event data from calendar
@@ -102,6 +91,7 @@ function tryTheRevolution(){
           var attendeesXHR = new XMLHttpRequest();
           attendeesXHR.open('GET', 'https://gardenlifegame.com/megs_php/readsheetattendees.php');
           attendeesXHR.onload = function() {
+            console.log(attendeesXHR.responseText);
             var attendeesData = JSON.parse(attendeesXHR.responseText);
             var totalAttendeesCount = Object.keys(attendeesData).length;
             // loop through events from calendar
@@ -126,11 +116,13 @@ function tryTheRevolution(){
                   if(totalAttendeesCount > 0){
                     for (var attendeesRowIndex = 0; attendeesRowIndex < totalAttendeesCount; attendeesRowIndex++) {
                       var attendeeRow = attendeesData[attendeesRowIndex];
-                      eventAttendees.push(attendeeRow);
+                      if(attendeeRow[0] == event.id){
+                        eventAttendees.push(attendeeRow);
+                      }
                     }
                   }
                   if(event.maxAttendees > eventAttendees.length){
-                    event.availableSlots = event.maxAttendees - eventAttendees.length;
+                    event.availableSeats = event.maxAttendees - eventAttendees.length;
                     eventsAdded.push(event);
                   }
                 }
@@ -142,33 +134,69 @@ function tryTheRevolution(){
             if(eventsAdded.length > 0){
               eventHolder.innerHTML = '';
               for (var eventAddedIndex = 0; eventAddedIndex < eventsAdded.length; eventAddedIndex++) {
-                event = eventsAdded[eventAddedIndex];
-                var eventInput = appendContent(eventHolder, 'input', '', event.id);
-                eventInput.type = "radio";
-                eventInput.name = "event";
+                var event = eventsAdded[eventAddedIndex];
+                var eventLabel = appendContent(eventHolder, 'label')
+                var eventInput = appendContent(eventLabel, 'input', '', event.id);
+                eventInput.type = 'radio';
+                eventInput.name = 'event';
                 eventInput.value = event.id;
-                var eventLabel = appendContent(eventHolder, 'label', event.start.dateTime)
+                eventInput.required = true;
                 eventLabel.for = event.id;
+                var startDateTime = new Date(event.start.dateTime);
+                var endDateTime = new Date(event.end.dateTime);
+                appendContent(eventLabel, 'span', getDateForDisplay(startDateTime) , '' , 'event-date');
+                appendContent(eventLabel, 'span', ' ' + timeFromDate12(startDateTime) , '' , 'event-start');
+                appendContent(eventLabel, 'span', '-' + timeFromDate12(endDateTime) , '' , 'event-end');
+                seatsElement = appendContent(eventLabel, 'span', '' , '' , 'event-seats');
+                seatsElement.innerHTML = ' (' + event.availableSeats.toString() + '&#160;seats&#160;available)';
+                appendContent(eventHolder, 'br')
               }
+              // add inputs
+              var nameHolder = appendContent(inputHolder, 'div', '', 'name-holder')
+              var firstNameLabel = appendContent(nameHolder, 'label', 'First Name:', '', 'form-label');
+              firstNameLabel.for = 'first-name-input';
+              var firstNameInput = appendContent(firstNameLabel, 'input', '','first-name-input', 'name-input');
+              firstNameInput.required = true;
+              var lastNameLabel = appendContent(nameHolder, 'label', 'Last Name:', '', 'form-label');
+              lastNameLabel.for = 'last-name-input';
+              var lastNameInput = appendContent(lastNameLabel, 'input', '','last-name-input', 'name-input');
+              lastNameInput.required = true;
+              var emailLabel = appendContent(inputHolder, 'label', 'Email:' , 'email-label');
+              emailLabel.for = 'email-input';
+              var emailInput = appendContent(emailLabel, 'input', '','email-input', '', 'form-label');
+              emailInput.type = "email";
+              emailInput.required = true;
+              // add confirm button
+              var confirmButton = appendContent(buttonWrapper, 'button', 'Confirm', 'modify-event-button', 'form-button');
+              confirmButton.type = 'submit';
             } else {
-
+              loadNoEventsFoundError(eventHolder);
             }
           }
           attendeesXHR.send();
         } else {
           console.log("Couldn't find any events in sheet. Please inform the developer." )
+          loadNoEventsFoundError(eventHolder);
         }
       }
       eventsXHR.send();
     } else {
       console.log("Couldn't find any future events in calendar. Please inform the developer." )
+      loadNoEventsFoundError(eventHolder);
     }
   }
   calendarXHR.send();
 }
+// Function to display no results
+function loadNoEventsFoundError(eventHolder){
+  eventHolder.innerHTML = '';
+  var errorElement = appendContent(eventHolder, 'p');
+  errorElement.innerHTML = 'Could not find any upcoming events. Please contact <a href="mailto:info@meaghanwagner.com">info@meaghanwagner.com</a> for further details.'
+}
 
+// Function to add an attendee to sheets
 function addAttendee(){
-  var eventID = "";
+  var eventID = '';
   var eventSelects = document.getElementsByName('event');
   for (var i = 0, length = eventSelects.length; i < length; i++) {
     if (eventSelects[i].checked) {
@@ -176,22 +204,39 @@ function addAttendee(){
       break;
     }
   }
-  if(eventID != ""){
+  if(eventID != ''){
     emailAddress = document.getElementById('email-input').value;
     firstName = document.getElementById('first-name-input').value;
     lastNAme = document.getElementById('last-name-input').value;
-    if(emailAddress == "" || firstName == "" || lastNAme == ""){
-      alert("Please fill out the form with your info!");
+    if(emailAddress == '' || firstName == '' || lastNAme == ''){
+      alert('Please fill out the form with your info!');
     } else {
       var attendeeXHR = new XMLHttpRequest();
       attendeeXHR.open('POST', 'https://gardenlifegame.com/megs_php/addattendee.php');
       attendeeXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
       attendeeXHR.onload = function() {
         console.log(attendeeXHR.responseText);
+
       }
-      attendeeXHR.send("event_id=" + eventID + "&email_address=" + emailAddress + "&first_name=" + firstName + "&last_name=" + lastNAme);
+      attendeeXHR.send('event_id=' + eventID + '&email_address=' + emailAddress + '&first_name=' + firstName + '&last_name=' + lastNAme);
     }
   } else {
-    alert("Please select an event to sign up for!");
+    alert('Please select an event to sign up for!');
   }
+}
+
+// Function to format provided date as mm/dd/yyyy
+function getDateForDisplay(date) {
+    let year = date.getFullYear();
+    let month = (1 + date.getMonth()).toString().padStart(2, '0');
+    let day = date.getDate().toString().padStart(2, '0');
+
+    return month + '/' + day + '/' + year;
+}
+// function to get time from datetime for display
+function timeFromDate12(date){
+  return date.toLocaleTimeString('en-US', {timeStyle:'short'});
+}
+function timeFromDate24(date){
+  return date.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
 }
