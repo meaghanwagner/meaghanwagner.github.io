@@ -85,11 +85,12 @@ function tryTheRevolution() {
     if (eventCount > 0) {
       // get event data from sheets
       var sheetEvents = eventData.sheetevents.values;
-      var sheetEventsCount = Object.keys(sheetEvents).length;
+      if(sheetEvents == null){
+        var sheetEventsCount = 0;
+      } else {
+        var sheetEventsCount = Object.keys(sheetEvents).length;
+      }
       if (sheetEventsCount > 0) {
-        // get attendees from sheets
-        var sheetAttendees = eventData.sheetattendees.values;
-        var totalAttendeesCount = Object.keys(sheetAttendees).length;
         // loop through events from calendar
         for (var eventIndex = 0; eventIndex < eventCount; eventIndex++) {
           var event = calendarEvents[eventIndex];
@@ -108,6 +109,13 @@ function tryTheRevolution() {
           // Check if the event data was found in sheets
           if (eventFound) {
             if (event.cost == 0) {
+              // get attendees from sheets
+              var sheetAttendees = eventData.sheetattendees.values;
+              if(sheetAttendees == null){
+                var totalAttendeesCount = 0;
+              } else {
+                var totalAttendeesCount = Object.keys(sheetAttendees).length;
+              }
               // Check if attendees is maxed out
               var eventAttendees = [];
               if (totalAttendeesCount > 0) {
@@ -209,7 +217,6 @@ function addAttendee(e) {
       attendeeXHR.open('POST', 'https://gardenlifegame.com/megs_php/addattendee.php');
       attendeeXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
       attendeeXHR.onload = function() {
-        console.log(attendeeXHR.responseText);
         var attendeeArray = {
           eventId: eventID,
           firstName: firstName,
