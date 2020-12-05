@@ -49,6 +49,7 @@ function stopReturnSubmit(e){
   }
 }
 
+var eventsList = {};
 // Function to sign up for free options
 function tryTheRevolution(){
   // add popup
@@ -105,6 +106,7 @@ function tryTheRevolution(){
                   eventFound = true;
                   event.maxAttendees = row[1];
                   event.cost = row[2];
+                  event.thankYouText = row[6];
                   break;
                 }
               }
@@ -134,6 +136,7 @@ function tryTheRevolution(){
             if(eventsAdded.length > 0){
               eventHolder.innerHTML = '';
               for (var eventAddedIndex = 0; eventAddedIndex < eventsAdded.length; eventAddedIndex++) {
+                eventsList[event.id] = event;
                 var event = eventsAdded[eventAddedIndex];
                 var eventLabel = appendContent(eventHolder, 'label')
                 var eventInput = appendContent(eventLabel, 'input', '', event.id);
@@ -234,11 +237,18 @@ function showThankYouPage(attendeeArray){
   formWrapper.addEventListener('submit', removeBlocker);
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   var legendElement = appendContent(fieldSetWrapper, 'LEGEND', 'Thank You!');
-  appendContent(fieldSetWrapper, 'p', 'Thank you for joining the New Year’s Revolution ' + attendeeArray.firstName + '! An email confirmation will follow shortly. In the meantime, add these events to your calendar.')
-  appendContent(fieldSetWrapper, 'p', 'Calendar Invites TK');
-  confirmationElement = appendContent(fieldSetWrapper, 'p');
-  confirmationElement.innerHTML = 'If you don’t receive a confirmation, please email <a href="mailto:info@meaghanwagner.com">info@meaghanwagner.com</a>.';
-  appendContent(fieldSetWrapper, 'button', 'Close', '' , 'form-button');
+  var thankstext = eventsList[attendeeArray.eventId].thankYouText;
+  if(thankstext.indexOf('[outlook-link]') != -1){
+    thankstext = thankstext.replace('[outlook-link]', '<a id="outlook-link">Outlook</a>')
+  }
+  if(thankstext.indexOf('[google-cal-link]') != -1){
+    thankstext = thankstext.replace('[google-cal-link]', '<a id="google-cal-link">Google Calendar</a>')
+  }
+  var thanksWrapper = appendContent(fieldSetWrapper, 'div')
+  thanksWrapper.innerHTML = thankstext;
+  var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
+  appendContent(buttonWrapper, 'button', 'Close', '' , 'form-button');
+
 }
 // Function to format provided date as mm/dd/yyyy
 function getDateForDisplay(date) {

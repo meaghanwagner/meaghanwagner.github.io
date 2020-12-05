@@ -983,7 +983,7 @@ function addNewType(){
   var blockerDiv = document.getElementById('blocker');
   blockerDiv.innerHTML = '';
   var alertDiv = appendContent(blockerDiv, 'div', '', 'alert');
-  var alertHeader = appendContent(alertDiv, 'h2', 'Creating event...','alert-header');
+  var alertHeader = appendContent(alertDiv, 'h2', 'Adding Event Type...','alert-header');
   gapi.client.sheets.spreadsheets.values.append({
      spreadsheetId: sheetID,
      range: 'event-types',
@@ -1212,7 +1212,7 @@ function editEventType(){
   var blockerDiv = document.getElementById('blocker');
   blockerDiv.innerHTML = '';
   var alertDiv = appendContent(blockerDiv, 'div', '', 'alert');
-  var alertHeader = appendContent(alertDiv, 'h2', 'Creating event...','alert-header');
+  var alertHeader = appendContent(alertDiv, 'h2', 'Updating Event Type...','alert-header');
   gapi.client.sheets.spreadsheets.values.update({
      spreadsheetId: sheetID,
      range: range,
