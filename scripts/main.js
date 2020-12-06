@@ -34,10 +34,12 @@ function appendContent(parentElement, elementType, text = '', idText = '', class
 }
 // Function to remove blocker div
 function removeBlocker() {
-  theBlocker = document.getElementById('blocker');
+  var theBlocker = document.getElementById('blocker');
   if (theBlocker != null) {
     theBlocker.remove();
   }
+  var bodyElement = document.getElementsByTagName("body")[0];
+  bodyElement.style.overflow = "auto";
 }
 // Function to prefent return key from submitting form
 function stopReturnSubmit(e) {
@@ -53,15 +55,16 @@ var eventsList = {};
 // Function to sign up for free options
 function tryTheRevolution() {
   // add popup
-  var mainElement = document.getElementById('main');
-  var blockerDiv = appendContent(mainElement, 'div', '', 'blocker');
+  var bodyElement = document.getElementsByTagName("body")[0];
+  var blockerDiv = appendContent(bodyElement, 'div', '', 'blocker');
+  bodyElement.style.overflow = "hidden";
   // add form
   var formWrapper = appendContent(blockerDiv, 'form', '', 'try-the-revolution');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   formWrapper.addEventListener('submit', addAttendee);
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   var legendElement = appendContent(fieldSetWrapper, 'LEGEND');
-  legendElement.innerHTML = 'Welcome to the Revolution!<br>Claim your seat:';
+  legendElement.innerHTML = 'Welcome to the Revolution! Claim&#160;your&#160;seat:';
   // add event holder
   var eventHolder = appendContent(fieldSetWrapper, 'div', '', 'event-holder');
   appendContent(eventHolder, 'p', 'Loading Upcoming Events...');

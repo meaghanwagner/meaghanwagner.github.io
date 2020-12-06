@@ -1049,7 +1049,7 @@ function addEditTypeFields(){
   // Add Cost
   var costHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
   var costLabel = appendContent(costHolder, 'label', 'Cost:');
-  costLabel.for = 'new-attendees-input';
+  costLabel.for = 'cost-input';
   appendContent(costHolder, 'br');
   var costInput = appendContent(costHolder, 'input', '', 'cost-input');
   costInput.type = 'number';
@@ -1147,6 +1147,10 @@ function addEditTypeFields(){
 
   // Enable rich text editors
   richTextInit();
+
+  // Toggle cost text areas display
+  toggleCostHidden();
+  
   // add buttons
   var buttonWrapper = appendContent(fieldSetWrapper, 'div');
   buttonWrapper.id = 'button-wrapper';
