@@ -81,7 +81,6 @@ function tryTheRevolution() {
   var eventDataXHR = new XMLHttpRequest();
   eventDataXHR.open('GET', 'https://gardenlifegame.com/megs_php/echoEventData.php');
   eventDataXHR.onload = function() {
-    console.log(eventDataXHR.responseText);
     var eventData = JSON.parse(eventDataXHR.responseText);
     var calendarEvents = eventData.calendarevents;
     var eventCount = Object.keys(calendarEvents).length;

@@ -10,7 +10,6 @@ body {
   margin: 0;
   font-family: kepler-std, serif;
   background-color: #dfdfdf;
-  overflow: hidden;
 }
 p {
   margin: 0;
@@ -34,7 +33,6 @@ label {
   max-width: 1180px;
   margin: auto;
   height: 100%;
-  overflow: auto;
 }
 #signed-out {
   height: 100vh;
@@ -121,11 +119,16 @@ label {
   margin: auto;
 }
 .user {
-  margin: 2vh;
+  padding: 2vh;
   text-align: right;
 }
 .cost-hidden{
   display: none;
+}
+.flow-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 @media only screen and (max-width: 850px) {
   #content-holder, .form-button, #event-bucket-holder, #new-content-holder {
