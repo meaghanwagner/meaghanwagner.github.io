@@ -43,7 +43,7 @@ h2{
   margin: 1rem 0;
 }
 h3 {
-  margin: 1rem;
+  margin: 1rem 0;
 }
 img {
   width:100%;
@@ -369,7 +369,7 @@ div.min-width {
   text-align: center;
   font-size: 1.4rem;
 }
-.tools-box{
+#tools-box{
   display: flex;
   flex-wrap: nowrap;
 }
@@ -427,10 +427,10 @@ div.min-width {
 }
 @keyframes sheen {
   20% {
-    transform: rotateZ(90deg) translate(0, -150%)
+    transform: rotateZ(90deg) translate(0, -200%)
   }
   100% {
-    transform: rotateZ(90deg) translate(0, -150%)
+    transform: rotateZ(90deg) translate(0, -200%)
   }
 }/* The animation code */
 .important > a > .tool-header{
@@ -492,7 +492,7 @@ div.min-width {
   .icon {
     display:block;
   }
-  .tools-box {
+  #tools-box {
     display: block;
   }
   .tool {

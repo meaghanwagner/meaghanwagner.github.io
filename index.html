@@ -24,7 +24,7 @@
   <script src="scripts/main.js"></script>
 </head>
 
-<body>
+<body onload="loadFlows()">
   <header>
     <div class="wrapper">
       <div class="nav-flex">
@@ -65,26 +65,7 @@
           <h2>Join the New Year’s Revolution</h2>
           <p class="tools-subtitle">Set goals you can actually keep with <strong>The Optimist</strong> workshop series.</p>
         </div>
-        <div class="tools-box">
-          <div class="tool important shiny">
-            <a href="new-years-revolution#vision">
-              <h3 class="tool-header">Create a Vision</h3>
-              <p class="tool-description">The first step in getting what you want is <em>knowing</em> what you want. Try the first step of the New Year’s Revolution for <strong>FREE</strong> and create a concrete vision for your future.</p>
-            </a>
-          </div>
-          <div class="tool">
-            <a href="new-years-revolution#goals">
-              <h3 class="tool-header">Soften Your SMART Goals</h3>
-              <p class="tool-description">Everyone loves a SMART goal&#8239;.&#8239;.&#8239;. until they try to meet them. Learn the key to creating goals that fit your life.</p>
-            </a>
-          </div>
-          <div class="tool">
-            <a href="new-years-revolution#granular">
-              <h3 class="tool-header">Get Granular</h3>
-              <p class="tool-description">What gets scheduled gets done. Join the final installment of the New Year’s Revolution series to think through how your biggest, boldest goals fits into your daily life</p>
-            </a>
-          </div>
-        </div>
+        <div id="tools-box"><!--to be populated by javascript --></div>
       </section>
       <section class="testimonials blue-box pad-10">
         <p class="quote">“Meaghan will bring order to your thoughts. She has a true talent for helping you move forward on a path that leverages your unique strengths and make the contribution only you can. I can’t recommend her highly enough!”</p>

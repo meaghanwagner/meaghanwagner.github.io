@@ -1,3 +1,4 @@
+// Function to toggle the burger menu
 function burgerToggle() {
   var x = document.getElementsByClassName('header-nav')[0];
   if (x.style.display === 'flex') {
@@ -50,16 +51,47 @@ function stopReturnSubmit(e) {
     removeBlocker();
   }
 }
+// empty object to hold flow data
+var flowData = {};
+// function to load flow data from sheets
+function loadFlows(){
+  var flowDataXHR = new XMLHttpRequest();
+  flowDataXHR.open('GET', 'https://gardenlifegame.com/megs_php/echoFlowData.php');
+  flowDataXHR.onload = function() {
+    var flowData = JSON.parse(flowDataXHR.responseText);
+    window.flowData = flowData;
+    toolsBox = document.getElementById('tools-box');
+    var flowCount = Object.keys(flowData.values).length;
+    for (var flowIndex = 0; flowIndex < flowCount; flowIndex++) {
+      var row = flowData.values[flowIndex];
+      if(row[4] == 'TRUE'){
+        var flowContainer = appendContent(toolsBox, 'div', '', '', 'tool');
+        if(row[3] == 'TRUE'){
+          flowContainer.classList.add('important');
+          flowContainer.classList.add('shiny');
+        }
 
+        var flowLink = appendContent(flowContainer, 'a');
+        flowLink.setAttribute('onclick', 'loadSignUp(' + flowIndex + ')');
+        var flowTitle = appendContent(flowLink, 'h3', row[0], '', 'tool-header');
+        var flowDescription = appendContent(flowLink, 'div', '', '', 'tool-description');
+        flowDescription.innerHTML = row[2];
+      }
+    }
+
+  }
+  flowDataXHR.send();
+}
+// empty object to hold events
 var eventsList = {};
 // Function to sign up for free options
-function tryTheRevolution() {
+function loadSignUp(flowIndex) {
   // add popup
   var bodyElement = document.getElementsByTagName("body")[0];
   var blockerDiv = appendContent(bodyElement, 'div', '', 'blocker');
   bodyElement.style.overflow = "hidden";
   // add form
-  var formWrapper = appendContent(blockerDiv, 'form', '', 'try-the-revolution');
+  var formWrapper = appendContent(blockerDiv, 'form', '', 'sign-up-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   formWrapper.addEventListener('submit', addAttendee);
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
