@@ -58,19 +58,18 @@ function loadFlows(){
   var flowDataXHR = new XMLHttpRequest();
   flowDataXHR.open('GET', 'https://gardenlifegame.com/megs_php/echoFlowData.php');
   flowDataXHR.onload = function() {
-    var flowData = JSON.parse(flowDataXHR.responseText);
+    var flowData = JSON.parse(flowDataXHR.responseText).values;
     window.flowData = flowData;
     toolsBox = document.getElementById('tools-box');
-    var flowCount = Object.keys(flowData.values).length;
+    var flowCount = Object.keys(flowData).length;
     for (var flowIndex = 0; flowIndex < flowCount; flowIndex++) {
-      var row = flowData.values[flowIndex];
+      var row = flowData[flowIndex];
       if(row[4] == 'TRUE'){
         var flowContainer = appendContent(toolsBox, 'div', '', '', 'tool');
         if(row[3] == 'TRUE'){
           flowContainer.classList.add('important');
           flowContainer.classList.add('shiny');
         }
-
         var flowLink = appendContent(flowContainer, 'a');
         flowLink.setAttribute('onclick', 'loadSignUp(' + flowIndex + ')');
         var flowTitle = appendContent(flowLink, 'h3', row[0], '', 'tool-header');
