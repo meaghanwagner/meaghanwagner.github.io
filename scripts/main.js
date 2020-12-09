@@ -52,39 +52,66 @@ function stopReturnSubmit(e) {
   }
 }
 // empty object to hold flow data
-var flowData = {};
+var flowData = [];
 // function to load flow data from sheets
 function loadFlows(){
   var flowDataXHR = new XMLHttpRequest();
   flowDataXHR.open('GET', 'https://gardenlifegame.com/megs_php/echoFlowData.php');
   flowDataXHR.onload = function() {
-    var flowData = JSON.parse(flowDataXHR.responseText).values;
+    var flowArray = JSON.parse(flowDataXHR.responseText).values;
+    flowData = buildFlowData(flowArray);
     window.flowData = flowData;
-    toolsBox = document.getElementById('tools-box');
-    var flowCount = Object.keys(flowData).length;
+    flowsBox = document.getElementById('flow-box');
+    var flowCount = flowData.length;
     for (var flowIndex = 0; flowIndex < flowCount; flowIndex++) {
-      var row = flowData[flowIndex];
-      if(row[4] == 'TRUE'){
-        var flowContainer = appendContent(toolsBox, 'div', '', '', 'tool');
-        if(row[3] == 'TRUE'){
+      var thisFlow = flowData[flowIndex];
+      if(thisFlow.displayOnSite == 'TRUE'){
+        var flowContainer = appendContent(flowsBox, 'div', '', '', 'tool');
+        if(thisFlow.important == 'TRUE'){
           flowContainer.classList.add('important');
           flowContainer.classList.add('shiny');
         }
         var flowLink = appendContent(flowContainer, 'a');
         flowLink.setAttribute('onclick', 'loadSignUp(' + flowIndex + ')');
-        var flowTitle = appendContent(flowLink, 'h3', row[0], '', 'tool-header');
+        var flowTitle = appendContent(flowLink, 'h3', thisFlow.flowType, '', 'tool-header');
         var flowDescription = appendContent(flowLink, 'div', '', '', 'tool-description');
-        flowDescription.innerHTML = row[2];
+        flowDescription.innerHTML = thisFlow.flowDescription;
       }
     }
 
   }
   flowDataXHR.send();
 }
+function buildFlowData(flowArray){
+  var flowData = [];
+  var flowCount = Object.keys(flowArray).length;
+  for (var flowIndex = 0; flowIndex < flowCount; flowIndex++) {
+    var thisFlow = flowArray[flowIndex];
+    var thisFlowObj = {
+      "flowType" : thisFlow[0],
+      "eventTypesList" : JSON.parse(thisFlow[1]),
+      "flowDescription" : thisFlow[2],
+      "important" : thisFlow[3],
+      "displayOnSite" : thisFlow[4],
+      "signUpPageCopyList" : JSON.parse(thisFlow[5]),
+      "signUpPageCTAList" : JSON.parse(thisFlow[6]),
+      "paymentPageCopy" : thisFlow[7],
+      "thankYouPageCopy" : thisFlow[8],
+      "thankYouPageTotalsCopy" : thisFlow[9]
+    }
+    flowData.push(thisFlowObj);
+  }
+  return flowData;
+}
 // empty object to hold events
 var eventsList = {};
-// Function to sign up for free options
-function loadSignUp(flowIndex) {
+function reloadSignUp(flowIndex, signUpIndex){
+  removeBlocker();
+  loadSignUp(flowIndex, signUpIndex);
+}
+// Function to sign up for a flow
+function loadSignUp(flowIndex, signUpIndex=0) {
+  var thisFlow = flowData[flowIndex];
   // add popup
   var bodyElement = document.getElementsByTagName("body")[0];
   var blockerDiv = appendContent(bodyElement, 'div', '', 'blocker');
@@ -92,18 +119,28 @@ function loadSignUp(flowIndex) {
   // add form
   var formWrapper = appendContent(blockerDiv, 'form', '', 'sign-up-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
-  formWrapper.addEventListener('submit', addAttendee);
+  if(signUpIndex == (thisFlow.eventTypesList.length -1)){
+    formWrapper.addEventListener('submit', addAttendee);
+  } else {
+    formWrapper.setAttribute('onsubmit', 'reloadSignUp(' + flowIndex + ', ' + (signUpIndex + 1) + '); return false;');
+  }
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
-  var legendElement = appendContent(fieldSetWrapper, 'LEGEND');
-  legendElement.innerHTML = 'Welcome to the Revolution! Claim&#160;your&#160;seat:';
-  // add event holder
-  var eventHolder = appendContent(fieldSetWrapper, 'div', '', 'event-holder');
-  appendContent(eventHolder, 'p', 'Loading Upcoming Events...');
-  // add input holder
-  var inputHolder = appendContent(fieldSetWrapper, 'div', '', 'input-holder');
+  var theSignUpCopy = thisFlow.signUpPageCopyList[thisFlow.eventTypesList[signUpIndex]];
+  if(theSignUpCopy.includes('[event-list]')){
+    theSignUpCopy = theSignUpCopy.replace('[event-list]', '<div id="event-holder"><p>Loading Upcoming Events...</p></div>')
+  } else {
+    theSignUpCopy += '<div id="event-holder"><p>Loading Upcoming Events...</p></div>';
+  }
+  var loadAttendeeInput = false;
+  if(theSignUpCopy.includes('[attendee-input]')){
+    theSignUpCopy = theSignUpCopy.replace('[attendee-input]', '<div id="input-holder"></div>')
+    loadAttendeeInput = true;
+  }
+  fieldSetWrapper.innerHTML = theSignUpCopy;
+  var eventHolder = document.getElementById('event-holder');
   // add cancel button
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
-  var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
+  var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Close', 'cancel-button', 'form-button');
   cancelTypeButton.type = 'button';
   cancelTypeButton.addEventListener('click', removeBlocker);
 
@@ -141,7 +178,7 @@ function loadSignUp(flowIndex) {
           }
           // Check if the event data was found in sheets
           if (eventFound) {
-            if (event.cost == 0) {
+            if (event.summary == thisFlow.eventTypesList[signUpIndex]) {
               // get attendees from sheets
               var sheetAttendees = eventData.sheetattendees.values;
               if(sheetAttendees == null){
@@ -190,23 +227,27 @@ function loadSignUp(flowIndex) {
             seatsElement.innerHTML = ' (' + event.availableSeats.toString() + '&#160;seats&#160;available)';
             appendContent(eventHolder, 'br')
           }
-          // add inputs
-          var nameHolder = appendContent(inputHolder, 'div', '', 'name-holder')
-          var firstNameLabel = appendContent(nameHolder, 'label', 'First Name:', '', 'form-label');
-          firstNameLabel.for = 'first-name-input';
-          var firstNameInput = appendContent(firstNameLabel, 'input', '', 'first-name-input', 'name-input');
-          firstNameInput.required = true;
-          var lastNameLabel = appendContent(nameHolder, 'label', 'Last Name:', '', 'form-label');
-          lastNameLabel.for = 'last-name-input';
-          var lastNameInput = appendContent(lastNameLabel, 'input', '', 'last-name-input', 'name-input');
-          lastNameInput.required = true;
-          var emailLabel = appendContent(inputHolder, 'label', 'Email:', 'email-label');
-          emailLabel.for = 'email-input';
-          var emailInput = appendContent(emailLabel, 'input', '', 'email-input', '', 'form-label');
-          emailInput.type = "email";
-          emailInput.required = true;
+          if(loadAttendeeInput){
+            // add inputs
+            var inputHolder = document.getElementById('input-holder');
+            var nameHolder = appendContent(inputHolder, 'div', '', 'name-holder')
+            var firstNameLabel = appendContent(nameHolder, 'label', 'First Name:', '', 'form-label');
+            firstNameLabel.for = 'first-name-input';
+            var firstNameInput = appendContent(firstNameLabel, 'input', '', 'first-name-input', 'name-input');
+            firstNameInput.required = true;
+            var lastNameLabel = appendContent(nameHolder, 'label', 'Last Name:', '', 'form-label');
+            lastNameLabel.for = 'last-name-input';
+            var lastNameInput = appendContent(lastNameLabel, 'input', '', 'last-name-input', 'name-input');
+            lastNameInput.required = true;
+            var emailLabel = appendContent(inputHolder, 'label', 'Email:', 'email-label');
+            emailLabel.for = 'email-input';
+            var emailInput = appendContent(emailLabel, 'input', '', 'email-input', '', 'form-label');
+            emailInput.type = "email";
+            emailInput.required = true;
+          }
           // add confirm button
-          var confirmButton = appendContent(buttonWrapper, 'button', 'Confirm', 'modify-event-button', 'form-button');
+          var confirmButton = appendContent(buttonWrapper, 'button', '', 'modify-event-button', 'form-button');
+          confirmButton.innerHTML = thisFlow.signUpPageCTAList[thisFlow.eventTypesList[signUpIndex]];
         } else {
           loadNoEventsFoundError(eventHolder);
         }
@@ -274,10 +315,10 @@ function showThankYouPage(attendeeArray) {
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   var legendElement = appendContent(fieldSetWrapper, 'LEGEND', 'Thank You!');
   var thankstext = eventsList[attendeeArray.eventId].thankYouText;
-  if (thankstext.indexOf('[outlook-link]') != -1) {
+  if (thankstext.includes('[outlook-link]')) {
     thankstext = thankstext.replace('[outlook-link]', '<a id="outlook-link">Outlook</a>')
   }
-  if (thankstext.indexOf('[google-cal-link]') != -1) {
+  if (thankstext.includes('[google-cal-link]')) {
     thankstext = thankstext.replace('[google-cal-link]', '<a id="google-cal-link">Google Calendar</a>')
   }
   var thanksWrapper = appendContent(fieldSetWrapper, 'div')

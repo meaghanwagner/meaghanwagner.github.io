@@ -95,7 +95,7 @@ p > a{
   color:#28262B;
   text-decoration: underline;
 }
-p{
+p {
   margin: 0.75rem 0;
 }
 .brown {
@@ -242,7 +242,7 @@ p{
 }
 .wrapper{
   width: 100%;
-  max-width: 1020px;
+  max-width: 1180px;
   margin:auto;
 }
 .half{
@@ -304,6 +304,9 @@ p{
   font-weight: 700;
   margin:.5em;
 }
+.form-button > p {
+  margin:0;
+}
 .event-date{
   font-weight: 700;
 }
@@ -347,7 +350,7 @@ div.min-width {
   margin: auto;
 }
 .card-title {
-  font-size: 3rem;
+  font-size: 2.5rem;
   margin: 1rem 0;
   padding-right: 2rem;
   white-space: nowrap;
@@ -369,7 +372,7 @@ div.min-width {
   text-align: center;
   font-size: 1.4rem;
 }
-#tools-box{
+.tools-box{
   display: flex;
   flex-wrap: nowrap;
 }
@@ -506,12 +509,13 @@ div.min-width {
     border-radius: 15px;
     padding: 1rem;
     width: calc(100% - 2rem);
+    margin-bottom: 2rem;
   }
 
 }
 @media only screen and (max-width: 500px) {
   .card-title {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
   .branding {
     font-size: 2rem;

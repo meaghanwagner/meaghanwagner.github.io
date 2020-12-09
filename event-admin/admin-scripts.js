@@ -23,6 +23,7 @@ var contentElement = document.getElementById('content');
 var eventTypeSheetsValues = [];
 var calendarEvents = [];
 var flowsSheetsValues = [];
+var currentRow = [];
 // Escape key listener for closing popups
 document.onkeydown = function(evt) {
   evt = evt || window.event;
@@ -445,9 +446,9 @@ function displayFlowData() {
       appendContent(fieldSetWrapper, 'LEGEND', 'Flows:');
       // add flows box
       appendContent(fieldSetWrapper, 'h3', 'Displaying:');
-      displayFlowsContainer = appendContent(fieldSetWrapper, 'div', '' , 'display-flows', 'tools-box');
+      displayFlowsContainer = appendContent(fieldSetWrapper, 'div', '' , '', 'tools-box');
       appendContent(fieldSetWrapper, 'h3', 'Hidden:');
-      hiddenFlowsContainer = appendContent(fieldSetWrapper, 'div', '' , 'hidden-flows', 'tools-box');
+      hiddenFlowsContainer = appendContent(fieldSetWrapper, 'div', '' , '', 'tools-box');
       // add flows from sheets data
       for (var sheetIndex = 0; sheetIndex < range.values.length; sheetIndex++) {
         var row = range.values[sheetIndex];
@@ -513,6 +514,7 @@ function addNewFlowFields(e){
     thisEventType = eventTypeSheetsValues[eventTypeIndex];
     var eventTypeOption = appendContent(eventTypesSelect, 'option', thisEventType[0]);
   }
+  eventTypesSelect.setAttribute('onchange', 'eventTypesSelectionChanged(false)');
   // add important checkbox
   var importantHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
   var importantLabel = appendContent(importantHolder, 'label', 'Important: ');
@@ -532,18 +534,8 @@ function addNewFlowFields(e){
   appendContent(linkHolder, 'br');
   var descInput = appendContent(linkHolder, 'textarea', '', 'desc-input', 'rich-text');
   appendContent(linkHolder, 'br');
-  // add Sign Up Page Copy
-  var signUpCopyLabel = appendContent(linkHolder, 'label', 'Sign Up Page Copy:');
-  signUpCopyLabel.for = 'sign-up-page-copy';
-  appendContent(linkHolder, 'br');
-  var signUpCopyInput = appendContent(linkHolder, 'textarea', '', 'sign-up-page-copy', 'rich-text');
-  appendContent(linkHolder, 'br');
-  // add Sign Up Page CTA
-  var signUpCTALabel = appendContent(linkHolder, 'label', 'Sign Up Page CTA:');
-  signUpCTALabel.for = 'sign-up-page-cta';
-  appendContent(linkHolder, 'br');
-  var signUpCTAInput = appendContent(linkHolder, 'textarea', '', 'sign-up-page-cta', 'rich-text');
-  appendContent(linkHolder, 'br');
+  // add Sign Up Page Copy holder
+  var signupHolder = appendContent(linkHolder, 'div', '', 'signup-holder');
   // add Payment Page Copy
   var payementPageCopyLabel = appendContent(linkHolder, 'label', 'Payment Page Copy:');
   payementPageCopyLabel.for = 'payment-page-copy';
@@ -568,12 +560,8 @@ function addNewFlowFields(e){
   appendContent(linkHolder, 'br');
   var confirmationEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'confirmation-email-copy', 'rich-text');
   appendContent(linkHolder, 'br');
-  // add Reminder Email Copy
-  var reminderEmailCopyLabel = appendContent(linkHolder, 'label', 'Reminder Email Copy:');
-  reminderEmailCopyLabel.for = 'reminder-email-copy';
-  appendContent(linkHolder, 'br');
-  var reminderEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'reminder-email-copy', 'rich-text');
-  appendContent(linkHolder, 'br');
+  // add Reminder Email holder
+  var reminderHolder = appendContent(linkHolder, 'div', '', 'reminder-holder');
   // add Follow up Email Copy
   var followUpEmailCopyLabel = appendContent(linkHolder, 'label', 'Follow up Email Copy:');
   followUpEmailCopyLabel.for = 'follow-up-email-copy';
@@ -592,26 +580,93 @@ function addNewFlowFields(e){
   appendContent(linkHolder, 'br');
   var followUpEmailCTADestInput = appendContent(linkHolder, 'input', '', 'follow-up-email-cta-dest', 'full-width');
   appendContent(linkHolder, 'br');
-  // Enable rich text editors
-  richTextInit();
+  // Update event type specific fields
+  eventTypesSelectionChanged(false);
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
   var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
   cancelTypeButton.type = 'button';
   cancelTypeButton.addEventListener('click', removeBlocker);
-  var modifyButton = appendContent(buttonWrapper, 'button', 'Update Flow', 'modify-flow-button', 'form-button');
+  var modifyButton = appendContent(buttonWrapper, 'button', 'Add Flow', 'modify-flow-button', 'form-button');
   modifyButton.type = 'button';
   modifyButton.setAttribute('flow-index', flowIndex);
   modifyButton.setAttribute('onclick', 'addFlow(this)');
 }
+// Function to update the fields that vary based on eventTypesSelected
+function eventTypesSelectionChanged(populateData=false){
+  var selectedEventTypesArray = getSelectedEventTypesArray();
+  var signupHolder = document.getElementById('signup-holder');
+  signupHolder.innerHTML = '';
+  var reminderHolder = document.getElementById('reminder-holder');
+  reminderHolder.innerHTML = '';
+  if(populateData){
+    signUpCopyData = JSON.parse(currentRow[5]);
+    signUpCTAData = JSON.parse(currentRow[6]);
+    reminderEmailCopyData = JSON.parse(currentRow[11]);
+  }
+  for(var optionIndex = 0; optionIndex < selectedEventTypesArray.length; optionIndex++){
+    optionText = selectedEventTypesArray[optionIndex];
+    // add Sign up copy
+    var signUpCopyLabel = appendContent(signupHolder, 'label', 'Sign Up Page Copy for ' + optionText +':');
+    appendContent(signUpCopyLabel, 'br');
+    var signUpCopyInput = appendContent(signUpCopyLabel, 'textarea', '', '', 'rich-text');
+    signUpCopyInput.classList.add('sign-up-page-copy');
+    signUpCopyInput.setAttribute('data-event-type', optionText);
+    appendContent(signupHolder, 'br');
+    // add Sign Up Page CTA
+    var signUpCTALabel = appendContent(signupHolder, 'label', 'Sign Up Page CTA for ' + optionText +':');
+    appendContent(signUpCTALabel, 'br');
+    var signUpCTAInput = appendContent(signUpCTALabel, 'textarea', '', '', 'rich-text');
+    signUpCTAInput.classList.add('sign-up-page-cta');
+    signUpCTAInput.setAttribute('data-event-type', optionText);
+    appendContent(signupHolder, 'br');
+    // add Reminder Email Copy
+    var reminderEmailCopyLabel = appendContent(reminderHolder, 'label', 'Reminder Email Copy for ' + optionText +':');
+    appendContent(reminderEmailCopyLabel, 'br');
+    var reminderEmailCopyInput = appendContent(reminderEmailCopyLabel, 'textarea', '', '', 'rich-text');
+    reminderEmailCopyInput.classList.add('reminder-email-copy');
+    reminderEmailCopyInput.setAttribute('data-event-type', optionText);
+    appendContent(reminderHolder, 'br');
+    if(populateData){
+      if(optionText in signUpCopyData){
+        signUpCopyInput.value = signUpCopyData[optionText];
+      }
+      if(optionText in signUpCTAData){
+        signUpCTAInput.value = signUpCTAData[optionText];
+      }
+      if(optionText in reminderEmailCopyData){
+        reminderEmailCopyInput.value = reminderEmailCopyData[optionText];
+      }
+    }
+  }
+  // Enable rich text editors
+  richTextInit();
+}
+// Function to return selectedEventTypesArray
+function getSelectedEventTypesArray(){
+  var selectedEventTypes = document.getElementById('event-types-select').selectedOptions;
+  var selectedEventTypesArray = [];
+  for(var optionIndex = 0; optionIndex < selectedEventTypes.length; optionIndex++){
+    var theOption = selectedEventTypes[optionIndex];
+    selectedEventTypesArray.push(theOption.text);
+  }
+  return selectedEventTypesArray;
+}
+// Function to get array of rich text content from tiny editors by classname
+function getRichTextArray(className){
+  var tinyEditors = document.getElementsByClassName(className);
+  var richTextArray = {};
+  for (var i = 0; i < tinyEditors.length; i++) {
+    thisEditor = tinyEditors[i];
+    eventTypeText = thisEditor.getAttribute('data-event-type');
+    richTextArray[eventTypeText] = tinyMCE.get(thisEditor.id).getContent();
+  }
+  return richTextArray
+}
 // Function to add flow data to sheets
 function addFlow(element){
   var flowIndex = element.getAttribute('flow-index');
-  var selectedEventTypes = document.getElementById('event-types-select').selectedOptions;
-  var selectedEventTypesString = '';
-  for(var optionIndex = 0; optionIndex < selectedEventTypes.length; optionIndex++){
-    var theOption = selectedEventTypes[optionIndex];
-    selectedEventTypesString += theOption.text + ";";
-  }
+  var selectedEventTypesArray = getSelectedEventTypesArray();
+  var selectedEventTypesString = JSON.stringify(selectedEventTypesArray);
   var values = [
     [
       document.getElementById('flow-title').value,
@@ -619,13 +674,13 @@ function addFlow(element){
       tinyMCE.get('desc-input').getContent(),
       document.getElementById('important-input').checked,
       document.getElementById('display-input').checked,
-      tinyMCE.get('sign-up-page-copy').getContent(),
-      tinyMCE.get('sign-up-page-cta').getContent(),
+      JSON.stringify(getRichTextArray('sign-up-page-copy')),
+      JSON.stringify(getRichTextArray('sign-up-page-cta')),
       tinyMCE.get('payment-page-copy').getContent(),
       tinyMCE.get('thank-you-page-copy').getContent(),
       tinyMCE.get('thank-you-page-totals-copy').getContent(),
       tinyMCE.get('confirmation-email-copy').getContent(),
-      tinyMCE.get('reminder-email-copy').getContent(),
+      JSON.stringify(getRichTextArray('reminder-email-copy')),
       tinyMCE.get('follow-up-email-copy').getContent(),
       tinyMCE.get('follow-up-email-cta').getContent(),
       document.getElementById('follow-up-email-cta-dest').value
@@ -653,6 +708,7 @@ function addFlow(element){
 function addEditFlowFields(element){
   var flowIndex = element.getAttribute('flow-index');
   var row = flowsSheetsValues[flowIndex]
+  window.currentRow = row;
 
   // add blocker to prevent accidentally clicking other buttons
   var blockerDiv = addBlocker();
@@ -689,6 +745,7 @@ function addEditFlowFields(element){
       eventTypeOption.selected = true;
     }
   }
+  eventTypesSelect.setAttribute('onchange', 'eventTypesSelectionChanged(true)');
   // add important checkbox
   var importantHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
   var importantLabel = appendContent(importantHolder, 'label', 'Important: ');
@@ -711,20 +768,8 @@ function addEditFlowFields(element){
   var descInput = appendContent(linkHolder, 'textarea', '', 'desc-input', 'rich-text');
   descInput.value = row[2];
   appendContent(linkHolder, 'br');
-  // add Sign Up Page Copy
-  var signUpCopyLabel = appendContent(linkHolder, 'label', 'Sign Up Page Copy:');
-  signUpCopyLabel.for = 'sign-up-page-copy';
-  appendContent(linkHolder, 'br');
-  var signUpCopyInput = appendContent(linkHolder, 'textarea', '', 'sign-up-page-copy', 'rich-text');
-  signUpCopyInput.value = row[5];
-  appendContent(linkHolder, 'br');
-  // add Sign Up Page CTA
-  var signUpCTALabel = appendContent(linkHolder, 'label', 'Sign Up Page CTA:');
-  signUpCTALabel.for = 'sign-up-page-cta';
-  appendContent(linkHolder, 'br');
-  var signUpCTAInput = appendContent(linkHolder, 'textarea', '', 'sign-up-page-cta', 'rich-text');
-  signUpCTAInput.value = row[6];
-  appendContent(linkHolder, 'br');
+  // add Sign Up Page Copy holder
+  var signupHolder = appendContent(linkHolder, 'div', '', 'signup-holder');
   // add Payment Page Copy
   var payementPageCopyLabel = appendContent(linkHolder, 'label', 'Payment Page Copy:');
   payementPageCopyLabel.for = 'payment-page-copy';
@@ -753,13 +798,8 @@ function addEditFlowFields(element){
   var confirmationEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'confirmation-email-copy', 'rich-text');
   confirmationEmailCopyInput.value = row[10];
   appendContent(linkHolder, 'br');
-  // add Reminder Email Copy
-  var reminderEmailCopyLabel = appendContent(linkHolder, 'label', 'Reminder Email Copy:');
-  reminderEmailCopyLabel.for = 'reminder-email-copy';
-  appendContent(linkHolder, 'br');
-  var reminderEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'reminder-email-copy', 'rich-text');
-  reminderEmailCopyInput.value = row[11];
-  appendContent(linkHolder, 'br');
+  // add Reminder Email holder
+  var reminderHolder = appendContent(linkHolder, 'div', '', 'reminder-holder');
   // add Follow up Email Copy
   var followUpEmailCopyLabel = appendContent(linkHolder, 'label', 'Follow up Email Copy:');
   followUpEmailCopyLabel.for = 'follow-up-email-copy';
@@ -782,7 +822,7 @@ function addEditFlowFields(element){
   followUpEmailCTADestInput.value = row[14];
   appendContent(linkHolder, 'br');
   // Enable rich text editors
-  richTextInit();
+  eventTypesSelectionChanged(true);
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
   var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
   cancelTypeButton.type = 'button';
@@ -795,12 +835,8 @@ function addEditFlowFields(element){
 // Function to update flow data in sheets
 function editFlow(element){
   var flowIndex = element.getAttribute('flow-index');
-  var selectedEventTypes = document.getElementById('event-types-select').selectedOptions;
-  var selectedEventTypesString = '';
-  for(var optionIndex = 0; optionIndex < selectedEventTypes.length; optionIndex++){
-    var theOption = selectedEventTypes[optionIndex];
-    selectedEventTypesString += theOption.text + ";";
-  }
+  var selectedEventTypesArray = getSelectedEventTypesArray();
+  var selectedEventTypesString = JSON.stringify(selectedEventTypesArray);
   var values = [
     [
       document.getElementById('flow-title').value,
@@ -808,13 +844,13 @@ function editFlow(element){
       tinyMCE.get('desc-input').getContent(),
       document.getElementById('important-input').checked,
       document.getElementById('display-input').checked,
-      tinyMCE.get('sign-up-page-copy').getContent(),
-      tinyMCE.get('sign-up-page-cta').getContent(),
+      JSON.stringify(getRichTextArray('sign-up-page-copy')),
+      JSON.stringify(getRichTextArray('sign-up-page-cta')),
       tinyMCE.get('payment-page-copy').getContent(),
       tinyMCE.get('thank-you-page-copy').getContent(),
       tinyMCE.get('thank-you-page-totals-copy').getContent(),
       tinyMCE.get('confirmation-email-copy').getContent(),
-      tinyMCE.get('reminder-email-copy').getContent(),
+      JSON.stringify(getRichTextArray('reminder-email-copy')),
       tinyMCE.get('follow-up-email-copy').getContent(),
       tinyMCE.get('follow-up-email-cta').getContent(),
       document.getElementById('follow-up-email-cta-dest').value
