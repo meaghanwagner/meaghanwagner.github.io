@@ -43,7 +43,7 @@ document.onkeydown = function(evt) {
  */
 function handleClientLoad() {
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', 'https://gardenlifegame.com/megs_php/getcreds.php');
+  xhr.open('GET', 'https://meaghanwagner.com/php/getcreds.php');
   xhr.onload = function() {
     richTextInit();
     if(xhr.responseText.startsWith('0')){

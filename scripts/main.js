@@ -18,7 +18,7 @@ var eventTypeData = {};
 // function to load flow data from sheets
 function loadFlows(){
   var flowDataXHR = new XMLHttpRequest();
-  flowDataXHR.open('GET', 'https://gardenlifegame.com/megs_php/echoFlowData.php');
+  flowDataXHR.open('GET', 'https://meaghanwagner.com/php/echoFlowData.php');
   flowDataXHR.onload = function() {
     var responseObj = JSON.parse(flowDataXHR.responseText);
     var flowArray = responseObj.sheetflows.values;
@@ -169,7 +169,7 @@ function loadSignUp(flowId, signUpIndex=0) {
   if(isEmpty(eventData)){
     // get event data from calendar
     var eventDataXHR = new XMLHttpRequest();
-    eventDataXHR.open('GET', 'https://gardenlifegame.com/megs_php/echoEventData.php');
+    eventDataXHR.open('GET', 'https://meaghanwagner.com/php/echoEventData.php');
     eventDataXHR.onload = function() {
       var eventData = JSON.parse(eventDataXHR.responseText);
       window.eventData = eventData;
@@ -367,7 +367,7 @@ function addAttendee() {
     signupData.lastName = document.getElementById('last-name-input').value;
   }
   var attendeeXHR = new XMLHttpRequest();
-  attendeeXHR.open('POST', 'https://gardenlifegame.com/megs_php/addattendee.php');
+  attendeeXHR.open('POST', 'https://meaghanwagner.com/php/addattendee.php');
   attendeeXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   attendeeXHR.onload = function() {
     var eventCount = Object.keys(signupData.events).length;
