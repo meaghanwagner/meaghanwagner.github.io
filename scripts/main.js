@@ -1,11 +1,14 @@
 window.addEventListener('hashchange', checkHash);
 // Function to toggle the burger menu
 function burgerToggle() {
-  var x = document.getElementsByClassName('header-nav')[0];
-  if (x.style.display === 'flex') {
-    x.style.display = 'none';
+  var nav = document.getElementsByClassName('header-nav')[0];
+  var main = document.getElementsByTagName('main')[0];
+  if (nav.style.display === 'flex') {
+    nav.style.display = 'none';
+    main.style.marginTop = '0';
   } else {
-    x.style.display = 'flex';
+    nav.style.display = 'flex';
+    main.style.marginTop = '6rem';
   }
 }
 

@@ -28,7 +28,7 @@ header {
 main {
   position: absolute;
   width: 100%;
-  top: 5rem;
+  top: 6rem;
   z-index: -1
 }
 h1 {
@@ -143,13 +143,12 @@ p {
   display: flex;
   flex-wrap: wrap;
   height: 100%;
-  width: 25%;
-  flex: 1 1 25%;
+  width: 35%;
 }
 .header-nav-item {
   position: relative;
   display: inline-block;
-  font-size: 20px;
+  font-size: 1.5rem;
   width: 33%;
   text-align: center;
   margin: auto;
@@ -329,6 +328,10 @@ p {
     opacity: 1;
   }
 }
+div.min-width {
+  width: min-content;
+  margin: auto;
+}
 .card-wrapper {
   color: #5F2F17;
   background-color: white;
@@ -344,10 +347,6 @@ p {
   opacity: 0;
   animation: recenter .6s forwards;
   animation-timing-function: ease-in-out;
-}
-div.min-width {
-  width: min-content;
-  margin: auto;
 }
 .card-title {
   font-size: 2.5rem;
@@ -386,6 +385,11 @@ div.min-width {
   border-radius: 15px;
   padding: 0 1rem 1rem 1rem;
   box-shadow: 5px 5px 5px rgba(0,0,0,0.3);
+  transform: translate(-100%, 0);
+  opacity: 0;
+  animation: recenter .6s forwards;
+  animation-timing-function: ease-in-out;
+
 }
 .tool:hover{
   box-shadow: 7px 7px 7px rgba(0,0,0,0.5);
@@ -460,9 +464,9 @@ div.min-width {
   text-align: center;
 }
 .quote {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  line-height: 1.4;
+  line-height: 1.2;
 }
 .questions {
   font-weight: 700;
@@ -482,9 +486,26 @@ div.min-width {
   }
 }
 @media only screen and (max-width: 800px) {
+  .half{
+    width: 100%;
+  }
+  .main-image {
+    width: 100%;
+  }
+  .flex{
+    display: block;
+  }
+  .card-wrapper{
+    position: relative;
+    margin: auto;
+    width: calc(100% - 50px);
+  }
   .card-title{
     padding: 0;
     white-space: normal;
+  }
+  .tools {
+    margin: 1rem 0;
   }
 }
 @media only screen and (max-width: 665px) {
@@ -494,14 +515,14 @@ div.min-width {
     width: 100%;
     flex-wrap: nowrap;
     position: absolute;
-    top:60px;
+    top:105px;
     right: 0;
     text-align: center;
   }
   .icon {
     display:block;
   }
-  #tools-box {
+  .tools-box {
     display: block;
   }
   .tool {
@@ -520,9 +541,6 @@ div.min-width {
   .branding {
     font-size: 2rem;
   }
-  .tools{
-    margin-top: 5vh;
-  }
 }
 @media only screen and (max-width: 400px) {
   .card-title {
@@ -530,8 +548,5 @@ div.min-width {
   }
   .branding {
     font-size: 2rem;
-  }
-  .tools{
-    margin-top: 10vh;
   }
 }
