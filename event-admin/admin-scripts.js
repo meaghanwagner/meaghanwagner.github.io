@@ -488,10 +488,10 @@ function addNewFlowFields(e){
   // add form
   var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-flow-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
+  xButton.addEventListener('click', removeBlocker);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
-  var xButton = appendContent(fieldSetWrapper, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
   // add legend
   appendContent(fieldSetWrapper, 'LEGEND', 'Add Flow');
   // add container div
@@ -715,10 +715,10 @@ function addEditFlowFields(element){
   // add form
   var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-flow-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
+  xButton.addEventListener('click', removeBlocker);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
-  var xButton = appendContent(fieldSetWrapper, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
   // add legend
   appendContent(fieldSetWrapper, 'LEGEND', 'Edit Flow');
   // add container div
@@ -894,10 +894,10 @@ function addModifyEventFields(element){
   // add form
   var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'modify-event-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
+  xButton.addEventListener('click', removeBlocker);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
-  var xButton = appendContent(fieldSetWrapper, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
   // add legend
   appendContent(fieldSetWrapper, 'LEGEND', 'Modify Event');
   // add container div
@@ -1095,10 +1095,10 @@ function addCancelEventFields(element){
   var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'cancel-event-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   formWrapper.setAttribute('onsubmit', 'cancelEvent(this);return false;');
+  var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
+  xButton.addEventListener('click', removeBlocker);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
-  var xButton = appendContent(fieldSetWrapper, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
   // add legend
   appendContent(fieldSetWrapper, 'LEGEND', 'Cancel Event');
   // add container div
@@ -1274,10 +1274,10 @@ function addNewTypeFields(){
   // add form
   var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-type-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
+  xButton.addEventListener('click', removeBlocker);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
-  var xButton = appendContent(fieldSetWrapper, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
   // add legend
   appendContent(fieldSetWrapper, 'LEGEND', 'Add New Event Type');
   // add container div
@@ -1384,10 +1384,10 @@ function addEditTypeFields(){
   // add form
   var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-type-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
+  xButton.addEventListener('click', removeBlocker);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
-  var xButton = appendContent(fieldSetWrapper, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
   // add legend
   appendContent(fieldSetWrapper, 'LEGEND', 'Edit Event Type');
   // add container div

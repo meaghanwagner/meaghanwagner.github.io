@@ -137,6 +137,8 @@ function loadSignUp(flowId, signUpIndex=0) {
   // add form
   var formWrapper = appendContent(blockerDiv, 'form', '', 'sign-up-form', 'flow-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
+  xButton.addEventListener('click', removeBlocker);
   // Check if signup is at the end of the list
   var lastSignupPage = false;
   if(signUpIndex == (thisFlow.eventTypesList.length -1)){
@@ -162,9 +164,6 @@ function loadSignUp(flowId, signUpIndex=0) {
   fieldSetWrapper.innerHTML = theSignUpCopy;
   // add cancel button
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
-  var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Close', 'cancel-button', 'form-button');
-  cancelTypeButton.type = 'button';
-  cancelTypeButton.addEventListener('click', removeBlocker);
 
   if(isEmpty(eventData)){
     // get event data from calendar
@@ -304,14 +303,40 @@ function replaceCostHolder(){
     // add cost data
     var totalCost = 0;
     for (const eventID in signupData.events) {
-      console.log(eventID);
       event = signupData.events[eventID];
       totalCost += parseInt(event.cost);
       var costText = event.summary + ": $" + event.cost;
       var eventCostHolder = appendContent(costHolder, 'p', costText,);
     }
-    var totalCostText = "Total: $" + totalCost.toString();
-    var eventCostHolder = appendContent(costHolder, 'p', totalCostText,);
+    signupData.totalCost = totalCost;
+    var totalCostText = "<strong>Total: $" + totalCost.toString() + "</strong>";
+    var totalCostHolder = appendContent(costHolder, 'p');
+    totalCostHolder.innerHTML = totalCostText;
+  }
+}
+function replacePaymentHolder(){
+  var paymentHolder = document.getElementById('payment-holder');
+  if(paymentHolder != null){
+    var paymentFrame = appendContent(paymentHolder, 'iframe', '', 'payment-frame');
+    var paymentSource = ('https://meaghanwagner.com/pay-form/');
+    paymentFrame.src = paymentSource;
+    paymentFrame.addEventListener("load", () => {
+      var amountData = {
+        amount : signupData.totalCost
+      }
+      paymentFrame.contentWindow.postMessage(amountData, paymentSource);
+    });
+    window.addEventListener("message", event => {
+      if(event.data.title == 'Payment Successful'){
+        signupData.paymentInfo = event.data;
+        var paymentHolder = document.getElementById('payment-holder');
+        paymentHolder.innerHTML = "<h2>Thank you for your payment!</h2>";
+        appendContent(paymentHolder, 'br');
+        var buttonWrapper = appendContent(paymentHolder, 'div', '', 'button-wrapper');
+        var submitButton = appendContent(buttonWrapper, 'button', 'Submit', '', 'form-button');
+        submitButton.click();
+      }
+    });
   }
 }
 // Function to display no results
@@ -329,22 +354,29 @@ function loadPayment(e){
   var formWrapper = appendContent(blockerDiv, 'form', '', 'payment-form', 'flow-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   formWrapper.addEventListener('submit', checkPayment);
+  var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
+  xButton.addEventListener('click', removeBlocker);
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   var paymentPageCopy = signupData.flow.paymentPageCopy;
   if(paymentPageCopy.includes('[attendee-input]')){
-    paymentPageCopy = paymentPageCopy.replace('[attendee-input]', '<div id="input-holder"></div>')
+    paymentPageCopy = paymentPageCopy.replace('<p>[attendee-input]</p>', '<div id="input-holder"></div>')
   }
   if(paymentPageCopy.includes('[cost-list]')){
-    paymentPageCopy = paymentPageCopy.replace('[cost-list]', '<div id="cost-holder"></div>')
+    paymentPageCopy = paymentPageCopy.replace('<p>[cost-list]</p>', '<div id="cost-holder"></div>')
+  }
+  if(paymentPageCopy.includes('[payment-input]')){
+    paymentPageCopy = paymentPageCopy.replace('<p>[payment-input]</p>', '<div id="payment-holder"></div>')
   }
   fieldSetWrapper.innerHTML = paymentPageCopy;
   replaceInputHolder();
   replaceCostHolder();
+  replacePaymentHolder();
+  /*
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
   var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Close', 'cancel-button', 'form-button');
   cancelTypeButton.type = 'button';
   cancelTypeButton.addEventListener('click', removeBlocker);
-  appendContent(buttonWrapper, 'button', 'Confirm', '', 'form-button');
+  appendContent(buttonWrapper, 'button', 'Confirm', '', 'form-button');*/
 }
 function checkPayment(e){
   e.preventDefault();
@@ -388,7 +420,6 @@ function showThankYouPage() {
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   formWrapper.addEventListener('submit', removeBlocker);
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
-  var legendElement = appendContent(fieldSetWrapper, 'LEGEND', 'Thank You!');
   var thankstext = signupData.flow.thankYouPageCopy;
   if (thankstext.includes('(outlook-link)')) {
     thankstext = thankstext.replace('[Outlook](outlook-link)', '<a id="outlook-link">Outlook</a>')
