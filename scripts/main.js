@@ -328,7 +328,7 @@ function replacePaymentHolder(){
     });
     window.addEventListener("message", event => {
       if(event.data.title == 'Payment Successful'){
-        signupData.paymentInfo = event.data;
+        signupData.paymentInfo = event.data.result.payment;
         var paymentHolder = document.getElementById('payment-holder');
         paymentHolder.innerHTML = "<h2>Thank you for your payment!</h2>";
         appendContent(paymentHolder, 'br');
@@ -353,7 +353,7 @@ function loadPayment(e){
   blockerDiv.innerHTML = '';
   var formWrapper = appendContent(blockerDiv, 'form', '', 'payment-form', 'flow-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
-  formWrapper.addEventListener('submit', checkPayment);
+  formWrapper.addEventListener('submit', paymentSubmitted);
   var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
   xButton.addEventListener('click', removeBlocker);
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
@@ -378,17 +378,16 @@ function loadPayment(e){
   cancelTypeButton.addEventListener('click', removeBlocker);
   appendContent(buttonWrapper, 'button', 'Confirm', '', 'form-button');*/
 }
-function checkPayment(e){
+function paymentSubmitted(e){
   e.preventDefault();
-  signupData.email = document.getElementById('email-input').value;
-  signupData.firstName = document.getElementById('first-name-input').value;
-  signupData.lastName = document.getElementById('last-name-input').value;
-  console.log(signupData);
-
+  addAttendee();
 }
 function loadFreeSignup(e){
   e.preventDefault();
   addEventToSignupData();
+  signupData.paymentInfo = {
+    receiptUrl: 'N/A'
+  }
   addAttendee();
 }
 // Function to add an attendee to sheets
@@ -410,7 +409,7 @@ function addAttendee() {
       addAttendee();
     }
   }
-  attendeeXHR.send('event_id=' + Object.keys(signupData.events)[signupData.eventIndex] + '&email_address=' + signupData.email + '&first_name=' + signupData.firstName + '&last_name=' + signupData.lastName + '&flow_type=' + signupData.flow.flowId);
+  attendeeXHR.send('event_id=' + Object.keys(signupData.events)[signupData.eventIndex] + '&email_address=' + signupData.email + '&first_name=' + signupData.firstName + '&last_name=' + signupData.lastName + '&flow_type=' + signupData.flow.flowId + '&payment_receipt=' + signupData.paymentInfo.receiptUrl);
 }
 // Function to show thank you page
 function showThankYouPage() {
@@ -419,6 +418,8 @@ function showThankYouPage() {
   var formWrapper = appendContent(blockerDiv, 'form', '', 'thank-you-form', 'flow-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   formWrapper.addEventListener('submit', removeBlocker);
+  var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
+  xButton.addEventListener('click', removeBlocker);
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   var thankstext = signupData.flow.thankYouPageCopy;
   if (thankstext.includes('(outlook-link)')) {

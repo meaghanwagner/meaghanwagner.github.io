@@ -98,6 +98,9 @@ p > a{
 p {
   margin: 0.75rem 0;
 }
+iframe{
+  overflow: hidden;
+}
 .brown {
   color: #5F2F17;
 }
@@ -332,7 +335,6 @@ p {
   width: 100%;
   height: 200px;
   border: none;
-  overflow: hidden;
 }
 
 /*Home Page*/
