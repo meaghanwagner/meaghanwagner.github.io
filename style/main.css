@@ -30,7 +30,7 @@ header {
 main {
   position: absolute;
   width: 100%;
-  top: 5.5rem;
+  top: 6.5rem;
   z-index: -1
 }
 h1 {
@@ -520,6 +520,9 @@ div.min-width {
   }
 }
 @media only screen and (max-width: 800px) {
+  main{
+    top: 5.5rem;
+  }
   .branding {
     font-size: 1.5rem;
   }
