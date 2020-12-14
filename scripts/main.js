@@ -339,6 +339,81 @@ function replacePaymentHolder(){
     });
   }
 }
+function replaceCalendarLinks(){
+  var calendarHolder = document.getElementById('calendar-links');
+  if(calendarHolder != null){
+    for (const eventID in signupData.events) {
+      event = signupData.events[eventID];
+      var eventLine = appendContent(calendarHolder, 'p')
+      eventLine.innerHTML = '<strong>' + event.summary + '</strong>: ';
+      // Outlook
+      var eventDate = {
+        start: event.start.dateTime,
+        end: event.end.dateTime
+      },
+      summary = event.summary,
+      description = event.description;
+      eventLocation = event.location;
+      var outlookAtag = appendContent(eventLine, 'a', 'Outlook');
+      outlookAtag.href = makeIcsFile(eventDate, summary, description, eventLocation);
+      var icsName = event.summary + ".ics";
+      outlookAtag.setAttribute('download', icsName);
+      appendContent(eventLine, 'span', ' ', '', 'calendar-space');
+      // Google Calendar
+      var startDateTime = convertDate(event.start.dateTime);
+      var endDateTime = convertDate(event.end.dateTime);
+      var googleCalLink = 'https://calendar.google.com/calendar/r/eventedit?text=' +
+        encodeURIComponent(event.summary) +
+        '&dates=' + startDateTime + '/' + endDateTime +
+        '&details=' + encodeURIComponent(event.description) +
+        '&location=' + event.location
+      var googleAtag = appendContent(eventLine, 'a', 'Google Calendar');
+      googleAtag.href = googleCalLink;
+      googleAtag.target = '_blank';
+    }
+  }
+}
+function convertDate(date) {
+  var newDate = new Date(date).toISOString();
+  newDate = newDate.split("-");
+  newDate = newDate.join("");
+  newDate = newDate.split(":");
+  newDate = newDate.join("");
+  return newDate;
+}
+function makeIcsFile(date, summary, description, eventLocation) {
+  var test =
+    "BEGIN:VCALENDAR\n" +
+    "CALSCALE:GREGORIAN\n" +
+    "METHOD:PUBLISH\n" +
+    "PRODID:-//Test Cal//EN\n" +
+    "VERSION:2.0\n" +
+    "BEGIN:VEVENT\n" +
+    "UID:test-1\n" +
+    "DTSTART;VALUE=DATE:" +
+    convertDate(date.start) +
+    "\n" +
+    "DTEND;VALUE=DATE:" +
+    convertDate(date.end) +
+    "\n" +
+    "SUMMARY:" +
+    summary +
+    "\n" +
+    "DESCRIPTION:" +
+    description +
+    "\n" +
+    "LOCATION:" +
+    eventLocation +
+    "\n" +
+    "END:VEVENT\n" +
+    "END:VCALENDAR";
+
+  var data = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(test);
+
+  return data;
+}
+
+
 // Function to display no results
 function loadNoEventsFoundError(eventHolder) {
   eventHolder.innerHTML = '';
@@ -371,12 +446,6 @@ function loadPayment(e){
   replaceInputHolder();
   replaceCostHolder();
   replacePaymentHolder();
-  /*
-  var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
-  var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Close', 'cancel-button', 'form-button');
-  cancelTypeButton.type = 'button';
-  cancelTypeButton.addEventListener('click', removeBlocker);
-  appendContent(buttonWrapper, 'button', 'Confirm', '', 'form-button');*/
 }
 function paymentSubmitted(e){
   e.preventDefault();
@@ -422,14 +491,12 @@ function showThankYouPage() {
   xButton.addEventListener('click', removeBlocker);
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   var thankstext = signupData.flow.thankYouPageCopy;
-  if (thankstext.includes('(outlook-link)')) {
-    thankstext = thankstext.replace('[Outlook](outlook-link)', '<a id="outlook-link">Outlook</a>')
-  }
-  if (thankstext.includes('[Google Calendar](google-cal-link)')) {
-    thankstext = thankstext.replace('[Google Calendar](google-cal-link)', '<a id="google-cal-link">Google Calendar</a>')
+  if (thankstext.includes('[add-to-calendar-links]')) {
+    thankstext = thankstext.replace('<p>[add-to-calendar-links]</p>', '<div id="calendar-links"></div>')
   }
   var thanksWrapper = appendContent(fieldSetWrapper, 'div')
   thanksWrapper.innerHTML = thankstext;
+  replaceCalendarLinks();
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
   appendContent(buttonWrapper, 'button', 'Close', '', 'form-button');
 
