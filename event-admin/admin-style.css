@@ -98,13 +98,6 @@ label {
 .form-item{
   margin: 5px;
 }
-.form-button {
-  background-color: #28262B;
-  color: #DBD282;
-  font-size: 1.3em;
-  font-weight: 700;
-  margin:1em;
-}
 .g-signin2{
   margin: auto;
 }

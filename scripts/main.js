@@ -8,7 +8,7 @@ function burgerToggle() {
     main.style.marginTop = '0';
   } else {
     nav.style.display = 'flex';
-    main.style.marginTop = '6rem';
+    main.style.marginTop = '5.5rem';
   }
 }
 

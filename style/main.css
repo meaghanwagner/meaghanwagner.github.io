@@ -16,6 +16,8 @@ body {
 }
 
 header {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
   position: absolute;
   top: 0;
   width:100%;
@@ -28,21 +30,26 @@ header {
 main {
   position: absolute;
   width: 100%;
-  top: 6rem;
+  top: 5.5rem;
   z-index: -1
 }
 h1 {
+  font-family: 'Montserrat', sans-serif;
   font-weight: 700;
-  font-size: 3rem;
+  font-size: 2.5rem;
   text-align: center;
   margin: 1rem 0;
 }
 h2{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
   font-size: 2rem;
   text-align: center;
   margin: 1rem 0;
 }
 h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
   margin: 1rem 0;
 }
 img {
@@ -71,7 +78,8 @@ fieldset{
   border: none;
 }
 legend{
-  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
   font-size: 2em;
 }
 button, select, input {
@@ -82,6 +90,8 @@ button, select, input {
   margin: 2px;
 }
 button{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
   box-shadow: 5px 5px 5px rgba(0,0,0,0.3);
 }
 button:hover{
@@ -100,6 +110,10 @@ p {
 }
 iframe{
   overflow: hidden;
+}
+strong {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
 }
 .brown {
   color: #5F2F17;
@@ -124,7 +138,7 @@ iframe{
   font-weight: inherit;
   width: 33%;
   flex: 1 1 33%;
-  font-size: 2.5rem;
+  font-size: 2rem;
   white-space: nowrap;
 }
 .fa {
@@ -142,7 +156,7 @@ iframe{
   padding: 5vh 0;
 }
 .header-nav {
-  margin: auto;
+  margin: auto 0;
   display: flex;
   flex-wrap: wrap;
   height: 100%;
@@ -151,15 +165,14 @@ iframe{
 .header-nav-item {
   position: relative;
   display: inline-block;
-  font-size: 1.5rem;
-  width: 33%;
+  font-size: 1.2rem;
   text-align: center;
   margin: auto;
+  break-inside: avoid !important;
 }
 .dropdown {
   position: relative;
   display: inline-block;
-  width: 33%;
 }
 .dropdown-content {
   display: none;
@@ -319,7 +332,6 @@ iframe{
   background-color: #28262B;
   color: #DBD282;
   font-size: 1.3em;
-  font-weight: 700;
   margin:.5em;
 }
 .form-button > p {
@@ -360,7 +372,6 @@ div.min-width {
   color: #5F2F17;
   background-color: white;
   margin: 10vh 1vw 0 0;
-  width: calc(50% - 60px);
   position: absolute;
   top:50;
   right:0;
@@ -373,9 +384,8 @@ div.min-width {
   animation-timing-function: ease-in-out;
 }
 .card-title {
-  font-size: 2.5rem;
-  margin: 1rem 0;
-  padding-right: 2rem;
+  font-size: 3.5rem;
+  margin: 1rem;
   white-space: nowrap;
   text-align: left;
 }
@@ -479,7 +489,6 @@ div.min-width {
 .tool-header {
   color: #DBD282;
   font-size: 2rem;
-  font-weight: 700;
 }
 .tool-description{
   text-align: left;
@@ -488,8 +497,9 @@ div.min-width {
   text-align: center;
 }
 .quote {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
   font-size: 1.5rem;
-  font-weight: 700;
   line-height: 1.2;
 }
 .questions {
@@ -510,6 +520,9 @@ div.min-width {
   }
 }
 @media only screen and (max-width: 800px) {
+  .branding {
+    font-size: 1.5rem;
+  }
   .half{
     width: 100%;
   }
@@ -518,15 +531,21 @@ div.min-width {
   }
   .flex{
     display: block;
+    padding: 0;
   }
   .card-wrapper{
     position: relative;
+    top:-2rem;
     margin: auto;
     width: calc(100% - 50px);
   }
   .card-title{
+    font-size: 2rem;
     padding: 0;
     white-space: normal;
+  }
+  div.min-width{
+    width: 100%;
   }
   .tools {
     margin: 1rem 0;
@@ -539,7 +558,7 @@ div.min-width {
     width: 100%;
     flex-wrap: nowrap;
     position: absolute;
-    top:105px;
+    top: 5.5rem;
     right: 0;
     text-align: center;
   }
@@ -557,20 +576,4 @@ div.min-width {
     margin-bottom: 2rem;
   }
 
-}
-@media only screen and (max-width: 500px) {
-  .card-title {
-    font-size: 2rem;
-  }
-  .branding {
-    font-size: 2rem;
-  }
-}
-@media only screen and (max-width: 400px) {
-  .card-title {
-    font-size: 2rem;
-  }
-  .branding {
-    font-size: 2rem;
-  }
 }
