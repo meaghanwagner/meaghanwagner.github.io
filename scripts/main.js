@@ -497,9 +497,6 @@ function showThankYouPage() {
   var thanksWrapper = appendContent(fieldSetWrapper, 'div')
   thanksWrapper.innerHTML = thankstext;
   replaceCalendarLinks();
-  var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
-  appendContent(buttonWrapper, 'button', 'Close', '', 'form-button');
-
 }
 // Function to format provided date as mm/dd/yyyy
 function getDateForDisplay(date) {
