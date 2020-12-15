@@ -85,6 +85,7 @@ function buildFlowData(flowArray, eventTypesArray){
       "paymentPageCopy" : thisFlow[7],
       "thankYouPageCopy" : thisFlow[8],
       "thankYouPageTotalsCopy" : thisFlow[9],
+      "confirmationEmailCopy" : thisFlow[10],
       "flowId" : flowId
     }
     flowData[flowId] = thisFlowObj;
@@ -515,7 +516,7 @@ function showThankYouPage() {
   confirmationXHR.onload = function() {
     console.log(confirmationXHR.responseText);
   }
-  confirmationXHR.send('events=' + JSON.stringify(phpEvents) + '&email_address=' + signupData.email + '&first_name=' + signupData.firstName + '&last_name=' + signupData.lastName + '&flow_type=' + signupData.flow.flowId);
+  confirmationXHR.send(JSON.stringify(signupData));
 
 }
 // Function to format provided date as mm/dd/yyyy
