@@ -497,6 +497,26 @@ function showThankYouPage() {
   var thanksWrapper = appendContent(fieldSetWrapper, 'div')
   thanksWrapper.innerHTML = thankstext;
   replaceCalendarLinks();
+  // making json smaller for php
+  var phpEvents = [];
+  for (const eventID in signupData.events) {
+    var event = signupData.events[eventID];
+    var thisPhpEvent = {
+      startDate : event.start.dateTime,
+      summary : event.summary
+    }
+    phpEvents.push(thisPhpEvent);
+  }
+
+  // send confirmation email
+  var confirmationXHR = new XMLHttpRequest();
+  confirmationXHR.open('POST', 'https://meaghanwagner.com/php/sendconfirmationemail.php');
+  confirmationXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  confirmationXHR.onload = function() {
+    console.log(confirmationXHR.responseText);
+  }
+  confirmationXHR.send('events=' + JSON.stringify(phpEvents) + '&email_address=' + signupData.email + '&first_name=' + signupData.firstName + '&last_name=' + signupData.lastName + '&flow_type=' + signupData.flow.flowId);
+
 }
 // Function to format provided date as mm/dd/yyyy
 function getDateForDisplay(date) {
