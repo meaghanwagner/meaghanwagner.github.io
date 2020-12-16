@@ -275,16 +275,18 @@ strong.large{
 /* about page */
 .about-figure{
   width: 80%;
-  margin: auto;
+  margin: 0 auto 2em auto;
 }
 .about-opener{
+  font-family: 'Montserrat', sans-serif;
   border-radius: 15px;
   padding: 5px 30px;
   box-shadow: 5px 5px 5px rgba(0,0,0,0.2);
   background-color: white;
   margin: 1em 0;
   width: calc(100% - 65px - 1vw);
-  font-size: 1.4em;
+  font-size: 2em;
+  font-weight: 700;
 }
 .about-caption {
   position: relative;
