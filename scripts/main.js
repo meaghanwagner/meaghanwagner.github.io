@@ -259,7 +259,6 @@ function loadSignupPage(signUpIndex){
           appendContent(eventLabel, 'span', '-' + timeFromDate12(endDateTime), '', 'event-end');
           seatsElement = appendContent(eventLabel, 'span', '', '', 'event-seats');
           seatsElement.innerHTML = ' (' + event.availableSeats.toString() + '&#160;seats&#160;available)';
-          appendContent(eventHolder, 'br')
         }
         replaceInputHolder();
         // add confirm button
