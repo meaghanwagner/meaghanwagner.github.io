@@ -12,6 +12,14 @@ function burgerToggle() {
   }
 }
 
+function toggleWWMOptions() {
+  var dropdown = document.getElementsByClassName('dropdown-content')[0];
+  if (dropdown.style.display === 'none') {
+    dropdown.style.display = 'block';
+  } else {
+    dropdown.style.display = 'none';
+  }
+}
 // empty object to hold flow data
 var flowData = {};
 var eventTypeData = {};
