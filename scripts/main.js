@@ -11,14 +11,35 @@ function burgerToggle() {
     main.style.marginTop = '5.5rem';
   }
 }
-
-function toggleWWMOptions() {
-  var dropdown = document.getElementsByClassName('dropdown-content')[0];
-  if (dropdown.style.display === 'none') {
-    dropdown.style.display = 'block';
-  } else {
-    dropdown.style.display = 'none';
+// function to send contact form
+function submitContact(){
+  var nameInput = document.getElementsByName("name")[0];
+  var emailInput = document.getElementsByName("email")[0];
+  var messageInput = document.getElementsByName("message")[0];
+  contactData = {
+    name: nameInput.value,
+    email: emailInput.value,
+    message: messageInput.value
   }
+  nameInput.disabled = true;
+  emailInput.disabled = true;
+  messageInput.disabled = true;
+  var contactTextElement = document.getElementById('contact-text');
+  contactTextElement.innerHTML = 'Sending message...'
+  // send confirmation email
+  var contactXHR = new XMLHttpRequest();
+  contactXHR.open('POST', 'https://meaghanwagner.com/php/sendcontactemail.php');
+  contactXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  contactXHR.onload = function() {
+    if(contactXHR.responseText == "contact email sent"){
+      contactTextElement.innerHTML = 'Message sent! Please allow one business day for a response. Thanks for reaching out!';
+      document.getElementById('contact-form-input').style.display = 'none';
+    } else {
+      contactTextElement.innerHTML = "There was an error sending the message: " + contactXHR.responseText
+    }
+  }
+  contactXHR.send(JSON.stringify(contactData));
+  return false;
 }
 // empty object to hold flow data
 var flowData = {};
