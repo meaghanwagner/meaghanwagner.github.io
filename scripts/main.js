@@ -498,10 +498,13 @@ function loadPayment(e){
 }
 function paymentFormSubmitted(e){
   e.preventDefault();
-  var submitButton = document.getElementById('submit-info');
-  submitButton.disabled = true;
-  submitButton.innerHTML = 'Submitting info';
-  addAttendee();
+  if(!paymentSubmitted){
+    var submitButton = document.getElementById('submit-info');
+    submitButton.disabled = true;
+    submitButton.innerHTML = 'Submitting info';
+    addAttendee();
+    window.paymentSubmitted = true;
+  }
 }
 function loadFreeSignup(e){
   e.preventDefault();
