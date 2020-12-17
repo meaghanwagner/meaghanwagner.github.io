@@ -325,7 +325,7 @@ strong.large{
   background-color:rgba(0,0,0,0.3);
   overflow: auto;
 }
-.flow-form  {
+.flow-form {
   margin-top: 9rem;
 }
 #button-wrapper {
@@ -580,6 +580,10 @@ div.min-width {
 #calendly-holder {
   height: 65vh;
 }
+#calendly-holder > iframe {
+  height: calc(100% - 2rem);
+}
+
 
 @media only screen and (max-width: 1124px) {
   .about-caption {
@@ -621,6 +625,12 @@ div.min-width {
   .about-image{
     width: calc(100% - 5px);
     position: relative;
+  }
+  .flow-form {
+    margin-top: 2rem;
+  }
+  #calendly-holder {
+    height: calc(95vh - 2rem);
   }
 }
 @media only screen and (max-width: 850px) {
