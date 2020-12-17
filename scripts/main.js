@@ -41,6 +41,24 @@ function submitContact(){
   contactXHR.send(JSON.stringify(contactData));
   return false;
 }
+// Calendly integration
+function showCalendly(){
+  // add blocker
+  var bodyElement = document.getElementsByTagName("body")[0];
+  var blockerDiv = appendContent(bodyElement, 'div', '', 'blocker');
+  bodyElement.style.overflow = "hidden";
+  // add form
+  var calendlyHolder = appendContent(blockerDiv, 'form', '', 'calendly-holder', 'flow-form');
+  var xButton = appendContent(calendlyHolder, 'a', 'x', 'x-button');
+  xButton.addEventListener('click', removeBlocker);
+  Calendly.initInlineWidget({
+   url: 'https://calendly.com/meaghan-wagner/consultation',
+   parentElement: calendlyHolder,
+   prefill: {},
+   utm: {}
+  });
+  return false;
+}
 // empty object to hold flow data
 var flowData = {};
 var eventTypeData = {};
@@ -362,7 +380,7 @@ function replacePaymentHolder(){
         paymentHolder.innerHTML = "<h2>Thank you for your payment!</h2>";
         appendContent(paymentHolder, 'br');
         var buttonWrapper = appendContent(paymentHolder, 'div', '', 'button-wrapper');
-        var submitButton = appendContent(buttonWrapper, 'button', 'Submit', '', 'form-button');
+        var submitButton = appendContent(buttonWrapper, 'button', 'Submit', 'submit-info', 'form-button');
         submitButton.click();
       }
     });
@@ -449,15 +467,17 @@ function loadNoEventsFoundError(eventHolder) {
   var errorElement = appendContent(eventHolder, 'p');
   errorElement.innerHTML = 'Could not find any upcoming events. Please contact <a href="mailto:info@meaghanwagner.com">info@meaghanwagner.com</a> for further details.'
 }
+var paymentSubmitted = false;
 // Function to load payment page
 function loadPayment(e){
+  window.paymentSubmitted = false;
   e.preventDefault();
   addEventToSignupData();
   var blockerDiv = document.getElementById('blocker');
   blockerDiv.innerHTML = '';
   var formWrapper = appendContent(blockerDiv, 'form', '', 'payment-form', 'flow-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
-  formWrapper.addEventListener('submit', paymentSubmitted);
+  formWrapper.addEventListener('submit', paymentFormSubmitted);
   var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
   xButton.addEventListener('click', removeBlocker);
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
@@ -476,8 +496,11 @@ function loadPayment(e){
   replaceCostHolder();
   replacePaymentHolder();
 }
-function paymentSubmitted(e){
+function paymentFormSubmitted(e){
   e.preventDefault();
+  var submitButton = document.getElementById('submit-info');
+  submitButton.disabled = true;
+  submitButton.innerHTML = 'Submitting info';
   addAttendee();
 }
 function loadFreeSignup(e){
@@ -542,10 +565,11 @@ function showThankYouPage() {
   confirmationXHR.open('POST', 'https://meaghanwagner.com/php/sendconfirmationemail.php');
   confirmationXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   confirmationXHR.onload = function() {
-    console.log(confirmationXHR.responseText);
+    if(confirmationXHR.responseText != 'confirmation email sent'){
+      console.log(confirmationXHR.responseText);
+    }
   }
   confirmationXHR.send(JSON.stringify(signupData));
-
 }
 // Function to format provided date as mm/dd/yyyy
 function getDateForDisplay(date) {

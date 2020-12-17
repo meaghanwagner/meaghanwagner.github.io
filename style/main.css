@@ -13,6 +13,8 @@ body {
   padding:0;
   margin:0;
   font-size: 1.2rem;
+  position: relative;
+  z-index: -2;
 }
 
 header {
@@ -31,7 +33,7 @@ main {
   position: absolute;
   width: 100%;
   top: 6.5rem;
-  z-index: -1
+  z-index: -1;
 }
 h1 {
   font-family: 'Montserrat', sans-serif;
@@ -575,6 +577,9 @@ div.min-width {
   text-decoration: none;
 }
 /*work with me*/
+#calendly-holder {
+  height: 65vh;
+}
 
 @media only screen and (max-width: 1124px) {
   .about-caption {
