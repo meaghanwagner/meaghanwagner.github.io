@@ -325,7 +325,7 @@ strong.large{
   background-color:rgba(0,0,0,0.3);
   overflow: auto;
 }
-.flow-form {
+.blocker-form {
   margin-top: 9rem;
 }
 #button-wrapper {
@@ -345,7 +345,7 @@ strong.large{
   width: calc(95% - 24px);
   margin-left: 2.5%;
 }
-#email-label{
+#email-label, .full-label-flex {
   width:95%;
   display:flex;
   align-items: center;
@@ -354,6 +354,36 @@ strong.large{
 #email-label > input{
   margin-left: 5px;
   flex-grow: 10;
+}
+.full-label-flex > input{
+  margin-left: 5px;
+  flex-grow: 10;
+}
+.full-label, #time-slot-holder {
+  width:95%;
+  margin: 0 2.5%;
+}
+.full-label > input{
+  width: calc(92.5% + 5px);
+  margin: 0 2.5%;
+}
+.full-label > textarea{
+  width: calc(92.5% + 5px);
+  margin: 0 2.5%;
+}
+#time-slot-holder > label {
+  margin-left: 1em;
+}
+#time-slot-holder > label > span {
+  margin-left: .5em;
+}
+#none-of-these-label {
+  width: calc(95% + 5px + 1em);
+  margin: 0 2.5%;
+}
+#none-of-these-input {
+  width: calc(95% + 5px + 1em);
+  margin: 0 calc(2.5% - 1em);
 }
 #event-holder {
   display: grid;
@@ -626,7 +656,7 @@ div.min-width {
     width: calc(100% - 5px);
     position: relative;
   }
-  .flow-form {
+  .blocker-form {
     margin-top: 2rem;
   }
   #calendly-holder {

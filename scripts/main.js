@@ -43,14 +43,9 @@ function submitContact(){
 }
 // Calendly integration
 function showCalendly(){
-  // add blocker
-  var bodyElement = document.getElementsByTagName("body")[0];
-  var blockerDiv = appendContent(bodyElement, 'div', '', 'blocker');
-  bodyElement.style.overflow = "hidden";
+  var blockerDiv = addBlocker();
   // add form
-  var calendlyHolder = appendContent(blockerDiv, 'form', '', 'calendly-holder', 'flow-form');
-  var xButton = appendContent(calendlyHolder, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
+  var calendlyHolder = addFormToBlocker('calendly-holder', 'blocker-form');
   Calendly.initInlineWidget({
    url: 'https://calendly.com/meaghan-wagner/consultation',
    parentElement: calendlyHolder,
@@ -58,6 +53,150 @@ function showCalendly(){
    utm: {}
   });
   return false;
+}
+// function to show accountability form
+function showAccountabilityForm(){
+  var blockerDiv = addBlocker();
+  var accountabilityForm = addFormToBlocker('accountability-form', 'blocker-form');
+  accountabilityForm.addEventListener('submit', submitAccountabilityForm);
+  var fieldSetWrapper = appendContent(accountabilityForm, 'FIELDSET');
+  appendContent(fieldSetWrapper, 'p', 'Please fill out the form below:');
+  var nameLabel = appendContent(fieldSetWrapper, 'label', 'Full Name', '','full-label-flex');
+  var nameInput = appendContent(nameLabel, 'input', '', 'name-input');
+  nameInput.type = 'text';
+  nameInput.required = true;
+  var emailLabel = appendContent(fieldSetWrapper, 'label', 'Email', '','full-label-flex');
+  var emailInput = appendContent(emailLabel, 'input', '', 'email-input');
+  emailInput.type = 'email';
+  emailInput.required = true;
+  appendContent(fieldSetWrapper, 'br');
+  var resolutionsLabel = appendContent(fieldSetWrapper, 'label', 'How do you generally feel about New Year’s Resolutions?', '','full-label');
+  appendContent(resolutionsLabel, 'br');
+  var resolutionsInput = appendContent(resolutionsLabel, 'input', '', 'resolutions');
+  resolutionsInput.required = true;
+  appendContent(resolutionsLabel, 'br');
+  var timeslotsHolder = appendContent(fieldSetWrapper, 'div', '', 'time-slot-holder')
+  appendContent(timeslotsHolder, 'br');
+  appendContent(timeslotsHolder, 'span','Choose up to 3 time slots for a bi-weekly 1 hour session from the options below:');
+  appendContent(timeslotsHolder, 'br');
+  var timeslots = ['Monday 11:00 AM','Monday 12:00 PM','Monday 2:00 PM','Friday 3:00 PM','Friday 4:00 PM','None of these work for me'];
+  for(var timeslotIndex = 0; timeslotIndex < timeslots.length; timeslotIndex++){
+    var timeslotText = timeslots[timeslotIndex];
+    var timeslotLabel = appendContent(timeslotsHolder, 'label');
+    var timeslotInput = appendContent(timeslotLabel, 'input');
+    timeslotInput.name = 'timeslot';
+    timeslotInput.type = 'checkbox';
+    appendContent(timeslotLabel, 'span', timeslotText);
+    appendContent(timeslotLabel, 'br');
+    if(timeslotText == 'None of these work for me'){
+      timeslotInput.id = 'nopebox'
+      timeslotInput.addEventListener('change', toggleNoneOfThese);
+    } else {
+      timeslotInput.addEventListener('change', validateTimeSlots);
+    }
+  }
+  var noneOfTheseLabel = appendContent(timeslotsHolder, 'label', 'Please suggest at least 3 preferred times:', 'none-of-these-label');
+  appendContent(noneOfTheseLabel, 'br');
+  var noneOfTheseInput = appendContent(noneOfTheseLabel, 'input', '', 'none-of-these-input');
+  noneOfTheseInput.type = 'text';
+  noneOfTheseLabel.style.display = 'none';
+  appendContent(fieldSetWrapper, 'br');
+  var notesLabel = appendContent(fieldSetWrapper, 'label', 'Please provide any additional notes or restrictions about your availability:', '','full-label');
+  appendContent(notesLabel, 'br');
+  var notesInput = appendContent(notesLabel, 'textarea', '', 'notes');
+  appendContent(notesLabel, 'br');
+  var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
+  var submitButton = appendContent(buttonWrapper, 'button', 'Submit', 'submit-info', 'form-button');
+}
+// Function to display the none of these input
+function toggleNoneOfThese(){
+  var noneOfTheseLabel = document.getElementById('none-of-these-label');
+  var noneOfTheseInput = document.getElementById('none-of-these-input');
+  var timeslotsDisabled = false;
+  if(noneOfTheseLabel.style.display == 'none'){
+    noneOfTheseLabel.style.display = 'inline';
+    noneOfTheseInput.required = true;
+    timeslotsDisabled = true;
+  } else {
+    noneOfTheseLabel.style.display = 'none';
+    noneOfTheseInput.required = false;
+  }
+  var timeslotInputs = document.getElementsByName('timeslot');
+  for(var tsinputIndex = 0; tsinputIndex < timeslotInputs.length; tsinputIndex++){
+    timeslotInput = timeslotInputs[tsinputIndex];
+    if(timeslotInput.id != 'nopebox'){
+      timeslotInput.checked = false;
+      timeslotInput.disabled = timeslotsDisabled;
+    }
+  }
+}
+// Function to disable timeslots if 3 selected
+function validateTimeSlots(){
+  var checkedBoxes = 0;
+  var timeslotInputs = document.getElementsByName('timeslot');
+  for(var tsinputIndex = 0; tsinputIndex < timeslotInputs.length; tsinputIndex++){
+    timeslotInput = timeslotInputs[tsinputIndex];
+    if(timeslotInput.id != 'nopebox' && timeslotInput.checked){
+      checkedBoxes++;
+    }
+  }
+  if(checkedBoxes < 3){
+    for(var tsinputIndex = 0; tsinputIndex < timeslotInputs.length; tsinputIndex++){
+      timeslotInput = timeslotInputs[tsinputIndex];
+      timeslotInput.disabled = false;
+    }
+  } else {
+    for(var tsinputIndex = 0; tsinputIndex < timeslotInputs.length; tsinputIndex++){
+      timeslotInput = timeslotInputs[tsinputIndex];
+      if(timeslotInput.id != 'nopebox' && !timeslotInput.checked){
+        timeslotInput.disabled = true;
+      }
+    }
+  }
+}
+// Function to submit the form to sheets
+function submitAccountabilityForm(e){
+  e.preventDefault();
+  var submitButton = document.getElementById('submit-info');
+  submitButton.disabled = true;
+  submitButton.innerHTML = "Submitting";
+  var timeSlotsArray = [];
+  var timeslotInputs = document.getElementsByName('timeslot');
+  for(var tsinputIndex = 0; tsinputIndex < timeslotInputs.length; tsinputIndex++){
+    timeslotInput = timeslotInputs[tsinputIndex];
+    if(timeslotInput.checked){
+      timeSlotsArray.push(timeslotInput.nextSibling.innerHTML);
+    }
+  }
+  if(timeSlotsArray.length == 0){
+    alert("Please select at least one time slot.");
+  } else {
+    var nopebox = document.getElementById('nopebox');
+    var timeSlotsString = "";
+    if(nopebox.checked){
+      timeSlotsString = document.getElementById('none-of-these-input').value;
+    } else {
+      timeSlotsString = JSON.stringify(timeSlotsArray);
+    }
+    accountabilityData = {
+      fullName : document.getElementById('name-input').value,
+      email : document.getElementById('email-input').value,
+      resolutions : document.getElementById('resolutions').value,
+      timeSlots : timeSlotsString,
+      notes : document.getElementById('notes').value
+    }
+    var accountabilityXHR = new XMLHttpRequest();
+    accountabilityXHR.open('POST', 'https://meaghanwagner.com/php/accountabilityapplication.php');
+    accountabilityXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    accountabilityXHR.onload = function() {
+      blockerDiv = document.getElementById('blocker');
+      blockerDiv.innerHTML = "";
+      var accountabilityForm = addFormToBlocker('accountability-form', 'blocker-form');
+      var fieldSetWrapper = appendContent(accountabilityForm, 'FIELDSET');
+      appendContent(fieldSetWrapper, 'p', 'Thanks for submitting your application! Please allow one business day for a response.');
+    }
+    accountabilityXHR.send(JSON.stringify(accountabilityData));
+  }
 }
 // empty object to hold flow data
 var flowData = {};
@@ -179,14 +318,9 @@ function loadSignUp(flowId, signUpIndex=0) {
     }
   }
   // add popup
-  var bodyElement = document.getElementsByTagName("body")[0];
-  var blockerDiv = appendContent(bodyElement, 'div', '', 'blocker');
-  bodyElement.style.overflow = "hidden";
+  var blockerDiv = addBlocker();
   // add form
-  var formWrapper = appendContent(blockerDiv, 'form', '', 'sign-up-form', 'flow-form');
-  formWrapper.onkeypress = stopReturnSubmit(formWrapper);
-  var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
+  var formWrapper = addFormToBlocker('sign-up-form', 'blocker-form');
   // Check if signup is at the end of the list
   var lastSignupPage = false;
   if(signUpIndex == (thisFlow.eventTypesList.length -1)){
@@ -475,11 +609,8 @@ function loadPayment(e){
   addEventToSignupData();
   var blockerDiv = document.getElementById('blocker');
   blockerDiv.innerHTML = '';
-  var formWrapper = appendContent(blockerDiv, 'form', '', 'payment-form', 'flow-form');
-  formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  var formWrapper = addFormToBlocker('payment-form', 'blocker-form');
   formWrapper.addEventListener('submit', paymentFormSubmitted);
-  var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   var paymentPageCopy = signupData.flow.paymentPageCopy;
   if(paymentPageCopy.includes('[attendee-input]')){
@@ -539,11 +670,8 @@ function addAttendee() {
 function showThankYouPage() {
   var blockerDiv = document.getElementById('blocker');
   blockerDiv.innerHTML = '';
-  var formWrapper = appendContent(blockerDiv, 'form', '', 'thank-you-form', 'flow-form');
-  formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  var formWrapper = addFormToBlocker('thank-you-form', 'blocker-form');
   formWrapper.addEventListener('submit', removeBlocker);
-  var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   var thankstext = signupData.flow.thankYouPageCopy;
   if (thankstext.includes('[add-to-calendar-links]')) {
@@ -620,11 +748,28 @@ function appendContent(parentElement, elementType, text = '', idText = '', class
   parentElement.appendChild(newElement);
   return newElement;
 }
+// Function to add blockerDiv
+function addBlocker(){
+  // add blocker
+  var bodyElement = document.getElementsByTagName("body")[0];
+  var blockerDiv = appendContent(bodyElement, 'div', '', 'blocker');
+  bodyElement.style.overflow = "hidden";
+  return blockerDiv;
+}
+// Function to add form to blocker
+function addFormToBlocker(formID, formClass){
+  var blockerDiv = document.getElementById('blocker');
+  var formWrapper = appendContent(blockerDiv, 'form', '', formID, formClass);
+  formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
+  xButton.addEventListener('click', removeBlocker);
+  return formWrapper;
+}
 // Function to remove blocker div
 function removeBlocker() {
-  var theBlocker = document.getElementById('blocker');
-  if (theBlocker != null) {
-    theBlocker.remove();
+  var blockerDiv = document.getElementById('blocker');
+  if (blockerDiv != null) {
+    blockerDiv.remove();
   }
   var bodyElement = document.getElementsByTagName("body")[0];
   bodyElement.style.overflow = "auto";
