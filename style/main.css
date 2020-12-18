@@ -96,6 +96,7 @@ button{
   font-family: 'Montserrat', sans-serif;
   font-weight: 500;
   box-shadow: 5px 5px 5px rgba(0,0,0,0.3);
+  cursor: pointer;
 }
 button:hover{
   box-shadow: 7px 7px 7px rgba(0,0,0,0.5);

@@ -43,7 +43,7 @@
   <main>
     <div class="wrapper">
       <div class="pad-5">
-        <form id="contact-form" onsubmit="return false">
+        <form id="contact-form" onsubmit="submitContact();return false">
           <fieldset>
             <legend>Get in Touch</legend>
             <p class="center" id="contact-text">Have a comment, question or request? Reach out below any time and I’ll get back to you in one business day.</p>
@@ -53,7 +53,7 @@
                 <label class="form-label">Email: <input type="email" name="email" required></label>
               </div>
               <label id="message-label">Message:<br><textarea class="full-width" name="message" rows="20" required></textarea> </label>
-              <button type="button" onclick="submitContact()" class="dark-blue-button">Send</button>
+              <button type="submit" class="dark-blue-button">Send</button>
             </div>
           </fieldset>
         </form>
