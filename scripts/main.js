@@ -1,5 +1,5 @@
-window.addEventListener('hashchange', checkHash);
-// Function to toggle the burger menu
+/* Cross site */
+// Function to toggle the mobile menu display
 function burgerToggle() {
   var nav = document.getElementsByClassName('header-nav')[0];
   var main = document.getElementsByTagName('main')[0];
@@ -11,26 +11,32 @@ function burgerToggle() {
     main.style.marginTop = '5.5rem';
   }
 }
+/* Contact form page */
 // function to send contact form
 function submitContact(){
+  // Get input elements
   var nameInput = document.getElementsByName("name")[0];
   var emailInput = document.getElementsByName("email")[0];
   var messageInput = document.getElementsByName("message")[0];
+  // build obj to send to php
   contactData = {
     name: nameInput.value,
     email: emailInput.value,
     message: messageInput.value
   }
+  // disable input
   nameInput.disabled = true;
   emailInput.disabled = true;
   messageInput.disabled = true;
+  // Update text to sending
   var contactTextElement = document.getElementById('contact-text');
   contactTextElement.innerHTML = 'Sending message...'
-  // send confirmation email
+  // send data to php
   var contactXHR = new XMLHttpRequest();
   contactXHR.open('POST', 'https://meaghanwagner.com/php/sendcontactemail.php');
   contactXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   contactXHR.onload = function() {
+    // check if it succeeded
     if(contactXHR.responseText == "contact email sent"){
       contactTextElement.innerHTML = 'Message sent! Please allow one business day for a response. Thanks for reaching out!';
       document.getElementById('contact-form-input').style.display = 'none';
@@ -41,11 +47,14 @@ function submitContact(){
   contactXHR.send(JSON.stringify(contactData));
   return false;
 }
+/* Work with Me Page */
 // Calendly integration
 function showCalendly(){
+  // add blocker div
   var blockerDiv = addBlocker();
   // add form
   var calendlyHolder = addFormToBlocker('calendly-holder', 'blocker-form');
+  // init calendly
   Calendly.initInlineWidget({
    url: 'https://calendly.com/meaghan-wagner/consultation',
    parentElement: calendlyHolder,
@@ -56,11 +65,15 @@ function showCalendly(){
 }
 // function to show accountability form
 function showAccountabilityForm(){
+  // add blocker div
   var blockerDiv = addBlocker();
+  // add form
   var accountabilityForm = addFormToBlocker('accountability-form', 'blocker-form');
   accountabilityForm.addEventListener('submit', submitAccountabilityForm);
+  // add instructions text
   var fieldSetWrapper = appendContent(accountabilityForm, 'FIELDSET');
   appendContent(fieldSetWrapper, 'p', 'Please fill out the form below:');
+  // add input fields
   var nameLabel = appendContent(fieldSetWrapper, 'label', 'Full Name', '','full-label-flex');
   var nameInput = appendContent(nameLabel, 'input', '', 'name-input');
   nameInput.type = 'text';
@@ -75,12 +88,15 @@ function showAccountabilityForm(){
   var resolutionsInput = appendContent(resolutionsLabel, 'input', '', 'resolutions');
   resolutionsInput.required = true;
   appendContent(resolutionsLabel, 'br');
+  // add holder for time slots
   var timeslotsHolder = appendContent(fieldSetWrapper, 'div', '', 'time-slot-holder')
   appendContent(timeslotsHolder, 'br');
   appendContent(timeslotsHolder, 'span','Choose up to 3 time slots for a bi-weekly 1 hour session from the options below:');
   appendContent(timeslotsHolder, 'br');
   var timeslots = ['Monday 11:00 AM','Monday 12:00 PM','Monday 2:00 PM','Friday 3:00 PM','Friday 4:00 PM','None of these work for me'];
+  // loop through time slot options
   for(var timeslotIndex = 0; timeslotIndex < timeslots.length; timeslotIndex++){
+    // add time slot input fields
     var timeslotText = timeslots[timeslotIndex];
     var timeslotLabel = appendContent(timeslotsHolder, 'label');
     var timeslotInput = appendContent(timeslotLabel, 'input');
@@ -88,6 +104,7 @@ function showAccountabilityForm(){
     timeslotInput.type = 'checkbox';
     appendContent(timeslotLabel, 'span', timeslotText);
     appendContent(timeslotLabel, 'br');
+    // special options for none of these
     if(timeslotText == 'None of these work for me'){
       timeslotInput.id = 'nopebox'
       timeslotInput.addEventListener('change', toggleNoneOfThese);
@@ -95,24 +112,29 @@ function showAccountabilityForm(){
       timeslotInput.addEventListener('change', validateTimeSlots);
     }
   }
+  // add hidden input if none of these is selected
   var noneOfTheseLabel = appendContent(timeslotsHolder, 'label', 'Please suggest at least 3 preferred times:', 'none-of-these-label');
   appendContent(noneOfTheseLabel, 'br');
   var noneOfTheseInput = appendContent(noneOfTheseLabel, 'input', '', 'none-of-these-input');
   noneOfTheseInput.type = 'text';
   noneOfTheseLabel.style.display = 'none';
   appendContent(fieldSetWrapper, 'br');
+  // add notes
   var notesLabel = appendContent(fieldSetWrapper, 'label', 'Please provide any additional notes or restrictions about your availability:', '','full-label');
   appendContent(notesLabel, 'br');
   var notesInput = appendContent(notesLabel, 'textarea', '', 'notes');
   appendContent(notesLabel, 'br');
+  // add submit button
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
   var submitButton = appendContent(buttonWrapper, 'button', 'Submit', 'submit-info', 'form-button');
 }
 // Function to display the none of these input
 function toggleNoneOfThese(){
+  // get none of these input
   var noneOfTheseLabel = document.getElementById('none-of-these-label');
   var noneOfTheseInput = document.getElementById('none-of-these-input');
   var timeslotsDisabled = false;
+  // toggle hidden field display based on current display
   if(noneOfTheseLabel.style.display == 'none'){
     noneOfTheseLabel.style.display = 'inline';
     noneOfTheseInput.required = true;
@@ -121,17 +143,19 @@ function toggleNoneOfThese(){
     noneOfTheseLabel.style.display = 'none';
     noneOfTheseInput.required = false;
   }
+  // loop through remaining time slot options and en/disable them
   var timeslotInputs = document.getElementsByName('timeslot');
   for(var tsinputIndex = 0; tsinputIndex < timeslotInputs.length; tsinputIndex++){
     timeslotInput = timeslotInputs[tsinputIndex];
     if(timeslotInput.id != 'nopebox'){
-      timeslotInput.checked = false;
+      timeslotInput.checked = false; // uncheck the rest
       timeslotInput.disabled = timeslotsDisabled;
     }
   }
 }
 // Function to disable timeslots if 3 selected
 function validateTimeSlots(){
+  // count the time slots checked
   var checkedBoxes = 0;
   var timeslotInputs = document.getElementsByName('timeslot');
   for(var tsinputIndex = 0; tsinputIndex < timeslotInputs.length; tsinputIndex++){
@@ -140,6 +164,7 @@ function validateTimeSlots(){
       checkedBoxes++;
     }
   }
+  // disable time slots if 3 are selected
   if(checkedBoxes < 3){
     for(var tsinputIndex = 0; tsinputIndex < timeslotInputs.length; tsinputIndex++){
       timeslotInput = timeslotInputs[tsinputIndex];
@@ -154,12 +179,14 @@ function validateTimeSlots(){
     }
   }
 }
-// Function to submit the form to sheets
+// Function to submit the accountability form to sheets
 function submitAccountabilityForm(e){
-  e.preventDefault();
+  e.preventDefault(); // prevent page from refreshing
+  // disable submit button and update text
   var submitButton = document.getElementById('submit-info');
   submitButton.disabled = true;
   submitButton.innerHTML = "Submitting";
+  // build timeslots array from checked timeslots
   var timeSlotsArray = [];
   var timeslotInputs = document.getElementsByName('timeslot');
   for(var tsinputIndex = 0; tsinputIndex < timeslotInputs.length; tsinputIndex++){
@@ -168,16 +195,22 @@ function submitAccountabilityForm(e){
       timeSlotsArray.push(timeslotInput.nextSibling.innerHTML);
     }
   }
+  // check that at least 1 timeslot is checked
   if(timeSlotsArray.length == 0){
+    // alert if no time slot checked
     alert("Please select at least one time slot.");
   } else {
+    // check if nopebox is checked
     var nopebox = document.getElementById('nopebox');
     var timeSlotsString = "";
     if(nopebox.checked){
+      // use the none of these input if checked
       timeSlotsString = document.getElementById('none-of-these-input').value;
     } else {
+      // use the time slot array if not
       timeSlotsString = JSON.stringify(timeSlotsArray);
     }
+    // build php object
     accountabilityData = {
       fullName : document.getElementById('name-input').value,
       email : document.getElementById('email-input').value,
@@ -185,10 +218,12 @@ function submitAccountabilityForm(e){
       timeSlots : timeSlotsString,
       notes : document.getElementById('notes').value
     }
+    // send data to php
     var accountabilityXHR = new XMLHttpRequest();
     accountabilityXHR.open('POST', 'https://meaghanwagner.com/php/accountabilityapplication.php');
     accountabilityXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     accountabilityXHR.onload = function() {
+      // update form with thanks info
       blockerDiv = document.getElementById('blocker');
       blockerDiv.innerHTML = "";
       var accountabilityForm = addFormToBlocker('accountability-form', 'blocker-form');
@@ -198,39 +233,7 @@ function submitAccountabilityForm(e){
     accountabilityXHR.send(JSON.stringify(accountabilityData));
   }
 }
-// empty object to hold flow data
-var flowData = {};
-var eventTypeData = {};
-// function to load flow data from sheets
-function loadFlows(){
-  var flowDataXHR = new XMLHttpRequest();
-  flowDataXHR.open('GET', 'https://meaghanwagner.com/php/echoFlowData.php');
-  flowDataXHR.onload = function() {
-    var responseObj = JSON.parse(flowDataXHR.responseText);
-    var flowArray = responseObj.sheetflows.values;
-    var eventTypesArray = responseObj.sheeteventtypes.values;
-    flowData = buildFlowData(flowArray, eventTypesArray);
-    flowsBox = document.getElementById('flow-box');
-    for (const key in flowData) {
-      var thisFlow = flowData[key];
-      if(thisFlow.displayOnSite == 'TRUE'){
-        var flowContainer = appendContent(flowsBox, 'div', '', '', 'tool');
-        if(thisFlow.important == 'TRUE'){
-          flowContainer.classList.add('important');
-          flowContainer.classList.add('shiny');
-        }
-        var flowLink = appendContent(flowContainer, 'a');
-        flowLink.setAttribute('onclick', "loadSignUp('" + key + "')");
-        var flowTitle = appendContent(flowLink, 'h3', thisFlow.flowName, '', 'tool-header');
-        var flowDescription = appendContent(flowLink, 'div', '', '', 'tool-description');
-        flowDescription.innerHTML = thisFlow.flowDescription;
-      }
-    }
-    checkHash();
-  }
-  flowDataXHR.send();
-}
-
+/* Main page */
 function checkHash(){
   removeBlocker();
   var hash = window.location.hash.substr(1);
@@ -240,10 +243,61 @@ function checkHash(){
     }
   }
 }
+// empty object to hold flow data
+var flowData = {};
+var eventTypeData = {};
+// function to load flow data from sheets
+function loadFlows(){
+  // Add listener for changes in #
+  window.addEventListener('hashchange', checkHash);
+  // pull flow data from sheets via php
+  var flowDataXHR = new XMLHttpRequest();
+  flowDataXHR.open('GET', 'https://meaghanwagner.com/php/echoFlowData.php');
+  flowDataXHR.onload = function() {
+    // parse data returned
+    var responseObj = JSON.parse(flowDataXHR.responseText);
+    // extract flow and event type data
+    var flowArray = responseObj.sheetflows.values;
+    var eventTypesArray = responseObj.sheeteventtypes.values;
+    // reformat data into objects
+    flowData = buildFlowData(flowArray, eventTypesArray);
+    // get holder for flows
+    flowsBox = document.getElementById('flow-box');
+    // loop through flows
+    for (const key in flowData) {
+      var thisFlow = flowData[key];
+      // check if the flow should be displayed
+      if(thisFlow.displayOnSite == 'TRUE'){
+        // append flow to flow box
+        var flowContainer = appendContent(flowsBox, 'div', '', '', 'tool');
+        // update style if important
+        if(thisFlow.important == 'TRUE'){
+          flowContainer.classList.add('important');
+          flowContainer.classList.add('shiny');
+        }
+        // add link to flow
+        var flowLink = appendContent(flowContainer, 'a');
+        flowLink.setAttribute('onclick', "loadSignUp('" + key + "')");
+        // add title
+        var flowTitle = appendContent(flowLink, 'h3', thisFlow.flowName, '', 'tool-header');
+        // add description
+        var flowDescription = appendContent(flowLink, 'div', '', '', 'tool-description');
+        flowDescription.innerHTML = thisFlow.flowDescription;
+      }
+    }
+    // check if the # in the url has a flow in it
+    checkHash();
+  }
+  flowDataXHR.send();
+}
+// Function to build out flow and event objects
 function buildFlowData(flowArray, eventTypesArray){
+  // set up event type holder object
   var eventTypeData = {};
   var eventTypeCount = Object.keys(eventTypesArray).length;
+  // loop through event type array
   for (var eventTypeIndex = 0; eventTypeIndex < eventTypeCount; eventTypeIndex++) {
+    // build event type object
     var thisEventType = eventTypesArray[eventTypeIndex];
     var thisEventTypeObj = {
       "runTime" : thisEventType[1],
@@ -254,11 +308,16 @@ function buildFlowData(flowArray, eventTypesArray){
     }
     eventTypeData[thisEventType[0]] = thisEventTypeObj;
   }
+  // save event type holder object to window to access later
   window.eventTypeData = eventTypeData;
+  // set up flow holder object
   var flowData = {};
   var flowCount = Object.keys(flowArray).length;
+  // loop through flow array
   for (var flowIndex = 0; flowIndex < flowCount; flowIndex++) {
+    // build flow object
     var thisFlow = flowArray[flowIndex];
+    // create id from name
     var flowId = thisFlow[0].toLowerCase().replace(/\W/g, '-');
     var thisFlowObj = {
       "flowName" : thisFlow[0],
@@ -276,17 +335,18 @@ function buildFlowData(flowArray, eventTypesArray){
     }
     flowData[flowId] = thisFlowObj;
   }
+  // save flow holder object to window to access later
   window.flowData = flowData;
   return flowData;
 }
-// empty object to hold events
-var eventData = {};
-var eventsList = {};
+// function to reload the signup page if it has multiple event types
 function reloadSignUp(flowId, signUpIndex){
   addEventToSignupData();
   removeBlocker();
   loadSignUp(flowId, signUpIndex);
 }
+// empty object for storing signup data
+var signupData = {};
 // Function to add event to signupData
 function addEventToSignupData(){
   var eventID = '';
@@ -301,11 +361,14 @@ function addEventToSignupData(){
     signupData.events[eventID] = eventsList[eventID];
   }
 }
-// empty object for storing signup data
-var signupData = {};
+// empty object to hold events
+var eventData = {};
+var eventsList = {};
 // Function to sign up for a flow
 function loadSignUp(flowId, signUpIndex=0) {
+  // get flow by id
   var thisFlow = flowData[flowId];
+  // set up signupData if index is 0
   if(signUpIndex == 0){
     signupData = {
       events : {},
@@ -317,13 +380,14 @@ function loadSignUp(flowId, signUpIndex=0) {
       flow : thisFlow
     }
   }
-  // add popup
+  // add blocker div
   var blockerDiv = addBlocker();
-  // add form
+  // add signup form
   var formWrapper = addFormToBlocker('sign-up-form', 'blocker-form');
-  // Check if signup is at the end of the list
+  // Check if signup is at the end of the event type list
   var lastSignupPage = false;
   if(signUpIndex == (thisFlow.eventTypesList.length -1)){
+    // check if payment page copy is N/A
     if(thisFlow.paymentPageCopy.includes("N/A")){
       formWrapper.addEventListener('submit', loadFreeSignup);
     } else {
@@ -331,24 +395,30 @@ function loadSignUp(flowId, signUpIndex=0) {
     }
     lastSignupPage = true;
   } else {
+    // if not last event type list load next event type
     formWrapper.setAttribute('onsubmit', "reloadSignUp('" + flowId + "', " + (signUpIndex + 1) + "); return false;");
   }
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
+  // get signup copy from flow
   var theSignUpCopy = thisFlow.signUpPageCopyList[thisFlow.eventTypesList[signUpIndex]];
+  // replace event list placeholder
   if(theSignUpCopy.includes('[event-list]')){
     theSignUpCopy = theSignUpCopy.replace('[event-list]', '<div id="event-holder"><p>Loading Upcoming Events...</p></div>')
   } else {
+    // add it if it doesn't exist (shouldn't happen)
     theSignUpCopy += '<div id="event-holder"><p>Loading Upcoming Events...</p></div>';
   }
+  // replace attendee input holder
   if(theSignUpCopy.includes('[attendee-input]')){
     theSignUpCopy = theSignUpCopy.replace('[attendee-input]', '<div id="input-holder"></div>')
   }
+  // add copy to page
   fieldSetWrapper.innerHTML = theSignUpCopy;
   // add cancel button
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
-
+  // check if the event data has already been pulled
   if(isEmpty(eventData)){
-    // get event data from calendar
+    // get event data from php
     var eventDataXHR = new XMLHttpRequest();
     eventDataXHR.open('GET', 'https://meaghanwagner.com/php/echoEventData.php');
     eventDataXHR.onload = function() {
@@ -358,15 +428,21 @@ function loadSignUp(flowId, signUpIndex=0) {
     }
     eventDataXHR.send();
   } else {
+    // don't pull data if it already exists
     loadSignupPage(signUpIndex);
   }
 }
-
+// function to populate signup page with event data
 function loadSignupPage(signUpIndex){
+  // get event holder created in previous function
   var eventHolder = document.getElementById('event-holder');
+  // set up array to hold events added
   var eventsAdded = [];
+  // pull flow info from signupData
   var thisFlow = signupData.flow;
+  // pull calendar event info from eventData
   var calendarEvents = eventData.calendarevents;
+  // check if there are events in calendar
   var eventCount = Object.keys(calendarEvents).length;
   if (eventCount > 0) {
     // get event data from sheets
@@ -376,19 +452,22 @@ function loadSignupPage(signUpIndex){
     } else {
       var sheetEventsCount = Object.keys(sheetEvents).length;
     }
+    // check if there are events in sheets
     if (sheetEventsCount > 0) {
       // loop through events from calendar
       for (var eventIndex = 0; eventIndex < eventCount; eventIndex++) {
         var event = calendarEvents[eventIndex];
         // loop through data from sheets
         var eventFound = false;
+        // loop through sheets event data
         for (var rowIndex = 0; rowIndex < sheetEventsCount; rowIndex++) {
           var row = sheetEvents[rowIndex];
           if (row[0] == event.id) {
+            // if event is in sheets data, add properties from sheet
             eventFound = true;
             event.maxAttendees = row[1];
             event.cost = row[2];
-            break;
+            break; // no reason to keep going, only one line per event
           }
         }
         // Check if the event data was found in sheets
@@ -418,14 +497,19 @@ function loadSignupPage(signUpIndex){
             }
           }
         } else {
+          // debug info for if event isn't in sheets
           console.log("Couldn't find event data for " + event.id + ", which shouldn't happen. Please inform the developer.")
+          // no visible error message here because there may be other events found
         }
       }
       // check if events available
       if (eventsAdded.length > 0) {
+        // clear out event holder
         eventHolder.innerHTML = '';
+        // loop through events added
         for (var eventAddedIndex = 0; eventAddedIndex < eventsAdded.length; eventAddedIndex++) {
           var event = eventsAdded[eventAddedIndex];
+          // add event text to holder
           var eventLabel = appendContent(eventHolder, 'label')
           var eventInput = appendContent(eventLabel, 'input', '', event.id);
           eventInput.type = 'radio';
@@ -447,17 +531,20 @@ function loadSignupPage(signUpIndex){
         var confirmButton = appendContent(buttonWrapper, 'button', '', 'modify-event-button', 'form-button');
         confirmButton.innerHTML = thisFlow.signUpPageCTAList[thisFlow.eventTypesList[signUpIndex]];
       } else {
-        loadNoEventsFoundError(eventHolder);
+        loadNoEventsFoundError(eventHolder); // load visible error message
       }
     } else {
+      // debug info for if sheets events is empty
       console.log("Couldn't find any events in sheet. Please inform the developer.")
-      loadNoEventsFoundError(eventHolder);
+      loadNoEventsFoundError(eventHolder); // load visible error message
     }
   } else {
+    // debug info for if calendar events is empty
     console.log("Couldn't find any future events in calendar. Please inform the developer.")
-    loadNoEventsFoundError(eventHolder);
+    loadNoEventsFoundError(eventHolder); // load visible error message
   }
 }
+// function to replace input holder with attendee input fields
 function replaceInputHolder(){
   var inputHolder = document.getElementById('input-holder');
   if(inputHolder != null){
@@ -478,6 +565,7 @@ function replaceInputHolder(){
     emailInput.required = true;
   }
 }
+// function to replace cost holder with cost breakdown
 function replaceCostHolder(){
   var costHolder = document.getElementById('cost-holder');
   if(costHolder != null){
@@ -495,18 +583,21 @@ function replaceCostHolder(){
     totalCostHolder.innerHTML = totalCostText;
   }
 }
+// function to replace payment holder with payment iframe
 function replacePaymentHolder(){
   var paymentHolder = document.getElementById('payment-holder');
   if(paymentHolder != null){
     var paymentFrame = appendContent(paymentHolder, 'iframe', '', 'payment-frame');
     var paymentSource = ('https://meaghanwagner.com/pay-form/');
     paymentFrame.src = paymentSource;
+    // send cost to iframe
     paymentFrame.addEventListener("load", () => {
       var amountData = {
         amount : signupData.totalCost
       }
       paymentFrame.contentWindow.postMessage(amountData, paymentSource);
     });
+    // add listener for when payment completed
     window.addEventListener("message", event => {
       if(event.data.title == 'Payment Successful'){
         signupData.paymentInfo = event.data.result.payment;
@@ -520,6 +611,7 @@ function replacePaymentHolder(){
     });
   }
 }
+// function to replace calendar links in thank you page
 function replaceCalendarLinks(){
   var calendarHolder = document.getElementById('calendar-links');
   if(calendarHolder != null){
@@ -554,14 +646,7 @@ function replaceCalendarLinks(){
     }
   }
 }
-function convertDate(date) {
-  var newDate = new Date(date).toISOString();
-  newDate = newDate.split("-");
-  newDate = newDate.join("");
-  newDate = newDate.split(":");
-  newDate = newDate.join("");
-  return newDate;
-}
+// function to create ics file for outlook
 function makeIcsFile(date, summary, description, eventLocation) {
   var test =
     "BEGIN:VCALENDAR\n" +
@@ -593,40 +678,56 @@ function makeIcsFile(date, summary, description, eventLocation) {
 
   return data;
 }
-
-
-// Function to display no results
+// function to convert date for ics file
+function convertDate(date) {
+  var newDate = new Date(date).toISOString();
+  newDate = newDate.split("-");
+  newDate = newDate.join("");
+  newDate = newDate.split(":");
+  newDate = newDate.join("");
+  return newDate;
+}
+// Function to display no results for event type
 function loadNoEventsFoundError(eventHolder) {
   eventHolder.innerHTML = '';
   var errorElement = appendContent(eventHolder, 'p');
   errorElement.innerHTML = 'Could not find any upcoming events. Please contact <a href="mailto:info@meaghanwagner.com">info@meaghanwagner.com</a> for further details.'
 }
+// bool to see if payment has already been submitted
 var paymentSubmitted = false;
 // Function to load payment page
 function loadPayment(e){
-  window.paymentSubmitted = false;
   e.preventDefault();
+  window.paymentSubmitted = false;
   addEventToSignupData();
+  // blank out blocker
   var blockerDiv = document.getElementById('blocker');
   blockerDiv.innerHTML = '';
+  // add payment form
   var formWrapper = addFormToBlocker('payment-form', 'blocker-form');
   formWrapper.addEventListener('submit', paymentFormSubmitted);
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   var paymentPageCopy = signupData.flow.paymentPageCopy;
+  // replace attendee input placeholder with div
   if(paymentPageCopy.includes('[attendee-input]')){
     paymentPageCopy = paymentPageCopy.replace('<p>[attendee-input]</p>', '<div id="input-holder"></div>')
   }
+  // replace cost-list placeholder with div
   if(paymentPageCopy.includes('[cost-list]')){
     paymentPageCopy = paymentPageCopy.replace('<p>[cost-list]</p>', '<div id="cost-holder"></div>')
   }
+  // replace payment input placeholder with div
   if(paymentPageCopy.includes('[payment-input]')){
     paymentPageCopy = paymentPageCopy.replace('<p>[payment-input]</p>', '<div id="payment-holder"></div>')
   }
+  // update html displayed
   fieldSetWrapper.innerHTML = paymentPageCopy;
+  // populate holders with info
   replaceInputHolder();
   replaceCostHolder();
   replacePaymentHolder();
 }
+// function to submit payment info if not already submitted
 function paymentFormSubmitted(e){
   e.preventDefault();
   if(!paymentSubmitted){
@@ -637,6 +738,7 @@ function paymentFormSubmitted(e){
     window.paymentSubmitted = true;
   }
 }
+// function to load flow without payment
 function loadFreeSignup(e){
   e.preventDefault();
   addEventToSignupData();
@@ -647,19 +749,24 @@ function loadFreeSignup(e){
 }
 // Function to add an attendee to sheets
 function addAttendee() {
+  // populate signupData from attendee input fields
   if(signupData.eventIndex == 0){
     signupData.email = document.getElementById('email-input').value;
     signupData.firstName = document.getElementById('first-name-input').value;
     signupData.lastName = document.getElementById('last-name-input').value;
   }
+  // send data to php
   var attendeeXHR = new XMLHttpRequest();
   attendeeXHR.open('POST', 'https://meaghanwagner.com/php/addattendee.php');
   attendeeXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   attendeeXHR.onload = function() {
+    // check if last event
     var eventCount = Object.keys(signupData.events).length;
     if(signupData.eventIndex == eventCount - 1){
+      // show thank you page if last event
       showThankYouPage();
     } else {
+      // add next event if not
       signupData.eventIndex += 1;
       addAttendee();
     }
@@ -668,29 +775,22 @@ function addAttendee() {
 }
 // Function to show thank you page
 function showThankYouPage() {
+  // clear out blocker div
   var blockerDiv = document.getElementById('blocker');
   blockerDiv.innerHTML = '';
+  // add thank you form
   var formWrapper = addFormToBlocker('thank-you-form', 'blocker-form');
   formWrapper.addEventListener('submit', removeBlocker);
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
+  // add thankyou copy from flow
   var thankstext = signupData.flow.thankYouPageCopy;
+  // replace calendar links placeholder with div
   if (thankstext.includes('[add-to-calendar-links]')) {
     thankstext = thankstext.replace('<p>[add-to-calendar-links]</p>', '<div id="calendar-links"></div>')
   }
   var thanksWrapper = appendContent(fieldSetWrapper, 'div')
   thanksWrapper.innerHTML = thankstext;
-  replaceCalendarLinks();
-  // making json smaller for php
-  var phpEvents = [];
-  for (const eventID in signupData.events) {
-    var event = signupData.events[eventID];
-    var thisPhpEvent = {
-      startDate : event.start.dateTime,
-      summary : event.summary
-    }
-    phpEvents.push(thisPhpEvent);
-  }
-
+  replaceCalendarLinks(); // populate calendar links
   // send confirmation email
   var confirmationXHR = new XMLHttpRequest();
   confirmationXHR.open('POST', 'https://meaghanwagner.com/php/sendconfirmationemail.php');
@@ -702,6 +802,7 @@ function showThankYouPage() {
   }
   confirmationXHR.send(JSON.stringify(signupData));
 }
+/* Reusable functions */
 // Function to format provided date as mm/dd/yyyy
 function getDateForDisplay(date) {
   let year = date.getFullYear();
@@ -714,13 +815,6 @@ function getDateForDisplay(date) {
 function timeFromDate12(date) {
   return date.toLocaleTimeString('en-US', {
     timeStyle: 'short'
-  });
-}
-
-function timeFromDate24(date) {
-  return date.toLocaleTimeString('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit'
   });
 }
 /**
