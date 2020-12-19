@@ -1572,3 +1572,154 @@ function timeFromDate12(date){
 function timeFromDate24(date){
   return date.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
 }
+function displayQuotes() {
+  gapi.client.sheets.spreadsheets.values.get({
+    spreadsheetId: sheetID,
+    range: 'quotes!A2:B',
+  }).then(function(response) {
+    var range = response.result;
+    if (range.values.length > 0) {
+      window.quotesSheetsValues = range.values;
+      // add form
+      var formWrapper = appendContent(contentElement, 'FORM', '', 'quotes-form');
+      formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+      formWrapper.addEventListener('submit', addNewQuote);
+
+      // add fieldset
+      var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
+      // add legend
+      appendContent(fieldSetWrapper, 'LEGEND', 'Quotes:');
+      // add flows box
+      quotesContainer = appendContent(fieldSetWrapper, 'div', '' , '', 'quotes-box');
+      // add flows from sheets data
+      for (var sheetIndex = 0; sheetIndex < range.values.length; sheetIndex++) {
+        var row = range.values[sheetIndex];
+        var quotesContainer = appendContent(flowsContainer, 'div', '', '', 'tool');
+        var flowLink = appendContent(flowContainer, 'a');
+        flowLink.setAttribute('flow-index', sheetIndex);
+        flowLink.setAttribute('onclick', 'addEditFlowFields(this)');
+        var flowTitle = appendContent(flowLink, 'h3', row[0], '', 'tool-header');
+        var flowDescription = appendContent(flowLink, 'div', '', '', 'tool-description');
+        flowDescription.innerHTML = row[2];
+      }
+      var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
+      var newFlowButton = appendContent(buttonWrapper, 'button', 'Add New Flow', '','form-button');
+    } else {
+      alertElement = appendContent(contentElement, 'P')
+      alertElement.innerHTML = 'No data found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit" target="_blank">event-types sheet</a>.';
+    }
+  }, function(response) {
+    appendContent(contentElement, 'P', 'Error: ' + response.result.error.message);
+  });
+}
+function addNewQuote(e){
+  e.preventDefault();
+  var quoteIndex = quotesSheetsValues.length;
+  // add blocker to prevent accidentally clicking other buttons
+  var blockerDiv = addBlocker();
+  // add form
+  var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-flow-form');
+  formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
+  xButton.addEventListener('click', removeBlocker);
+  // add fieldset
+  var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
+  // add legend
+  appendContent(fieldSetWrapper, 'LEGEND', 'Add Flow');
+  // add container div
+  var contentHolder = appendContent(fieldSetWrapper, 'div', '', 'new-content-holder');
+  // add Title
+  var flowTitleHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
+  var flowTitleLabel = appendContent(flowTitleHolder, 'label', 'Title:');
+  flowTitleLabel.for = 'flow-title';
+  appendContent(flowTitleHolder, 'br');
+  var eventTypeInput = appendContent(flowTitleHolder, 'input', '', 'flow-title');
+  appendContent(flowTitleHolder, 'br');
+  // add Event Types select
+  var eventTypesHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
+  var eventTypesIncluded = appendContent(eventTypesHolder, 'label', 'Event Types:');
+  eventTypesIncluded.for = 'event-types-select';
+  appendContent(eventTypesHolder, 'br');
+  var eventTypesSelect = appendContent(eventTypesHolder, 'select', '', 'event-types-select');
+  eventTypesSelect.multiple = true;
+  for(var eventTypeIndex = 0; eventTypeIndex < eventTypeSheetsValues.length; eventTypeIndex++){
+    thisEventType = eventTypeSheetsValues[eventTypeIndex];
+    var eventTypeOption = appendContent(eventTypesSelect, 'option', thisEventType[0]);
+  }
+  eventTypesSelect.setAttribute('onchange', 'eventTypesSelectionChanged(false)');
+  // add important checkbox
+  var importantHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
+  var importantLabel = appendContent(importantHolder, 'label', 'Important: ');
+  var importantInput = appendContent(importantLabel, 'input', '', 'important-input');
+  importantInput.type = 'checkbox';
+  appendContent(importantHolder, 'br');
+  // add display on site checkbox
+  var displayHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
+  var displayLabel = appendContent(displayHolder, 'label', 'Display On Website: ');
+  var displayInput = appendContent(displayLabel, 'input', '', 'display-input');
+  displayInput.type = 'checkbox';
+  appendContent(displayHolder, 'br');
+  var linkHolder = appendContent(fieldSetWrapper, 'div', '', '', 'form-item');
+  // add description
+  var descLabel = appendContent(linkHolder, 'label', 'Description:');
+  descLabel.for = 'desc-input';
+  appendContent(linkHolder, 'br');
+  var descInput = appendContent(linkHolder, 'textarea', '', 'desc-input', 'rich-text');
+  appendContent(linkHolder, 'br');
+  // add Sign Up Page Copy holder
+  var signupHolder = appendContent(linkHolder, 'div', '', 'signup-holder');
+  // add Payment Page Copy
+  var payementPageCopyLabel = appendContent(linkHolder, 'label', 'Payment Page Copy:');
+  payementPageCopyLabel.for = 'payment-page-copy';
+  appendContent(linkHolder, 'br');
+  var payementPageCopyInput = appendContent(linkHolder, 'textarea', '', 'payment-page-copy', 'rich-text');
+  appendContent(linkHolder, 'br');
+  // add Thank You Page copy
+  var thankYouPageLabel = appendContent(linkHolder, 'label', 'Thank You Page Copy:');
+  thankYouPageLabel.for = 'thank-you-page-copy';
+  appendContent(linkHolder, 'br');
+  var thankYouPageInput = appendContent(linkHolder, 'textarea', '', 'thank-you-page-copy', 'rich-text');
+  appendContent(linkHolder, 'br');
+  // add Cancellation Email
+  var cancellationEmailLabel = appendContent(linkHolder, 'label', 'Cancellation Email Copy:');
+  cancellationEmailLabel.for = 'cancellation-copy';
+  appendContent(linkHolder, 'br');
+  var cancellationEmailInput = appendContent(linkHolder, 'textarea', '', 'cancellation-copy', 'rich-text');
+  appendContent(linkHolder, 'br');
+  // add Confirmation Email Copy
+  var confirmationEmailCopyLabel = appendContent(linkHolder, 'label', 'Confirmation Email Copy:');
+  confirmationEmailCopyLabel.for = 'confirmation-email-copy';
+  appendContent(linkHolder, 'br');
+  var confirmationEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'confirmation-email-copy', 'rich-text');
+  appendContent(linkHolder, 'br');
+  // add Reminder Email holder
+  var reminderHolder = appendContent(linkHolder, 'div', '', 'reminder-holder');
+  // add Follow up Email Copy
+  var followUpEmailCopyLabel = appendContent(linkHolder, 'label', 'Follow up Email Copy:');
+  followUpEmailCopyLabel.for = 'follow-up-email-copy';
+  appendContent(linkHolder, 'br');
+  var followUpEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'follow-up-email-copy', 'rich-text');
+  appendContent(linkHolder, 'br');
+  // add Follow up Email CTA
+  var followUpEmailCTALabel = appendContent(linkHolder, 'label', 'Follow up Email CTA:');
+  followUpEmailCTALabel.for = 'follow-up-email-cta';
+  appendContent(linkHolder, 'br');
+  var followUpEmailCTAInput = appendContent(linkHolder, 'textarea', '', 'follow-up-email-cta', 'rich-text');
+  appendContent(linkHolder, 'br');
+  // add Follow up Email CTA Destination
+  var followUpEmailCTADestLabel = appendContent(linkHolder, 'label', 'Follow up Email CTA Destination:');
+  followUpEmailCTADestLabel.for = 'follow-up-email-cta-dest';
+  appendContent(linkHolder, 'br');
+  var followUpEmailCTADestInput = appendContent(linkHolder, 'input', '', 'follow-up-email-cta-dest', 'full-width');
+  appendContent(linkHolder, 'br');
+  // Update event type specific fields
+  eventTypesSelectionChanged(false);
+  var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
+  var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
+  cancelTypeButton.type = 'button';
+  cancelTypeButton.addEventListener('click', removeBlocker);
+  var modifyButton = appendContent(buttonWrapper, 'button', 'Add Flow', 'modify-flow-button', 'form-button');
+  modifyButton.type = 'button';
+  modifyButton.setAttribute('flow-index', flowIndex);
+  modifyButton.setAttribute('onclick', 'addFlow(this)');
+}

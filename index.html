@@ -24,7 +24,7 @@
   <script src="scripts/main.js"></script>
 </head>
 
-<body onload="loadFlows()">
+<body onload="loadFlows(); displayCarousel();">
   <header>
     <div class="wrapper">
       <div class="nav-flex">
@@ -63,13 +63,35 @@
         <div id="flow-box" class="tools-box"><!--to be populated by javascript --></div>
       </div>
     </section>
-    <section class="testimonials light-blue-box pad-10">
+    <section class="testimonials light-blue-box">
       <div class="wrapper">
-        <p class="quote">“Meaghan will bring order to your thoughts. She has a true talent for helping you move forward on a path that leverages your unique strengths and make the contribution only you can. I can’t recommend her highly enough!”</p>
-        <p class="quote-by">- Melody Wilding, Professor and Coach</p>
+        <!-- Slideshow container -->
+        <div class="slideshow-container">
+          <!-- Full-width slides/quotes -->
+          <div id="slide-holder">
+            <div class="mySlides">
+              <p class="quote">“Meaghan will bring order to your thoughts. She has a true talent for helping you move forward on a path that leverages your unique strengths and make the contribution only you can. I can’t recommend her highly enough!”</p>
+              <p class="quote-by">- Melody Wilding, Professor and Coach</p>
+            </div>
+
+            <div class="mySlides">
+              <p class="quote">“Meaghan is great at asking insightful questions that make you rethink how you work. Before working with her I thought I had a pretty good idea of how to be productive, but Meaghan showed me places where I had room to improve.”</p>
+              <p class="quote-by">- Joe Frizzell, Game Developer</p>
+            </div>
+          </div>
+          <!-- Next/prev buttons -->
+          <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+          <a class="next" onclick="plusSlides(1)">&#10095;</a>
+        </div>
+
+        <!-- Dots/bullets/indicators -->
+        <div class="dot-container">
+          <span class="dot" onclick="currentSlide(1)"></span>
+          <span class="dot" onclick="currentSlide(2)"></span>
+        </div>
       </div>
     </section>
-    <section class="questions pad-10">
+    <section class="motto pad-10">
         <p><a href="about">Define your work. Align your life. Design your future.</a></p>
     </section>
   </main>
