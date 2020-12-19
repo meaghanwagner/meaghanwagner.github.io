@@ -24,7 +24,7 @@
   <script src="../scripts/main.js"></script>
 </head>
 
-<body>
+<body onload="checkRescheduleUrl()">
   <header>
     <div class="wrapper">
       <div class="nav-flex">
@@ -42,9 +42,14 @@
   </header>
   <main id="main">
     <div class="wrapper">
-      <section class="pad-10-top">
-        <h1>Reschedule</h1>
-      </section>
+      <form id="reschedule-form" onsubmit="submitRescheduledData();return false">
+        <fieldset>
+          <legend>Reschedule Events</legend>
+          <div id="reschedule-form-input">
+            <p>Loading event data...</p>
+          </div>
+        </fieldset>
+      </form>
     </div>
     <section class="questions pad-10">
         <p><a href="../about">Define your work. Align your life. Design your future.</a></p>

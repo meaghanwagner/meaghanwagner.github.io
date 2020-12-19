@@ -11,6 +11,183 @@ function burgerToggle() {
     main.style.marginTop = '5.5rem';
   }
 }
+/* Reschedule form page */
+function checkRescheduleUrl(){
+  var rescheduleInputHolder = document.getElementById('reschedule-form-input');
+  let urlParams = new URLSearchParams(location.search);
+  var attendeeData = {
+    email : urlParams.get('email'),
+    flow : urlParams.get('flow')
+  };
+  if(attendeeData.email != null && attendeeData.flow != null ){
+    var rescheduleXHR = new XMLHttpRequest();
+    rescheduleXHR.open('POST', 'https://meaghanwagner.com/php/echoRescheduleData.php');
+    rescheduleXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    rescheduleXHR.onload = function() {
+      // clear out event holder
+      rescheduleInputHolder.innerHTML = '';
+      appendContent(rescheduleInputHolder, 'p', 'Please select from the available event times below:');
+      var rescheduleData = JSON.parse(rescheduleXHR.responseText);
+      // extract objects from parsed data
+      var calendarEvents = rescheduleData.calendarevents;
+      var sheetEvents = rescheduleData.sheetevents.values;
+      var flowArray = rescheduleData.sheetflows.values;
+      var sheetAttendees = rescheduleData.sheetattendees.values;
+      var currentEventData = rescheduleData.attendeeEvents;
+      // set up current event array
+      var currentEvents = [];
+      var currentEventCount = Object.keys(currentEventData).length;
+      for(var atndEventIndex = 0; atndEventIndex < currentEventCount; atndEventIndex++){
+        currentEvents.push(currentEventData[atndEventIndex][0]);
+      }
+      // reformat flow array into object
+      var flowData = buildFlowData(flowArray);
+      for (const key in flowData) {
+        if(key == attendeeData.flow){
+          var thisFlow = flowData[key];
+          for(var eventTypeIndex = 0; eventTypeIndex < thisFlow.eventTypesList.length; eventTypeIndex++){
+            eventTypeName = thisFlow.eventTypesList[eventTypeIndex];
+            appendContent(rescheduleInputHolder, 'h2', eventTypeName);
+            eventTypeHolder = appendContent(rescheduleInputHolder, 'div', '','event-holder');
+            // set up array to hold events added
+            var eventsAdded = [];
+            // check if there are events in calendar
+            var eventCount = Object.keys(calendarEvents).length;
+            if (eventCount > 0) {
+              // get event data from sheets
+              if(sheetEvents == null){
+                var sheetEventsCount = 0;
+              } else {
+                var sheetEventsCount = Object.keys(sheetEvents).length;
+              }
+              // check if there are events in sheets
+              if (sheetEventsCount > 0) {
+                // loop through events from calendar
+                for (var eventIndex = 0; eventIndex < eventCount; eventIndex++) {
+                  var event = calendarEvents[eventIndex];
+                  // loop through data from sheets
+                  var eventFound = false;
+                  // loop through sheets event data
+                  for (var rowIndex = 0; rowIndex < sheetEventsCount; rowIndex++) {
+                    var row = sheetEvents[rowIndex];
+                    if (row[0] == event.id) {
+                      // if event is in sheets data, add properties from sheet
+                      eventFound = true;
+                      event.maxAttendees = row[1];
+                      event.cost = row[2];
+                      break; // no reason to keep going, only one line per event
+                    }
+                  }
+                  // Check if the event data was found in sheets
+                  if (eventFound) {
+                    if (event.summary == eventTypeName) {
+                      // get attendees from sheets
+                      if(sheetAttendees == null){
+                        var totalAttendeesCount = 0;
+                      } else {
+                        var totalAttendeesCount = Object.keys(sheetAttendees).length;
+                      }
+                      // Check if attendees is maxed out
+                      var eventAttendees = [];
+                      if (totalAttendeesCount > 0) {
+                        for (var attendeesRowIndex = 0; attendeesRowIndex < totalAttendeesCount; attendeesRowIndex++) {
+                          var attendeeRow = sheetAttendees[attendeesRowIndex];
+                          if (attendeeRow[0] == event.id) {
+                            eventAttendees.push(attendeeRow);
+                          }
+                        }
+                      }
+                      if (event.maxAttendees > eventAttendees.length || currentEvents.includes(event.id)) {
+                        event.availableSeats = event.maxAttendees - eventAttendees.length;
+                        eventsAdded.push(event);
+                        window.eventsList[event.id] = event;
+                      }
+                    }
+                  } else {
+                    // debug info for if event isn't in sheets
+                    console.log("Couldn't find event data for " + event.id + ", which shouldn't happen. Please inform the developer.")
+                    // no visible error message here because there may be other events found
+                  }
+                }
+                // check if events available
+                if (eventsAdded.length > 0) {
+                  // loop through events added
+                  for (var eventAddedIndex = 0; eventAddedIndex < eventsAdded.length; eventAddedIndex++) {
+                    var event = eventsAdded[eventAddedIndex];
+                    // add event text to holder
+                    var eventLabel = appendContent(eventTypeHolder, 'label')
+                    var eventInput = appendContent(eventLabel, 'input', '', event.id);
+                    eventInput.type = 'radio';
+                    eventInput.name = 'event';
+                    eventInput.value = event.id;
+                    eventInput.required = true;
+                    eventLabel.for = event.id;
+                    var startDateTime = new Date(event.start.dateTime);
+                    var endDateTime = new Date(event.end.dateTime);
+                    appendContent(eventLabel, 'span', getDateForDisplay(startDateTime), '', 'event-date');
+                    appendContent(eventLabel, 'span', ' ' + timeFromDate12(startDateTime), '', 'event-start');
+                    appendContent(eventLabel, 'span', '-' + timeFromDate12(endDateTime), '', 'event-end');
+                    seatsElement = appendContent(eventLabel, 'span', '', '', 'event-seats');
+                    seatsElement.innerHTML = ' (' + event.availableSeats.toString() + '&#160;seats&#160;available)';
+                    if(currentEvents.includes(event.id)){
+                      var currentEventstart = startDateTime;
+                      var canceledId = event.id + '[canceled]'
+                      eventInput.checked = true;
+                      seatsElement.innerHTML = ' (keep current seat)';
+                    }
+                  }
+                  var eventLabel = appendContent(eventTypeHolder, 'label')
+                  var eventInput = appendContent(eventLabel, 'input', '', canceledId);
+                  eventInput.type = 'radio';
+                  eventInput.name = 'event';
+                  eventInput.value = canceledId;
+                  eventInput.required = true;
+                  eventLabel.for = canceledId;
+                  var today = new Date();
+                  var millisecondsperday = (60*60*24*1000);
+                  var daysUntilEvent = (currentEventstart - today)/millisecondsperday;
+                  if(daysUntilEvent > 1){
+                    appendContent(eventLabel, 'span', 'Cancel Reservation');
+                  }else{
+                    appendContent(eventLabel, 'span', 'Cannot cancel event with less than 24 hours notice.');
+                    eventInput.disabled = true;
+                  }
+                  // add confirm button
+                  var buttonWrapper = appendContent(rescheduleInputHolder, 'div', '', 'button-wrapper');
+                  var confirmButton = appendContent(buttonWrapper, 'button', 'Confirm', 'modify-event-button', 'form-button');
+                } else {
+                  couldntLoadData(rescheduleInputHolder);
+                }
+              } else {
+                // debug info for if sheets events is empty
+                console.log("Couldn't find any events in sheet. Please inform the developer.")
+                couldntLoadData(rescheduleInputHolder);
+              }
+            } else {
+              // debug info for if calendar events is empty
+              console.log("Couldn't find any future events in calendar. Please inform the developer.")
+              couldntLoadData(rescheduleInputHolder);
+            }
+          }
+        }
+        break;
+      }
+    }
+    rescheduleXHR.send(JSON.stringify(attendeeData));
+  } else {
+    couldntLoadData(rescheduleInputHolder);
+  }
+}
+// function to handle no rescheduling data
+function couldntLoadData(rescheduleInputHolder){
+  rescheduleInputHolder.innerHTML = '<p>Could not load event data. ' +
+  'Please email <a href="mailto:info@meaghanwagner.com">info@meaghanwagner.com</a> ' +
+  'or use the <a href="../contact">Contact Form</a> to reschedule or cancel your reservation.</p>';
+}
+
+function submitRescheduledData(e){
+  console.log('not implemented yet');
+}
 /* Contact form page */
 // function to send contact form
 function submitContact(){
@@ -245,7 +422,6 @@ function checkHash(){
 }
 // empty object to hold flow data
 var flowData = {};
-var eventTypeData = {};
 // function to load flow data from sheets
 function loadFlows(){
   // Add listener for changes in #
@@ -256,11 +432,10 @@ function loadFlows(){
   flowDataXHR.onload = function() {
     // parse data returned
     var responseObj = JSON.parse(flowDataXHR.responseText);
-    // extract flow and event type data
+    // extract flow data
     var flowArray = responseObj.sheetflows.values;
-    var eventTypesArray = responseObj.sheeteventtypes.values;
-    // reformat data into objects
-    flowData = buildFlowData(flowArray, eventTypesArray);
+    // reformat data into object
+    flowData = buildFlowData(flowArray);
     // get holder for flows
     flowsBox = document.getElementById('flow-box');
     // loop through flows
@@ -291,25 +466,7 @@ function loadFlows(){
   flowDataXHR.send();
 }
 // Function to build out flow and event objects
-function buildFlowData(flowArray, eventTypesArray){
-  // set up event type holder object
-  var eventTypeData = {};
-  var eventTypeCount = Object.keys(eventTypesArray).length;
-  // loop through event type array
-  for (var eventTypeIndex = 0; eventTypeIndex < eventTypeCount; eventTypeIndex++) {
-    // build event type object
-    var thisEventType = eventTypesArray[eventTypeIndex];
-    var thisEventTypeObj = {
-      "runTime" : thisEventType[1],
-      "description" : thisEventType[2],
-      "maxAttendees" : thisEventType[3],
-      "zoomLink" : thisEventType[4],
-      "cost" : thisEventType[5]
-    }
-    eventTypeData[thisEventType[0]] = thisEventTypeObj;
-  }
-  // save event type holder object to window to access later
-  window.eventTypeData = eventTypeData;
+function buildFlowData(flowArray){
   // set up flow holder object
   var flowData = {};
   var flowCount = Object.keys(flowArray).length;
