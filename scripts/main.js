@@ -1115,7 +1115,6 @@ function isEmpty(obj) {
       return false;
     }
   }
-
   return JSON.stringify(obj) === JSON.stringify({});
 }
 
@@ -1123,6 +1122,36 @@ function isEmpty(obj) {
 var slideIndex = 1;
 function displayCarousel(){
   showSlides(slideIndex);
+  var quotesXHR = new XMLHttpRequest();
+  quotesXHR.open('POST', 'https://meaghanwagner.com/php/echoQuoteData.php');
+  quotesXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  quotesXHR.onload = function() {
+    var quotesData = JSON.parse(quotesXHR.responseText).values;
+    var quotesCount = Object.keys(quotesData).length;
+    // check if there are quotes to populate the carousel
+    if(quotesCount > 0){
+      slideHolder = document.getElementById('slide-holder');
+      slideHolder.innerHTML = '';
+      dotContainer = document.getElementsByClassName('dot-container')[0];
+      dotContainer.innerHTML = '';
+
+      for(var quoteIndex = 0; quoteIndex < quotesCount; quoteIndex++){
+        var row = quotesData[quoteIndex];
+        var quoteHolder = appendContent(slideHolder, 'div', '', '', 'mySlides');
+        var quoteBody = appendContent(quoteHolder, 'p', row[0], '', 'quote');
+        var quoteBy = appendContent(quoteHolder, 'p', row[1], '', 'quote-by');
+        // add dot
+        var dotIndex = quoteIndex + 1;
+        var thisDot = appendContent(dotContainer, 'span', '', '', 'dot');
+        thisDot.setAttribute('onclick', ('currentSlide(' + dotIndex + ')'));
+      }
+      showSlides(slideIndex);
+    } else {
+      // nothing to show
+      console.log("No quotes to display from sheets. Leaving defaults.")
+    }
+  }
+  quotesXHR.send(JSON.stringify(attendeeData));
 }
 
 function plusSlides(n) {

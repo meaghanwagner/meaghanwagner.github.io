@@ -471,6 +471,7 @@ function displayFlowData() {
       }
       var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
       var newFlowButton = appendContent(buttonWrapper, 'button', 'Add New Flow', '','form-button');
+      displayQuotes();
     } else {
       alertElement = appendContent(contentElement, 'P')
       alertElement.innerHTML = 'No data found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit" target="_blank">event-types sheet</a>.';
@@ -1584,26 +1585,40 @@ function displayQuotes() {
       var formWrapper = appendContent(contentElement, 'FORM', '', 'quotes-form');
       formWrapper.onkeypress = stopReturnSubmit(formWrapper);
       formWrapper.addEventListener('submit', addNewQuote);
-
       // add fieldset
       var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
       // add legend
       appendContent(fieldSetWrapper, 'LEGEND', 'Quotes:');
-      // add flows box
-      quotesContainer = appendContent(fieldSetWrapper, 'div', '' , '', 'quotes-box');
+      // add carousel
+      slideshowContainer = appendContent(fieldSetWrapper, 'div', '' , '', 'slideshow-container');
+      slideHolder = appendContent(slideshowContainer, 'div', '', 'slide-holder');
+      // add prev/next buttons
+      var prevButton = appendContent(slideshowContainer, 'a', '', '', 'prev');
+      prevButton.innerHTML = '&#10094;';
+      prevButton.setAttribute('onclick', 'plusSlides(-1)');
+      var nextButton = appendContent(slideshowContainer, 'a', '', '', 'next');
+      nextButton.innerHTML = '&#10095;';
+      nextButton.setAttribute('onclick', 'plusSlides(1)');
+      // add dot container
+      var dotContainer = appendContent(slideshowContainer, 'div', '', '', 'dot-container');
       // add flows from sheets data
       for (var sheetIndex = 0; sheetIndex < range.values.length; sheetIndex++) {
         var row = range.values[sheetIndex];
-        var quotesContainer = appendContent(flowsContainer, 'div', '', '', 'tool');
-        var flowLink = appendContent(flowContainer, 'a');
-        flowLink.setAttribute('flow-index', sheetIndex);
-        flowLink.setAttribute('onclick', 'addEditFlowFields(this)');
-        var flowTitle = appendContent(flowLink, 'h3', row[0], '', 'tool-header');
-        var flowDescription = appendContent(flowLink, 'div', '', '', 'tool-description');
-        flowDescription.innerHTML = row[2];
+        var quoteHolder = appendContent(slideHolder, 'div', '', '', 'mySlides');
+        var editQuoteLink = appendContent(quoteHolder, 'a');
+        editQuoteLink.setAttribute('quote-index', sheetIndex);
+        editQuoteLink.setAttribute('onclick', 'addEditQuoteFields(this)');
+        var quoteBody = appendContent(editQuoteLink, 'p', row[0], '', 'quote');
+        var quoteBy = appendContent(editQuoteLink, 'p', row[1], '', 'quote-by');
+        // add dot
+        var dotIndex = sheetIndex + 1;
+        var thisDot = appendContent(dotContainer, 'span', '', '', 'dot');
+        thisDot.setAttribute('onclick', ('currentSlide(' + dotIndex + ')'));
       }
+      // add button
       var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
-      var newFlowButton = appendContent(buttonWrapper, 'button', 'Add New Flow', '','form-button');
+      var newFlowButton = appendContent(buttonWrapper, 'button', 'Add New Quote', '','form-button');
+      displayCarousel();
     } else {
       alertElement = appendContent(contentElement, 'P')
       alertElement.innerHTML = 'No data found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit" target="_blank">event-types sheet</a>.';
@@ -1618,6 +1633,72 @@ function addNewQuote(e){
   // add blocker to prevent accidentally clicking other buttons
   var blockerDiv = addBlocker();
   // add form
+  var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-quote-form');
+  formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
+  xButton.addEventListener('click', removeBlocker);
+  // add fieldset
+  var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
+  // add legend
+  appendContent(fieldSetWrapper, 'LEGEND', 'Add Quote');
+  var linkHolder = appendContent(fieldSetWrapper, 'div', '', '', 'form-item');
+  // add quote body
+  var quoteLabel = appendContent(linkHolder, 'label', 'Quote:');
+  quoteLabel.for = 'quote-input';
+  appendContent(linkHolder, 'br');
+  var quoteInput = appendContent(linkHolder, 'textarea', '', 'quote-input', 'full-width');
+  appendContent(linkHolder, 'br');
+  // add quote by
+  var quoteByLabel = appendContent(linkHolder, 'label', 'Quote By:');
+  quoteByLabel.for = 'quote-by-input';
+  appendContent(linkHolder, 'br');
+  var quoteByInput = appendContent(linkHolder, 'input', '', 'quote-by-input', 'full-width');
+  appendContent(linkHolder, 'br');
+  // Update event type specific fields
+  var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
+  var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
+  cancelTypeButton.type = 'button';
+  cancelTypeButton.addEventListener('click', removeBlocker);
+  var addButton = appendContent(buttonWrapper, 'button', 'Add Quote', 'add-quote-button', 'form-button');
+  addButton.type = 'button';
+  addButton.setAttribute('quote-index', quoteIndex);
+  addButton.setAttribute('onclick', 'addQuote(this)');
+}
+function addQuote(element){
+  var quoteIndex = element.getAttribute('flow-index');
+  var values = [
+    [
+      document.getElementById('quote-input').value,
+      document.getElementById('quote-by-input').value
+    ],
+  ];
+  var body = {
+    values: values
+  };
+  var blockerDiv = document.getElementById('blocker');
+  blockerDiv.innerHTML = '';
+  var alertDiv = appendContent(blockerDiv, 'div', '', 'alert');
+  var alertHeader = appendContent(alertDiv, 'h2', 'Adding Quote...','alert-header');
+  gapi.client.sheets.spreadsheets.values.append({
+     spreadsheetId: sheetID,
+     range: 'quotes',
+     valueInputOption: valueInputOption,
+     resource: body
+  }).then((response) => {
+    var result = response.result;
+    console.log(`${result.updatedCells} cells updated.`);
+    refreshData();
+  });
+}
+// Function to edit existing flow
+function addEditQuoteFields(element){
+  var quoteIndex = element.getAttribute('quote-index');
+  var row = quotesSheetsValues[quoteIndex]
+  window.currentRow = row;
+
+  // add blocker to prevent accidentally clicking other buttons
+  var blockerDiv = addBlocker();
+  // add form
   var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-flow-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
@@ -1625,101 +1706,86 @@ function addNewQuote(e){
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   // add legend
-  appendContent(fieldSetWrapper, 'LEGEND', 'Add Flow');
+  appendContent(fieldSetWrapper, 'LEGEND', 'Edit Flow');
   // add container div
   var contentHolder = appendContent(fieldSetWrapper, 'div', '', 'new-content-holder');
-  // add Title
-  var flowTitleHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
-  var flowTitleLabel = appendContent(flowTitleHolder, 'label', 'Title:');
-  flowTitleLabel.for = 'flow-title';
-  appendContent(flowTitleHolder, 'br');
-  var eventTypeInput = appendContent(flowTitleHolder, 'input', '', 'flow-title');
-  appendContent(flowTitleHolder, 'br');
-  // add Event Types select
-  var eventTypesHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
-  var eventTypesIncluded = appendContent(eventTypesHolder, 'label', 'Event Types:');
-  eventTypesIncluded.for = 'event-types-select';
-  appendContent(eventTypesHolder, 'br');
-  var eventTypesSelect = appendContent(eventTypesHolder, 'select', '', 'event-types-select');
-  eventTypesSelect.multiple = true;
-  for(var eventTypeIndex = 0; eventTypeIndex < eventTypeSheetsValues.length; eventTypeIndex++){
-    thisEventType = eventTypeSheetsValues[eventTypeIndex];
-    var eventTypeOption = appendContent(eventTypesSelect, 'option', thisEventType[0]);
-  }
-  eventTypesSelect.setAttribute('onchange', 'eventTypesSelectionChanged(false)');
-  // add important checkbox
-  var importantHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
-  var importantLabel = appendContent(importantHolder, 'label', 'Important: ');
-  var importantInput = appendContent(importantLabel, 'input', '', 'important-input');
-  importantInput.type = 'checkbox';
-  appendContent(importantHolder, 'br');
-  // add display on site checkbox
-  var displayHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
-  var displayLabel = appendContent(displayHolder, 'label', 'Display On Website: ');
-  var displayInput = appendContent(displayLabel, 'input', '', 'display-input');
-  displayInput.type = 'checkbox';
-  appendContent(displayHolder, 'br');
   var linkHolder = appendContent(fieldSetWrapper, 'div', '', '', 'form-item');
-  // add description
-  var descLabel = appendContent(linkHolder, 'label', 'Description:');
-  descLabel.for = 'desc-input';
+  // add quote body
+  var quoteLabel = appendContent(linkHolder, 'label', 'Quote:');
+  quoteLabel.for = 'quote-input';
   appendContent(linkHolder, 'br');
-  var descInput = appendContent(linkHolder, 'textarea', '', 'desc-input', 'rich-text');
+  var quoteInput = appendContent(linkHolder, 'textarea', '', 'quote-input', 'full-width');
+  quoteInput.value = row[0];
   appendContent(linkHolder, 'br');
-  // add Sign Up Page Copy holder
-  var signupHolder = appendContent(linkHolder, 'div', '', 'signup-holder');
-  // add Payment Page Copy
-  var payementPageCopyLabel = appendContent(linkHolder, 'label', 'Payment Page Copy:');
-  payementPageCopyLabel.for = 'payment-page-copy';
+  // add quote by
+  var quoteByLabel = appendContent(linkHolder, 'label', 'Quote By:');
+  quoteByLabel.for = 'quote-by-input';
   appendContent(linkHolder, 'br');
-  var payementPageCopyInput = appendContent(linkHolder, 'textarea', '', 'payment-page-copy', 'rich-text');
+  var quoteByInput = appendContent(linkHolder, 'input', '', 'quote-by-input', 'full-width');
+  quoteByInput.value = row[1];
   appendContent(linkHolder, 'br');
-  // add Thank You Page copy
-  var thankYouPageLabel = appendContent(linkHolder, 'label', 'Thank You Page Copy:');
-  thankYouPageLabel.for = 'thank-you-page-copy';
-  appendContent(linkHolder, 'br');
-  var thankYouPageInput = appendContent(linkHolder, 'textarea', '', 'thank-you-page-copy', 'rich-text');
-  appendContent(linkHolder, 'br');
-  // add Cancellation Email
-  var cancellationEmailLabel = appendContent(linkHolder, 'label', 'Cancellation Email Copy:');
-  cancellationEmailLabel.for = 'cancellation-copy';
-  appendContent(linkHolder, 'br');
-  var cancellationEmailInput = appendContent(linkHolder, 'textarea', '', 'cancellation-copy', 'rich-text');
-  appendContent(linkHolder, 'br');
-  // add Confirmation Email Copy
-  var confirmationEmailCopyLabel = appendContent(linkHolder, 'label', 'Confirmation Email Copy:');
-  confirmationEmailCopyLabel.for = 'confirmation-email-copy';
-  appendContent(linkHolder, 'br');
-  var confirmationEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'confirmation-email-copy', 'rich-text');
-  appendContent(linkHolder, 'br');
-  // add Reminder Email holder
-  var reminderHolder = appendContent(linkHolder, 'div', '', 'reminder-holder');
-  // add Follow up Email Copy
-  var followUpEmailCopyLabel = appendContent(linkHolder, 'label', 'Follow up Email Copy:');
-  followUpEmailCopyLabel.for = 'follow-up-email-copy';
-  appendContent(linkHolder, 'br');
-  var followUpEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'follow-up-email-copy', 'rich-text');
-  appendContent(linkHolder, 'br');
-  // add Follow up Email CTA
-  var followUpEmailCTALabel = appendContent(linkHolder, 'label', 'Follow up Email CTA:');
-  followUpEmailCTALabel.for = 'follow-up-email-cta';
-  appendContent(linkHolder, 'br');
-  var followUpEmailCTAInput = appendContent(linkHolder, 'textarea', '', 'follow-up-email-cta', 'rich-text');
-  appendContent(linkHolder, 'br');
-  // add Follow up Email CTA Destination
-  var followUpEmailCTADestLabel = appendContent(linkHolder, 'label', 'Follow up Email CTA Destination:');
-  followUpEmailCTADestLabel.for = 'follow-up-email-cta-dest';
-  appendContent(linkHolder, 'br');
-  var followUpEmailCTADestInput = appendContent(linkHolder, 'input', '', 'follow-up-email-cta-dest', 'full-width');
-  appendContent(linkHolder, 'br');
-  // Update event type specific fields
-  eventTypesSelectionChanged(false);
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
   var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
   cancelTypeButton.type = 'button';
   cancelTypeButton.addEventListener('click', removeBlocker);
-  var modifyButton = appendContent(buttonWrapper, 'button', 'Add Flow', 'modify-flow-button', 'form-button');
+  var modifyButton = appendContent(buttonWrapper, 'button', 'Update Quote', 'modify-quote-button', 'form-button');
   modifyButton.type = 'button';
-  modifyButton.setAttribute('flow-index', flowIndex);
-  modifyButton.setAttribute('onclick', 'addFlow(this)');
+  modifyButton.setAttribute('quote-index', quoteIndex);
+  modifyButton.setAttribute('onclick', 'editFlow(this)');
+}
+function editFlow(element){
+  var quoteIndex = element.getAttribute('quote-index');
+  var values = [
+    [
+      document.getElementById('quote-input').value,
+      document.getElementById('quote-by-input').value
+    ],
+  ];
+  var body = {
+    values: values
+  };
+  var range = 'quotes!A' + (parseInt(quoteIndex) + 2).toString() + ':B';
+  var blockerDiv = document.getElementById('blocker');
+  blockerDiv.innerHTML = '';
+  var alertDiv = appendContent(blockerDiv, 'div', '', 'alert');
+  var alertHeader = appendContent(alertDiv, 'h2', 'Updating Quote...','alert-header');
+  gapi.client.sheets.spreadsheets.values.update({
+     spreadsheetId: sheetID,
+     range: range,
+     valueInputOption: valueInputOption,
+     resource: body
+  }).then((response) => {
+    var result = response.result;
+    console.log(`${result.updatedCells} cells updated.`);
+    refreshData();
+  });
+}
+
+var slideIndex = 1;
+function displayCarousel(){
+  showSlides(slideIndex);
+}
+
+function plusSlides(n) {
+  showSlides(slideIndex += n);
+}
+
+function currentSlide(n) {
+  showSlides(slideIndex = n);
+}
+
+function showSlides(n) {
+  var i;
+  var slides = document.getElementsByClassName("mySlides");
+  var dots = document.getElementsByClassName("dot");
+  if (n > slides.length) {slideIndex = 1}
+    if (n < 1) {slideIndex = slides.length}
+    for (i = 0; i < slides.length; i++) {
+      slides[i].style.display = "none";
+    }
+    for (i = 0; i < dots.length; i++) {
+      dots[i].className = dots[i].className.replace(" active", "");
+    }
+  slides[slideIndex-1].style.display = "block";
+  dots[slideIndex-1].className += " active";
 }
