@@ -18,9 +18,9 @@ function checkRescheduleUrl(){
   let urlParams = new URLSearchParams(location.search);
   window.attendeeData = {
     email : urlParams.get('email'),
-    flow : urlParams.get('flow')
+    flowId : urlParams.get('flow')
   };
-  if(attendeeData.email != null && attendeeData.flow != null ){
+  if(attendeeData.email != null && attendeeData.flowId != null ){
     var rescheduleXHR = new XMLHttpRequest();
     rescheduleXHR.open('POST', 'https://meaghanwagner.com/php/echoRescheduleData.php');
     rescheduleXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
@@ -35,7 +35,6 @@ function checkRescheduleUrl(){
       var flowArray = rescheduleData.sheetflows.values;
       var sheetAttendees = rescheduleData.sheetattendees.values;
       var currentEventData = rescheduleData.attendeeEvents;
-      window.attendeeData.currentEventData = currentEventData;
       // set up current event array
       var currentEvents = [];
       var currentEventCount = Object.keys(currentEventData).length;
@@ -46,12 +45,13 @@ function checkRescheduleUrl(){
           window.attendeeData.firstName = currentEventData[atndEventIndex][2];
           window.attendeeData.lastName = currentEventData[atndEventIndex][3];
         }
+        window.attendeeData.currentEvents = currentEvents;
         // reformat flow array into object
         var flowData = buildFlowData(flowArray);
         for (const key in flowData) {
-          if(key == attendeeData.flow){
+          if(key == attendeeData.flowId){
             var thisFlow = flowData[key];
-            attendeeData.flowData = thisFlow;
+            attendeeData.flow = thisFlow;
             for(var eventTypeIndex = 0; eventTypeIndex < thisFlow.eventTypesList.length; eventTypeIndex++){
               eventTypeName = thisFlow.eventTypesList[eventTypeIndex];
               appendContent(rescheduleInputHolder, 'h2', eventTypeName);
@@ -198,10 +198,13 @@ function couldntLoadData(rescheduleInputHolder){
 // function to submit rescheduling data
 function submitRescheduledData(){
   try {
-    var thisFlow = attendeeData.flowData;
+    attendeeData.events = {};
+    var thisFlow = attendeeData.flow;
     attendeeData.newEvents = [];
     var submitButton = document.getElementById('submit-button');
     submitButton.innerHTML = 'Submitting...';
+    var sendCancellation = false;
+    var sendConfirmation = false;
     for(var eventTypeIndex = 0; eventTypeIndex < thisFlow.eventTypesList.length; eventTypeIndex++){
       eventTypeName = thisFlow.eventTypesList[eventTypeIndex];
       eventTypeInputs = document.getElementsByName(eventTypeName)
@@ -210,6 +213,14 @@ function submitRescheduledData(){
         thisInput.disabled = true;
         if(thisInput.checked){
           attendeeData.newEvents.push(thisInput.id);
+          if(thisInput.id == "[canceled]"){
+            sendCancellation = true;
+          } else if (!attendeeData.currentEvents.includes(thisInput.id)) {
+            sendConfirmation = true;
+            attendeeData.events[thisInput.id] = eventsList[thisInput.id];
+          } else {
+            attendeeData.events[thisInput.id] = eventsList[thisInput.id];
+          }
         }
       }
     }
@@ -221,6 +232,30 @@ function submitRescheduledData(){
       rescheduleInputHolder.innerHTML = '<p>Your events have been updated. ' +
       'Please email <a href="mailto:info@meaghanwagner.com">info@meaghanwagner.com</a> ' +
       'or use the <a href="../contact">Contact Form</a> if you have any questions or concerns.</p>';
+      if(sendCancellation){
+        // send cancellation email
+        var cancellationXHR = new XMLHttpRequest();
+        cancellationXHR.open('POST', 'https://meaghanwagner.com/php/sendcancellationemail.php');
+        cancellationXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        cancellationXHR.onload = function() {
+          if(cancellationXHR.responseText != 'cancellation email sent'){
+            console.log(cancellationXHR.responseText);
+          }
+        }
+        cancellationXHR.send(JSON.stringify(attendeeData));
+      }
+      if(sendConfirmation){
+        // send confirmation email
+        var confirmationXHR = new XMLHttpRequest();
+        confirmationXHR.open('POST', 'https://meaghanwagner.com/php/sendconfirmationemail.php');
+        confirmationXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        confirmationXHR.onload = function() {
+          if(confirmationXHR.responseText != 'confirmation email sent'){
+            console.log(confirmationXHR.responseText);
+          }
+        }
+        confirmationXHR.send(JSON.stringify(attendeeData));
+      }
     }
     updateEventsXHR.send(JSON.stringify(attendeeData));
   } catch(err) {
@@ -525,7 +560,7 @@ function buildFlowData(flowArray){
       "signUpPageCTAList" : JSON.parse(thisFlow[6]),
       "paymentPageCopy" : thisFlow[7],
       "thankYouPageCopy" : thisFlow[8],
-      "thankYouPageTotalsCopy" : thisFlow[9],
+      "cancellationEmailCopy" : thisFlow[9],
       "confirmationEmailCopy" : thisFlow[10],
       "flowId" : flowId
     }

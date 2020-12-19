@@ -548,11 +548,11 @@ function addNewFlowFields(e){
   appendContent(linkHolder, 'br');
   var thankYouPageInput = appendContent(linkHolder, 'textarea', '', 'thank-you-page-copy', 'rich-text');
   appendContent(linkHolder, 'br');
-  // add Thank You Page Totals
-  var thankYouPageTotalsLabel = appendContent(linkHolder, 'label', 'Thank You Page Totals Copy:');
-  thankYouPageTotalsLabel.for = 'thank-you-page-totals-copy';
+  // add Cancellation Email
+  var cancellationEmailLabel = appendContent(linkHolder, 'label', 'Cancellation Email Copy:');
+  cancellationEmailLabel.for = 'cancellation-copy';
   appendContent(linkHolder, 'br');
-  var thankYouPageTotalsInput = appendContent(linkHolder, 'textarea', '', 'thank-you-page-totals-copy', 'rich-text');
+  var cancellationEmailInput = appendContent(linkHolder, 'textarea', '', 'cancellation-copy', 'rich-text');
   appendContent(linkHolder, 'br');
   // add Confirmation Email Copy
   var confirmationEmailCopyLabel = appendContent(linkHolder, 'label', 'Confirmation Email Copy:');
@@ -678,7 +678,7 @@ function addFlow(element){
       JSON.stringify(getRichTextArray('sign-up-page-cta')),
       tinyMCE.get('payment-page-copy').getContent(),
       tinyMCE.get('thank-you-page-copy').getContent(),
-      tinyMCE.get('thank-you-page-totals-copy').getContent(),
+      tinyMCE.get('cancellation-copy').getContent(),
       tinyMCE.get('confirmation-email-copy').getContent(),
       JSON.stringify(getRichTextArray('reminder-email-copy')),
       tinyMCE.get('follow-up-email-copy').getContent(),
@@ -784,12 +784,12 @@ function addEditFlowFields(element){
   var thankYouPageInput = appendContent(linkHolder, 'textarea', '', 'thank-you-page-copy', 'rich-text');
   thankYouPageInput.value = row[8];
   appendContent(linkHolder, 'br');
-  // add Thank You Page Totals
-  var thankYouPageTotalsLabel = appendContent(linkHolder, 'label', 'Thank You Page Totals Copy:');
-  thankYouPageTotalsLabel.for = 'thank-you-page-totals-copy';
+  // add Cancellation Email
+  var cancellationEmailLabel = appendContent(linkHolder, 'label', 'Cancellation Email Copy:');
+  cancellationEmailLabel.for = 'cancellation-copy';
   appendContent(linkHolder, 'br');
-  var thankYouPageTotalsInput = appendContent(linkHolder, 'textarea', '', 'thank-you-page-totals-copy', 'rich-text');
-  thankYouPageTotalsInput.value = row[9];
+  var cancellationEmailInput = appendContent(linkHolder, 'textarea', '', 'cancellation-copy', 'rich-text');
+  cancellationEmailInput.value = row[9];
   appendContent(linkHolder, 'br');
   // add Confirmation Email Copy
   var confirmationEmailCopyLabel = appendContent(linkHolder, 'label', 'Confirmation Email Copy:');
@@ -848,7 +848,7 @@ function editFlow(element){
       JSON.stringify(getRichTextArray('sign-up-page-cta')),
       tinyMCE.get('payment-page-copy').getContent(),
       tinyMCE.get('thank-you-page-copy').getContent(),
-      tinyMCE.get('thank-you-page-totals-copy').getContent(),
+      tinyMCE.get('cancellation-copy').getContent(),
       tinyMCE.get('confirmation-email-copy').getContent(),
       JSON.stringify(getRichTextArray('reminder-email-copy')),
       tinyMCE.get('follow-up-email-copy').getContent(),
