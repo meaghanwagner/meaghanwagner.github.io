@@ -325,7 +325,9 @@ function addEventToSheet(event){
     [
       event.id,
       currentEventValues[3],
-      currentEventValues[5]
+      currentEventValues[5],
+      false,
+      false
     ],
   ];
   var body = {
@@ -1731,9 +1733,9 @@ function addEditQuoteFields(element){
   var modifyButton = appendContent(buttonWrapper, 'button', 'Update Quote', 'modify-quote-button', 'form-button');
   modifyButton.type = 'button';
   modifyButton.setAttribute('quote-index', quoteIndex);
-  modifyButton.setAttribute('onclick', 'editFlow(this)');
+  modifyButton.setAttribute('onclick', 'editQuote(this)');
 }
-function editFlow(element){
+function editQuote(element){
   var quoteIndex = element.getAttribute('quote-index');
   var values = [
     [
