@@ -325,9 +325,7 @@ function addEventToSheet(event){
     [
       event.id,
       currentEventValues[3],
-      currentEventValues[5],
-      false,
-      false
+      currentEventValues[5]
     ],
   ];
   var body = {
