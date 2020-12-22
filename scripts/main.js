@@ -300,14 +300,18 @@ function submitContact(){
 }
 /* Work with Me Page */
 // Calendly integration
-function showCalendly(){
+function showCalendly(calendarType){
+  var calendarURL = 'https://calendly.com/meaghan-wagner/consultation';
+  if(calendarType == "team"){
+    calendarURL = 'https://calendly.com/meaghan-wagner/30min'
+  }
   // add blocker div
   var blockerDiv = addBlocker();
   // add form
   var calendlyHolder = addFormToBlocker('calendly-holder', 'blocker-form');
   // init calendly
   Calendly.initInlineWidget({
-   url: 'https://calendly.com/meaghan-wagner/consultation',
+   url: calendarURL,
    parentElement: calendlyHolder,
    prefill: {},
    utm: {}
