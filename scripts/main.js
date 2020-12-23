@@ -1127,7 +1127,7 @@ var slideIndex = 1;
 function displayCarousel(){
   showSlides(slideIndex);
   var quotesXHR = new XMLHttpRequest();
-  quotesXHR.open('POST', 'https://meaghanwagner.com/php/echoQuoteData.php');
+  quotesXHR.open('GET', 'https://meaghanwagner.com/php/echoQuoteData.php');
   quotesXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   quotesXHR.onload = function() {
     var quotesData = JSON.parse(quotesXHR.responseText).values;
@@ -1155,7 +1155,7 @@ function displayCarousel(){
       console.log("No quotes to display from sheets. Leaving defaults.")
     }
   }
-  quotesXHR.send(JSON.stringify(attendeeData));
+  quotesXHR.send();
 }
 
 function plusSlides(n) {
