@@ -232,7 +232,26 @@ function submitRescheduledData(){
       rescheduleInputHolder.innerHTML = '<p>Your events have been updated. ' +
       'Please email <a href="mailto:info@meaghanwagner.com">info@meaghanwagner.com</a> ' +
       'or use the <a href="../contact">Contact Form</a> if you have any questions or concerns.</p>';
+      // build data to send to confirmation php
+      var emailData = {
+        email: attendeeData.email,
+        firstName: attendeeData.firstName,
+        flow: {
+          flowName: attendeeData.flow.flowName,
+          flowId: attendeeData.flow.flowId,
+        },
+        events: {}
+      }
+      for (const key in attendeeData.events) {
+        emailData.events[key] ={
+          summary: attendeeData.events[key].summary,
+          start: attendeeData.events[key].start
+        }
+      }
+
       if(sendCancellation){
+        // add cancellation copy
+        emailData.flow.cancellationEmailCopy = attendeeData.flow.cancellationEmailCopy;
         // send cancellation email
         var cancellationXHR = new XMLHttpRequest();
         cancellationXHR.open('POST', 'https://meaghanwagner.com/php/sendcancellationemail.php');
@@ -242,9 +261,12 @@ function submitRescheduledData(){
             console.log(cancellationXHR.responseText);
           }
         }
-        cancellationXHR.send(JSON.stringify(attendeeData));
+        cancellationXHR.send(JSON.stringify(emailData));
       }
       if(sendConfirmation){
+        // add confirmation copy
+        emailData.flow.confirmationEmailCopy = attendeeData.flow.confirmationEmailCopy;
+
         // send confirmation email
         var confirmationXHR = new XMLHttpRequest();
         confirmationXHR.open('POST', 'https://meaghanwagner.com/php/sendconfirmationemail.php');
@@ -254,7 +276,7 @@ function submitRescheduledData(){
             console.log(confirmationXHR.responseText);
           }
         }
-        confirmationXHR.send(JSON.stringify(attendeeData));
+        confirmationXHR.send(JSON.stringify(emailData));
       }
     }
     updateEventsXHR.send(JSON.stringify(attendeeData));
@@ -1026,6 +1048,24 @@ function showThankYouPage() {
   var thanksWrapper = appendContent(fieldSetWrapper, 'div')
   thanksWrapper.innerHTML = thankstext;
   replaceCalendarLinks(); // populate calendar links
+
+  // build data to send to confirmation php
+  var confirmationData = {
+    email: signupData.email,
+    firstName: signupData.firstName,
+    flow: {
+      flowName: signupData.flow.flowName,
+      flowId: signupData.flow.flowId,
+      confirmationEmailCopy: signupData.flow.confirmationEmailCopy
+    },
+    events: {}
+  }
+  for (const key in signupData.events) {
+    confirmationData.events[key] ={
+      summary: signupData.events[key].summary,
+      start: signupData.events[key].start
+    }
+  }
   // send confirmation email
   var confirmationXHR = new XMLHttpRequest();
   confirmationXHR.open('POST', 'https://meaghanwagner.com/php/sendconfirmationemail.php');
@@ -1035,7 +1075,7 @@ function showThankYouPage() {
       console.log(confirmationXHR.responseText);
     }
   }
-  confirmationXHR.send(JSON.stringify(signupData));
+  confirmationXHR.send(JSON.stringify(confirmationData));
 }
 /* Reusable functions */
 // Function to format provided date as mm/dd/yyyy
