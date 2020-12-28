@@ -66,12 +66,12 @@ function richTextInit(){
     autosave_ask_before_unload: false,
     powerpaste_allow_local_images: true,
     plugins: [
-      'a11ychecker advcode advlist anchor autolink codesample fullscreen help image imagetools tinydrive',
-      ' lists link media noneditable powerpaste preview',
-      ' searchreplace table tinymcespellchecker visualblocks wordcount'
+      ' advlist anchor autolink codesample fullscreen help image imagetools',
+      ' lists link media noneditable preview',
+      ' searchreplace table visualblocks wordcount'
     ],
     toolbar:
-      'insertfile a11ycheck undo redo | bold italic | forecolor backcolor | codesample | alignleft aligncenter alignright alignjustify | bullist numlist | link image tinydrive',
+      'undo redo | bold italic | forecolor backcolor | codesample | alignleft aligncenter alignright alignjustify | bullist numlist | link image',
     spellchecker_dialog: true,
     spellchecker_whitelist: ['Ephox', 'Moxiecode'],
     tinydrive_demo_files_url: '/docs/demo/tiny-drive-demo/demo_files.json',
@@ -81,9 +81,9 @@ function richTextInit(){
     content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
     mobile: {
       menubar: true,
-      toolbar1: 'insertfile a11ycheck undo redo | bold italic | forecolor backcolor',
+      toolbar1: 'undo redo | bold italic | forecolor backcolor',
       toolbar2: 'codesample | alignleft aligncenter alignright alignjustify | bullist numlist',
-      toolbar3: 'link image tinydrive',
+      toolbar3: 'link image',
       height: '60vh'
     }
   });
