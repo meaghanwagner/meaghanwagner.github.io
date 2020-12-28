@@ -329,6 +329,13 @@ strong.large{
 .blocker-form {
   margin-top: 9rem;
 }
+#email-form {
+  max-width: 600px;
+  transform: translate(100%, 0);
+  opacity: 0;
+  animation: recenter .4s forwards;
+  animation-timing-function: ease-in-out;
+}
 #button-wrapper {
   display: flex;
   justify-content: center;
@@ -415,6 +422,12 @@ strong.large{
   background-color: #eee;
   cursor: pointer;
 }
+.form-label-fw {
+  width:95%;
+  display:flex;
+  align-items: center;
+  margin: 2.5% auto;
+}
 .form-label{
   width:45%;
   display:flex;
@@ -422,6 +435,10 @@ strong.large{
   margin: 2.5%;
 }
 .form-label > input{
+  margin-left: 5px;
+  flex-grow: 10;
+}
+.form-label-fw > input{
   margin-left: 5px;
   flex-grow: 10;
 }
@@ -731,7 +748,7 @@ div.min-width {
     position: relative;
   }
   .blocker-form {
-    margin-top: 2rem;
+    margin-top: 6rem;
   }
   #calendly-holder {
     height: calc(95vh - 2rem);

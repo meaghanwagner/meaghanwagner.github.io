@@ -518,8 +518,61 @@ function checkHash(){
     if(hash in flowData){
       loadSignUp(hash);
     }
+  } else {
+    setTimeout(function(){ loadEmailSignup(); }, 3000);
   }
 }
+
+// Function to load email signup
+function loadEmailSignup(){
+  // add blocker div
+  var blockerDiv = addBlocker();
+  // add email form
+  var formWrapper = addFormToBlocker('email-form', 'blocker-form');
+  var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
+  formWrapper.addEventListener('submit', addEmail);
+  appendContent(fieldSetWrapper, 'h2', 'Keep in Touch!');
+  appendContent(fieldSetWrapper, 'p', 'Join our mailing list and be the first to hear about new workshops, free challenges, and more!');
+  var firstNameLabel = appendContent(fieldSetWrapper, 'label', 'First Name:', '','form-label-fw');
+  firstNameLabel.for = 'first-name-input';
+  var firstNameInput = appendContent(firstNameLabel, 'input', '', 'first-name-input');
+  firstNameInput.required = true;
+  var emailLabel = appendContent(fieldSetWrapper, 'label', 'Email:', '', 'form-label-fw');
+  emailLabel.for = 'email-input';
+  var emailInput = appendContent(emailLabel, 'input', '', 'email-input');
+  emailInput.type = "email";
+  emailInput.required = true;
+  var disclaimerText = appendContent(fieldSetWrapper, 'p', '', '', 'disclaimer');
+  disclaimerText.innerHTML = 'Unsubscribe at any time. Your data and information are protected in accordance with my <a href="privacy" target="_blank">Privacy Policy<a>';
+  var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
+  var confirmButton = appendContent(buttonWrapper, 'button', 'Sign Up!', 'confirm-button', 'form-button');
+}
+function addEmail(e){
+  e.preventDefault();
+  var emailElement = document.getElementById('email-input');
+  emailElement.disabled = true;
+  var nameElement = document.getElementById('first-name-input');
+  nameElement.disabled = true;
+  var confirmButton = document.getElementById('confirm-button');
+  confirmButton.innerHTML = 'Signing up...'
+  confirmButton.disabled = true;
+  var email = emailElement.value;
+  var firstName = nameElement.value;
+  var emailXHR = new XMLHttpRequest();
+  emailXHR.open('POST', 'https://meaghanwagner.com/php/addemail.php');
+  emailXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  emailXHR.onload = function() {
+    var emailResponse = JSON.parse(emailXHR.responseText);
+    if(emailResponse.updates.updatedCells > 0){
+      removeBlocker();
+    } else {
+      console.error(emailXHR.responseText);
+    }
+  }
+  emailXHR.send('email_address=' + email + '&first_name=' + firstName);
+
+}
+
 // empty object to hold flow data
 var flowData = {};
 // function to load flow data from sheets
