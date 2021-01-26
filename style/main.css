@@ -217,7 +217,7 @@ strong.large{
   display: block;
   border-radius: 15px;
   background-color:#9DB2C6;
-  color: white;
+  color: #28262B;
   font-size: 1.5rem;
   width: min-content;
   white-space: nowrap;
@@ -296,7 +296,7 @@ strong.large{
   position: relative;
   font-family: 'Montserrat', sans-serif;
   background-color: #9DB2C6;
-  color: white;
+  color: #28262B;
   font-size: 3rem;
   padding: 15px;
   border-radius: 15px;
@@ -465,7 +465,16 @@ strong.large{
   height: 200px;
   border: none;
 }
-
+.secure{
+  text-align: center;
+}
+.secure > img {
+  height: 1em;
+  width: 1em;
+  display: inline;
+  line-height: 0;
+  vertical-align: -0.12em;
+}
 /*Home Page*/
 .main-image {
   width: 130%;
@@ -553,6 +562,7 @@ div.min-width {
 }
 .important{
   background-color: #9DB2C6;
+  color: #28262B;
 }
 .shiny-white{
   position: relative;

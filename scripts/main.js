@@ -198,13 +198,18 @@ function couldntLoadData(rescheduleInputHolder){
 // function to submit rescheduling data
 function submitRescheduledData(){
   try {
+    // create attendeedata events obj to send to php
     attendeeData.events = {};
+    // get flow from attendeedata
     var thisFlow = attendeeData.flow;
     attendeeData.newEvents = [];
+    // update submit button
     var submitButton = document.getElementById('submit-button');
     submitButton.innerHTML = 'Submitting...';
+    // default to false to start
     var sendCancellation = false;
     var sendConfirmation = false;
+    // check if the events changed.
     for(var eventTypeIndex = 0; eventTypeIndex < thisFlow.eventTypesList.length; eventTypeIndex++){
       eventTypeName = thisFlow.eventTypesList[eventTypeIndex];
       eventTypeInputs = document.getElementsByName(eventTypeName)
@@ -214,20 +219,25 @@ function submitRescheduledData(){
         if(thisInput.checked){
           attendeeData.newEvents.push(thisInput.id);
           if(thisInput.id == "[canceled]"){
+            // event canceled
             sendCancellation = true;
           } else if (!attendeeData.currentEvents.includes(thisInput.id)) {
+            // event updated
             sendConfirmation = true;
             attendeeData.events[thisInput.id] = eventsList[thisInput.id];
           } else {
+            // no change
             attendeeData.events[thisInput.id] = eventsList[thisInput.id];
           }
         }
       }
     }
+    // send updated event data to php
     var updateEventsXHR = new XMLHttpRequest();
     updateEventsXHR.open('POST', 'https://meaghanwagner.com/php/updateevents.php');
     updateEventsXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     updateEventsXHR.onload = function() {
+      // display response text
       var rescheduleInputHolder = document.getElementById('reschedule-form-input');
       rescheduleInputHolder.innerHTML = '<p>Your events have been updated. ' +
       'Please email <a href="mailto:info@meaghanwagner.com">info@meaghanwagner.com</a> ' +
@@ -248,7 +258,7 @@ function submitRescheduledData(){
           start: attendeeData.events[key].start
         }
       }
-
+      // call cancel email php if event was canceled
       if(sendCancellation){
         // add cancellation copy
         emailData.flow.cancellationEmailCopy = attendeeData.flow.cancellationEmailCopy;
@@ -263,6 +273,7 @@ function submitRescheduledData(){
         }
         cancellationXHR.send(JSON.stringify(emailData));
       }
+      // call confirmation php if event changed
       if(sendConfirmation){
         // add confirmation copy
         emailData.flow.confirmationEmailCopy = attendeeData.flow.confirmationEmailCopy;
@@ -522,55 +533,65 @@ function checkHash(){
     setTimeout(function(){ loadEmailSignup(); }, 3000);
   }
 }
-
+// bool to allow email popup
+var emailAllowed = true;
 // Function to load email signup
 function loadEmailSignup(){
   // add blocker div
-  var blockerDiv = addBlocker();
-  // add email form
-  var formWrapper = addFormToBlocker('email-form', 'blocker-form');
-  var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
-  formWrapper.addEventListener('submit', addEmail);
-  appendContent(fieldSetWrapper, 'h2', 'Keep in Touch!');
-  appendContent(fieldSetWrapper, 'p', 'Join our mailing list and be the first to hear about new workshops, free challenges, and more!');
-  var firstNameLabel = appendContent(fieldSetWrapper, 'label', 'First Name:', '','form-label-fw');
-  firstNameLabel.for = 'first-name-input';
-  var firstNameInput = appendContent(firstNameLabel, 'input', '', 'first-name-input');
-  firstNameInput.required = true;
-  var emailLabel = appendContent(fieldSetWrapper, 'label', 'Email:', '', 'form-label-fw');
-  emailLabel.for = 'email-input';
-  var emailInput = appendContent(emailLabel, 'input', '', 'email-input');
-  emailInput.type = "email";
-  emailInput.required = true;
-  var disclaimerText = appendContent(fieldSetWrapper, 'p', '', '', 'disclaimer');
-  disclaimerText.innerHTML = 'Unsubscribe at any time. Your data and information are protected in accordance with my <a href="privacy" target="_blank">Privacy Policy<a>';
-  var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
-  var confirmButton = appendContent(buttonWrapper, 'button', 'Sign Up!', 'confirm-button', 'form-button');
+  if(emailAllowed){
+    var blockerDiv = addBlocker();
+    // add email form
+    var formWrapper = addFormToBlocker('email-form', 'blocker-form');
+    var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
+    formWrapper.addEventListener('submit', addEmail);
+    appendContent(fieldSetWrapper, 'h2', 'Keep in Touch!');
+    appendContent(fieldSetWrapper, 'p', 'Join our mailing list and be the first to hear about new workshops, free challenges, and more!');
+    var firstNameLabel = appendContent(fieldSetWrapper, 'label', 'First Name:', '','form-label-fw');
+    firstNameLabel.for = 'first-name-input';
+    var firstNameInput = appendContent(firstNameLabel, 'input', '', 'first-name-input');
+    firstNameInput.required = true;
+    var emailLabel = appendContent(fieldSetWrapper, 'label', 'Email:', '', 'form-label-fw');
+    emailLabel.for = 'email-input';
+    var emailInput = appendContent(emailLabel, 'input', '', 'email-input');
+    emailInput.type = "email";
+    emailInput.required = true;
+    var disclaimerText = appendContent(fieldSetWrapper, 'p', '', '', 'disclaimer');
+    disclaimerText.innerHTML = 'Unsubscribe at any time. Your data and information are protected in accordance with my <a href="privacy" target="_blank">Privacy Policy<a>';
+    var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
+    var confirmButton = appendContent(buttonWrapper, 'button', 'Sign Up!', 'confirm-button', 'form-button');
+  }
 }
+// function to add email to sheets
 function addEmail(e){
   e.preventDefault();
+  // get data from form
   var emailElement = document.getElementById('email-input');
   emailElement.disabled = true;
   var nameElement = document.getElementById('first-name-input');
   nameElement.disabled = true;
   var confirmButton = document.getElementById('confirm-button');
+  // update button text and disable
   confirmButton.innerHTML = 'Signing up...'
   confirmButton.disabled = true;
+  // setting up php variables
   var email = emailElement.value;
   var firstName = nameElement.value;
+  // send data
   var emailXHR = new XMLHttpRequest();
   emailXHR.open('POST', 'https://meaghanwagner.com/php/addemail.php');
   emailXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   emailXHR.onload = function() {
+    // check if there was an error
     var emailResponse = JSON.parse(emailXHR.responseText);
     if(emailResponse.updates.updatedCells > 0){
+      // remove blocker if no error
       removeBlocker();
     } else {
+      // send error to console for debugging
       console.error(emailXHR.responseText);
     }
   }
   emailXHR.send('email_address=' + email + '&first_name=' + firstName);
-
 }
 
 // empty object to hold flow data
@@ -676,6 +697,8 @@ var eventData = {};
 var eventsList = {};
 // Function to sign up for a flow
 function loadSignUp(flowId, signUpIndex=0) {
+  // disable email popup
+  window.emailAllowed = false;
   // get flow by id
   var thisFlow = flowData[flowId];
   // set up signupData if index is 0
@@ -1028,7 +1051,7 @@ function loadPayment(e){
   }
   // replace payment input placeholder with div
   if(paymentPageCopy.includes('[payment-input]')){
-    paymentPageCopy = paymentPageCopy.replace('<p>[payment-input]</p>', '<div id="payment-holder"></div>')
+    paymentPageCopy = paymentPageCopy.replace('<p>[payment-input]</p>', '<div id="payment-holder"></div><p class="secure"><img alt="lock icon" src="images/lock.png"/> Secure Checkout</p>')
   }
   // update html displayed
   fieldSetWrapper.innerHTML = paymentPageCopy;
