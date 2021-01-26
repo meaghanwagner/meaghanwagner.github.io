@@ -329,6 +329,7 @@ strong.large{
   right: 0;
   background-color:rgba(0,0,0,0.3);
   overflow: auto;
+  z-index: 1;
 }
 .blocker-form {
   margin-top: 9rem;
@@ -764,9 +765,6 @@ div.min-width {
     width: calc(100% - 5px);
     position: relative;
   }
-  .blocker-form {
-    margin-top: 6rem;
-  }
   #calendly-holder {
     height: calc(95vh - 2rem);
   }
@@ -791,23 +789,30 @@ div.min-width {
   main{
     top: 5.5rem;
   }
+}
+@media only screen and (max-width: 780px) {
+  .about-opener{
+    margin: 2rem 0 1rem 0;
+  }
   .branding {
-    font-size: 1.5rem;
+    font-size: .8rem;
   }
   .tools {
     margin: 1rem 0;
   }
-}
-@media only screen and (max-width: 780px) {
+  .blocker-form {
+    margin-top: 7rem;
+  }
   .header-nav {
     background-color: #9DB2C6;
     display: none;
     width: 100%;
     flex-wrap: nowrap;
     position: absolute;
-    top: 5.5rem;
+    top: 5rem;
     right: 0;
     text-align: center;
+    z-index: -1;
   }
   .icon {
     display:block;
@@ -824,5 +829,8 @@ div.min-width {
   }
   .card-title{
     font-size: 2rem;
+  }
+  #email-form {
+    width: calc(100%-20px);
   }
 }
