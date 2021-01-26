@@ -11,6 +11,48 @@ function burgerToggle() {
     main.style.marginTop = '5.5rem';
   }
 }
+// Function to swap out icons
+function setupIcons() {
+  // get the icons by class
+  const lightSchemeIcons = document.getElementsByClassName('light-icon');
+  const darkSchemeIcons = document.getElementsByClassName('dark-icon');
+  // remove all of the icons
+  for (lightindex = 0; lightindex < lightSchemeIcons.length; lightindex++) {
+    lightSchemeIcons[lightindex].remove();
+  }
+  for (darkindex = 0; darkindex < darkSchemeIcons.length; darkindex++) {
+    darkSchemeIcons[darkindex].remove();
+  }
+  // function to set to light mode (dark icon)
+  function setLight() {
+    for (lightindex = 0; lightindex < lightSchemeIcons.length; lightindex++) {
+      document.head.append(lightSchemeIcons[lightindex]);
+    }
+    for (darkindex = 0; darkindex < darkSchemeIcons.length; darkindex++) {
+      darkSchemeIcons[darkindex].remove();
+    }
+  }
+  // function to set to dark mode (light icon)
+  function setDark() {
+    for (lightindex = 0; lightindex < lightSchemeIcons.length; lightindex++) {
+      lightSchemeIcons[lightindex].remove();
+    }
+    for (darkindex = 0; darkindex < darkSchemeIcons.length; darkindex++) {
+      document.head.append(darkSchemeIcons[darkindex]);
+    }
+  }
+  // check for change in mode
+  const matcher = window.matchMedia('(prefers-color-scheme:dark)');
+  function onUpdate() {
+    if (matcher.matches) {
+      setDark();
+    } else {
+      setLight();
+    }
+  }
+  matcher.addListener(onUpdate);
+  onUpdate();
+}
 /* Reschedule form page */
 var attendeeData = {};
 function checkRescheduleUrl(){

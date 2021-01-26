@@ -143,12 +143,15 @@ strong.large{
 }
 /*Header stuff*/
 .branding {
-  margin: 1rem;
+  margin: .5rem;
   font-weight: inherit;
-  width: 33%;
   flex: 1 1 33%;
-  font-size: 2rem;
   white-space: nowrap;
+}
+.branding > a > img {
+  height: 7em;
+  margin-bottom: -2.3em;
+  width: auto;
 }
 .fa {
   margin: 1.5rem;
@@ -162,7 +165,8 @@ strong.large{
   display: flex;
   flex-wrap: nowrap;
   position: relative;
-  padding: 5vh 0;
+  padding: 0;
+  margin: 4rem;
 }
 .header-nav {
   margin: auto 0;
@@ -278,7 +282,7 @@ strong.large{
 /* about page */
 .about-figure{
   width: 80%;
-  margin: 0 auto 2em auto;
+  margin: 4rem auto;
 }
 .about-opener{
   font-family: 'Montserrat', sans-serif;
@@ -286,7 +290,7 @@ strong.large{
   padding: 5px 30px;
   box-shadow: 5px 5px 5px rgba(0,0,0,0.2);
   background-color: white;
-  margin: 1em 0;
+  margin: 4rem 0 2rem 0;
   width: calc(100% - 65px - 1vw);
   font-size: 2em;
   font-weight: 700;
@@ -302,7 +306,7 @@ strong.large{
   border-radius: 15px;
   width: calc(45% - 35px);
   box-shadow: 5px 5px 5px rgba(0,0,0,0.2);
-  margin: 3% 0 ;
+  margin: 8.5% 0 ;
   z-index: 1;
 }
 .about-image{

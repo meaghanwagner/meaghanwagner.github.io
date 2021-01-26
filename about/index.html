@@ -19,16 +19,24 @@
   <meta name="twitter:url" content="https://www.meaghanwagner.github.io">
   <meta name="twitter:card" content="summary">
   <meta name="description" content="">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/dark/apple-touch-icon.png" class="dark-icon">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon/dark/favicon-32x32.png" class="dark-icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon/dark/favicon-16x16.png" class="dark-icon">
+  <link rel="manifest" href="/images/favicon/dark/site.webmanifest" class="dark-icon">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/light/apple-touch-icon.png" class="light-icon">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon/light/favicon-32x32.png" class="light-icon">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon/light/favicon-16x16.png" class="light-icon">
+  <link rel="manifest" href="/images/favicon/light/site.webmanifest" class="light-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" type="text/css" href="../style/main.css">
   <script src="../scripts/main.js"></script>
 </head>
 
-<body>
+<body onload="setupIcons();">
   <header>
     <div class="wrapper">
       <div class="nav-flex">
-        <a class="branding" href="/">Meaghan Wagner:<br>The Goal Guru</a>
+        <span class="branding"><a href="/"><img alt="Goal Guru Logo" src="../images/logo.png"></a></span>
         <a href="javascript:void(0);" class="icon" onclick="burgerToggle()">
           <i class="fa fa-bars"></i>
         </a>
@@ -45,7 +53,7 @@
       <section class="about-opener">
         <p>Do you already do a <em>ton</em> of work, but always feel like you “should” be doing more?</p>
       </section>
-      <figure class="about-figure flex">
+      <figure class="flex about-figure">
         <figcaption class="about-caption">Hi. I’m The Goal Guru and I’m here to help.</figcaption>
         <div class="about-image">
           <img src="../images/DSCF0314.jpg" alt="Head shot of Meaghan Wagner">
