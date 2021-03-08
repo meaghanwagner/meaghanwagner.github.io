@@ -691,7 +691,7 @@ function buildFlowData(flowArray){
     // build flow object
     var thisFlow = flowArray[flowIndex];
     // create id from name
-    var flowId = thisFlow[0].toLowerCase().replace(/\W/g, '-');
+    var flowId = thisFlow[0].toLowerCase().replace(/\W/g, '-').replace('--','-').replace(/-$/g, '');
     var thisFlowObj = {
       "flowName" : thisFlow[0],
       "eventTypesList" : JSON.parse(thisFlow[1]),

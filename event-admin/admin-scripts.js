@@ -776,6 +776,16 @@ function addEditFlowFields(element){
   displayInput.checked = (row[4] == 'TRUE');
   appendContent(displayHolder, 'br');
   var linkHolder = appendContent(fieldSetWrapper, 'div', '', '', 'form-item');
+  // add Flow Link display
+  var flowLinkLabel = appendContent(linkHolder, 'label', 'Link: ');
+  flowLinkLabel.for = 'flow-link';
+  appendContent(linkHolder, 'br');
+  var flowLinkTag = appendContent(linkHolder, 'a', '', 'flow-link');
+  var flowId = row[0].toLowerCase().replace(/\W/g, '-').replace('--','-').replace(/-$/g, '');
+  flowLinkTag.innerHTML = "meaghanwagner.com#" + flowId;
+  flowLinkTag.href = "https://meaghanwagner.com#" + flowId;
+  flowLinkTag.target = '_blank';
+  appendContent(linkHolder, 'br');
   // add description
   var descLabel = appendContent(linkHolder, 'label', 'Description:');
   descLabel.for = 'desc-input';
