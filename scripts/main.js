@@ -963,7 +963,7 @@ function replacePaymentHolder(){
   var paymentHolder = document.getElementById('payment-holder');
   if(paymentHolder != null){
     var paymentFrame = appendContent(paymentHolder, 'iframe', '', 'payment-frame');
-    var paymentSource = ('https://meaghanwagner.com/pay-sandbox/');
+    var paymentSource = ('https://meaghanwagner.com/pay-form/');
     paymentFrame.src = paymentSource;
     // send cost to iframe
     paymentFrame.addEventListener("load", () => {
