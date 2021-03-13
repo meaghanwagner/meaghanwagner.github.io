@@ -1003,55 +1003,15 @@ function replaceCalendarLinks(){
       description = event.description;
       eventLocation = event.location;
       var outlookAtag = appendContent(eventLine, 'a', 'Outlook');
-      outlookAtag.href = makeIcsFile(eventDate, summary, description, eventLocation);
-      var icsName = event.summary + ".ics";
-      outlookAtag.setAttribute('download', icsName);
+      outlookAtag.href = "https://meaghanwagner.com/php/outlook.php?eventID=" + eventID;
+      outlookAtag.target = '_blank';
       appendContent(eventLine, 'span', ' ', '', 'calendar-space');
       // Google Calendar
-      var startDateTime = convertDate(event.start.dateTime);
-      var endDateTime = convertDate(event.end.dateTime);
-      var googleCalLink = 'https://calendar.google.com/calendar/r/eventedit?text=' +
-        encodeURIComponent(event.summary) +
-        '&dates=' + startDateTime + '/' + endDateTime +
-        '&details=' + encodeURIComponent(event.description) +
-        '&location=' + event.location
       var googleAtag = appendContent(eventLine, 'a', 'Google Calendar');
-      googleAtag.href = googleCalLink;
+      googleAtag.href = "https://meaghanwagner.com/php/googlecal.php?eventID=" + eventID;
       googleAtag.target = '_blank';
     }
   }
-}
-// function to create ics file for outlook
-function makeIcsFile(date, summary, description, eventLocation) {
-  var test =
-    "BEGIN:VCALENDAR\n" +
-    "CALSCALE:GREGORIAN\n" +
-    "METHOD:PUBLISH\n" +
-    "PRODID:-//Test Cal//EN\n" +
-    "VERSION:2.0\n" +
-    "BEGIN:VEVENT\n" +
-    "UID:test-1\n" +
-    "DTSTART;VALUE=DATE:" +
-    convertDate(date.start) +
-    "\n" +
-    "DTEND;VALUE=DATE:" +
-    convertDate(date.end) +
-    "\n" +
-    "SUMMARY:" +
-    summary +
-    "\n" +
-    "DESCRIPTION:" +
-    description +
-    "\n" +
-    "LOCATION:" +
-    eventLocation +
-    "\n" +
-    "END:VEVENT\n" +
-    "END:VCALENDAR";
-
-  var data = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(test);
-
-  return data;
 }
 // function to convert date for ics file
 function convertDate(date) {
