@@ -42,9 +42,34 @@ label {
   align-items: center;
   background-color: #3a3a3a;
 }
-#main-holder, #alert {
+#main-holder {
   min-width: 15em;
   min-height: 15em;
+  width: 30vh;
+  height: 30vh;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  background-color: white;
+  border-radius: 7px;
+  box-shadow: 0px 0px 5px 2px black;
+  text-align: center;
+  padding: 7px;
+  margin: 10vh auto;
+}
+#blocker-alert{
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color:rgba(0,0,0,0.3);
+  overflow: auto;
+  z-index: 1;
+}
+#alert {
+  min-width: 20em;
+  min-height: 20em;
   width: 30vh;
   height: 30vh;
   display: grid;
@@ -115,6 +140,9 @@ label {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+.event-text {
+  font-size: 1rem;
 }
 @media only screen and (max-width: 850px) {
   #content-holder, .form-button, #event-bucket-holder, #new-content-holder {

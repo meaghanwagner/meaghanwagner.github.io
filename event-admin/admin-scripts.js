@@ -34,7 +34,7 @@ document.onkeydown = function(evt) {
     isEscape = (evt.keyCode === 27);
   }
   if (isEscape) {
-    removeBlocker();
+    closeConfirm();
   }
 };
 /**
@@ -504,7 +504,7 @@ function addNewFlowFields(e){
   var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-flow-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
+  xButton.addEventListener('click', closeConfirm);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   // add legend
@@ -600,11 +600,26 @@ function addNewFlowFields(e){
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
   var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
   cancelTypeButton.type = 'button';
-  cancelTypeButton.addEventListener('click', removeBlocker);
+  cancelTypeButton.addEventListener('click', closeConfirm);
   var modifyButton = appendContent(buttonWrapper, 'button', 'Add Flow', 'modify-flow-button', 'form-button');
   modifyButton.type = 'button';
   modifyButton.setAttribute('flow-index', flowIndex);
   modifyButton.setAttribute('onclick', 'addFlow(this)');
+}
+// function to confirm close without saving
+function closeConfirm(){
+  blockerAlertDiv = addBlockerAlert();
+  if(blockerAlertDiv != null){
+    var alertDiv = appendContent(blockerAlertDiv, 'div', '', 'alert');
+    var alertHeader = appendContent(alertDiv, 'h2', 'Close without saving?','alert-header');
+    var buttonWrapper = appendContent(alertDiv, 'div', '', 'button-wrapper');
+    var continueButton = appendContent(buttonWrapper, 'button', 'Continue Editing', 'cancel-button', 'form-button');
+    continueButton.type = 'button';
+    continueButton.addEventListener('click', removeBlockerAlert);
+    var closeButton = appendContent(buttonWrapper, 'button', 'Close Without Saving', '', 'form-button');
+    closeButton.type = 'button';
+    closeButton.addEventListener('click', removeBlocker);
+  }
 }
 // Function to update the fields that vary based on eventTypesSelected
 function eventTypesSelectionChanged(populateData=false){
@@ -731,7 +746,7 @@ function addEditFlowFields(element){
   var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-flow-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
+  xButton.addEventListener('click', closeConfirm);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   // add legend
@@ -851,7 +866,7 @@ function addEditFlowFields(element){
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
   var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
   cancelTypeButton.type = 'button';
-  cancelTypeButton.addEventListener('click', removeBlocker);
+  cancelTypeButton.addEventListener('click', closeConfirm);
   var modifyButton = appendContent(buttonWrapper, 'button', 'Update Flow', 'modify-flow-button', 'form-button');
   modifyButton.type = 'button';
   modifyButton.setAttribute('flow-index', flowIndex);
@@ -907,7 +922,7 @@ function stopReturnSubmit(e){
     e.preventDefault();
   }
   if (e.keyCode == 27) {
-    removeBlocker();
+    closeConfirm();
   }
 }
 var attendeesRange = {};
@@ -921,7 +936,7 @@ function addModifyEventFields(element){
   var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'modify-event-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
+  xButton.addEventListener('click', closeConfirm);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   // add legend
@@ -973,6 +988,9 @@ function addModifyEventFields(element){
                 var eventLink = appendContent(titleElement, 'a', thisEvent.summary, 'title-text');
                 eventLink.href = thisEvent.htmlLink;
                 eventLink.target = '_blank';
+                appendContent(titleElement, 'br');
+                // adding event id display
+                var eventIDspan = appendContent(titleElement, 'span', 'Event ID: ' + thisEvent.id, '', 'event-text');
                 // Add Date
                 var dateHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
                 var dateLabel = appendContent(dateHolder, 'label', 'Date:');
@@ -990,7 +1008,6 @@ function addModifyEventFields(element){
                 appendContent(startTimeHolder, 'br');
                 var startTimePicker = appendContent(startTimeHolder, 'input', '', 'new-start-time');
                 startTimePicker.type = 'time';
-                startTimePicker.step = '900'
                 startTimePicker.addEventListener('change', calculateNewEndTime);
                 var eventStart = timeFromDate24(new Date(thisEvent.start.dateTime));
                 startTimePicker.value = eventStart;
@@ -1017,6 +1034,10 @@ function addModifyEventFields(element){
                 attendeesInput.type = 'number';
                 attendeesInput.min = attendeeCount;
                 attendeesInput.value = eventsRow[1];
+                // Add Cost Display
+                var costHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
+                var costLabel = appendContent(costHolder, 'label')
+                costLabel.innerHTML = 'Cost:<br><strong>$' + eventsRow[2] +'<strong>';
                 // add zoom link
                 var linkHolder = appendContent(fieldSetWrapper, 'div', '', '', 'form-item');
                 var linkLabel = appendContent(linkHolder, 'label', 'Zoom Link:');
@@ -1041,7 +1062,7 @@ function addModifyEventFields(element){
                 var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
                 var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
                 cancelTypeButton.type = 'button';
-                cancelTypeButton.addEventListener('click', removeBlocker);
+                cancelTypeButton.addEventListener('click', closeConfirm);
                 var modifyButton = appendContent(buttonWrapper, 'button', 'Update Event', 'modify-event-button', 'form-button');
                 modifyButton.type = 'button';
                 modifyButton.setAttribute('data-event-id', thisEvent.id);
@@ -1168,7 +1189,7 @@ function addCancelEventFields(element){
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   formWrapper.setAttribute('onsubmit', 'cancelEvent(this);return false;');
   var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
+  xButton.addEventListener('click', closeConfirm);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   // add legend
@@ -1220,6 +1241,9 @@ function addCancelEventFields(element){
                 var eventLink = appendContent(titleElement, 'a', thisEvent.summary, 'title-text');
                 eventLink.href = thisEvent.htmlLink;
                 eventLink.target = '_blank';
+                appendContent(titleElement, 'br');
+                // adding event id display
+                var eventIDspan = appendContent(titleElement, 'span', 'Event ID: ' + thisEvent.id, '', 'event-text');
                 var startDate = new Date(thisEvent.start.dateTime);
                 var endDate = new Date(thisEvent.end.dateTime);
                 appendContent(fieldSetWrapper, 'p', timeFromDate12(startDate));
@@ -1236,7 +1260,7 @@ function addCancelEventFields(element){
                 var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
                 var backButton = appendContent(buttonWrapper, 'button', 'Back', 'cancel-button', 'form-button');
                 backButton.type = 'button';
-                backButton.addEventListener('click', removeBlocker);
+                backButton.addEventListener('click', closeConfirm);
                 var cancelEventButton = appendContent(buttonWrapper, 'button', 'Cancel Event', 'cancel-event-button', 'form-button');
                 cancelEventButton.type = 'submit';
                 formWrapper.setAttribute('data-event-id', thisEvent.id);
@@ -1387,7 +1411,7 @@ function addNewTypeFields(){
   var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-type-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
+  xButton.addEventListener('click', closeConfirm);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   // add legend
@@ -1443,7 +1467,7 @@ function addNewTypeFields(){
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
   var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
   cancelTypeButton.type = 'button';
-  cancelTypeButton.addEventListener('click', removeBlocker);
+  cancelTypeButton.addEventListener('click', closeConfirm);
   var createTypeButton = appendContent(buttonWrapper, 'button', 'Add New Event Type', 'new-type-button', 'form-button');
   createTypeButton.type = 'button';
   createTypeButton.addEventListener('click', addNewType);
@@ -1497,7 +1521,7 @@ function addEditTypeFields(){
   var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-type-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
+  xButton.addEventListener('click', closeConfirm);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   // add legend
@@ -1510,6 +1534,7 @@ function addEditTypeFields(){
   eventTypeLabel.for = 'event-type-name';
   appendContent(eventTypeHolder, 'br');
   var eventTypeInput = appendContent(eventTypeHolder, 'input', '', 'event-type-name');
+  eventTypeInput.setAttribute('old-title', row[0]);
   eventTypeInput.value = row[0];
   // Add Run Time
   var runTimeHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
@@ -1565,9 +1590,9 @@ function addEditTypeFields(){
   cancelTypeButton.id = 'cancel-button';
   cancelTypeButton.className = 'form-button';
   cancelTypeButton.type = 'button';
-  cancelTypeButton.addEventListener('click', removeBlocker);
+  cancelTypeButton.addEventListener('click', closeConfirm);
   var updateTypeButton = appendContent(buttonWrapper, 'button', 'Update Event Type');
-  updateTypeButton.id = 'new-type-button';
+  updateTypeButton.id = 'update-type-button';
   updateTypeButton.className = 'form-button';
   updateTypeButton.type = 'button';
   updateTypeButton.addEventListener('click', editEventType);
@@ -1586,6 +1611,7 @@ function toggleCostHidden(){
 }
 // Function to remove blocker div
 function removeBlocker(){
+  removeBlockerAlert();
   var bodyElement = document.getElementsByTagName("body")[0];
   bodyElement.style.overflow = "auto";
   theBlocker = document.getElementById('blocker');
@@ -1602,16 +1628,46 @@ function addBlocker(){
   var blockerDiv = appendContent(signedinElement, 'div', '', 'blocker');
   return blockerDiv;
 }
+function addBlockerAlert(){
+  var blockerElement = document.getElementById("blocker");
+  if(blockerElement != null){
+    blockerElement.style.overflow = "hidden";
+
+    var blockerAlertDiv = appendContent(signedinElement, 'div', '', 'blocker-alert');
+    return blockerAlertDiv;
+  }
+}
+function removeBlockerAlert(){
+  var blockerElement = document.getElementById("blocker");
+  if(blockerElement != null){
+    blockerElement.style.overflow = "auto";
+    theBlockerAlert = document.getElementById('blocker-alert');
+    if(theBlockerAlert != null){
+      theBlockerAlert.remove();
+    }
+  }
+}
 // function to update event type sheets info
 function editEventType(){
+  var newValues = {
+  // getting new values
+  oldEventTitle: document.getElementById('event-type-name').getAttribute('old-title'),
+  newEventTitle: document.getElementById('event-type-name').value,
+  newRunTime: document.getElementById('run-time-input').value,
+  newDescription: tinyMCE.get('desc-input').getContent(),
+  newMaxAttendees: document.getElementById('new-attendees-input').value,
+  newZoomLink: document.getElementById('new-link-input').value,
+  newCost: document.getElementById('cost-input').value
+  };
+  // setting up values for event type sheet
   var values = [
     [
-      document.getElementById('event-type-name').value,
-      document.getElementById('run-time-input').value,
-      tinyMCE.get('desc-input').getContent(),
-      document.getElementById('new-attendees-input').value,
-      document.getElementById('new-link-input').value,
-      document.getElementById('cost-input').value
+      newValues.newEventTitle,
+      newValues.newRunTime,
+      newValues.newDescription,
+      newValues.newMaxAttendees,
+      newValues.newZoomLink,
+      newValues.newCost
     ],
   ];
   var body = {
@@ -1631,8 +1687,100 @@ function editEventType(){
   }).then((response) => {
     var result = response.result;
     console.log(`${result.updatedCells} cells updated.`);
-    refreshData();
+    // Checking for existing events for updated type
+    // create newCalendarEvents Array
+    var newCalendarEvents =  [];
+    for (var eventIndex = 0; eventIndex < calendarEvents.length; eventIndex++) {
+      var thisEvent = calendarEvents[eventIndex];
+      if(thisEvent.summary == newValues.oldEventTitle){
+        newCalendarEvents.push(thisEvent);
+      }
+    }
+    // check if newCalendarEvents has any items
+    if(newCalendarEvents.length > 0){
+      // Updating alert display
+      alertHeader.innerHTML = "Updating " + newCalendarEvents.length + " events found for " + newValues.oldEventTitle + " event type...";
+      gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: sheetID,
+        range: 'events!A2:C',
+      }).then(function(response) {
+        // Pull event data from sheet
+        var eventsRange = response.result;
+        // check if data was returned
+        if (eventsRange.values.length > 0) {
+          // update first event found
+          updateEventsFromType(newCalendarEvents, 0, eventsRange, newValues);
+        } else {
+          alertElement = appendContent(blockerDiv, 'P');
+          alertElement.innerHTML = 'No data for events found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit#gid=433114330" target="_blank">events sheet</a>. Please contact the developer.';
+        }
+      }, function(response) {
+        appendContent(contentHolder, 'P', 'Error: ' + response.result.error.message);
+      });
+    } else{
+      refreshData();
+    }
   });
+}
+function updateEventsFromType(newCalendarEvents, eventIndex, eventsRange, newValues){
+  var thisEvent = newCalendarEvents[eventIndex];
+  eventID = thisEvent.id;
+    var eventFoundInSheets = false;
+    // loop through data from sheets
+    for (var sheetsIndex = 0; sheetsIndex < eventsRange.values.length; sheetsIndex++) {
+      var eventsRow = eventsRange.values[sheetsIndex];
+      if(eventsRow[0] == eventID){
+        // found event in sheets
+        eventFoundInSheets = true;
+        var eventsRowNumber = sheetsIndex + 2;
+        var eventsRowRange = 'events!A' + eventsRowNumber.toString() + ':C';
+
+        var eventRowValues = [
+          [
+            eventID,
+            newValues.newMaxAttendees,
+            newValues.newCost
+          ],
+        ];
+        var eventRowBody = {
+          values: eventRowValues
+        };
+        gapi.client.sheets.spreadsheets.values.update({
+           spreadsheetId: sheetID,
+           range: eventsRowRange,
+           valueInputOption: valueInputOption,
+           resource: eventRowBody
+        }).then((response) => {
+          console.log('Event ' + eventID + ' updated in sheets.');
+          // setting up data for calendar
+          var newEvent = {
+            'summary': newValues.newEventTitle,
+            'location': newValues.newZoomLink,
+            'description': newValues.newDescription,
+          }
+          var request = gapi.client.calendar.events.patch({
+            'calendarId': calendarID,
+            'eventId': eventID,
+            'resource': newEvent
+          });
+          request.execute(function(event) {
+            console.log('Event ' + eventID + ' updated in calendar.');
+            if(eventIndex == newCalendarEvents.length - 1){
+              refreshData();
+            } else {
+              // update next event found
+              updateEventsFromType(newCalendarEvents, eventIndex + 1, eventsRange, newValues);
+            }
+          }, function(response) {
+            appendContent(alertHeader, 'P', 'Error: ' + response.result.error.message);
+          });
+        });
+      }
+    }
+    if(!eventFoundInSheets){
+      alertElement = appendContent(blockerDiv, 'P');
+      alertElement.innerHTML = 'No data for this event found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit#gid=433114330" target="_blank">events sheet</a>. Please contact the developer.';
+    }
 }
 // Function to update end time from duration
 function calculateEndTime(){
@@ -1747,7 +1895,7 @@ function addNewQuote(e){
   var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-quote-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
+  xButton.addEventListener('click', closeConfirm);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   // add legend
@@ -1769,7 +1917,7 @@ function addNewQuote(e){
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
   var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
   cancelTypeButton.type = 'button';
-  cancelTypeButton.addEventListener('click', removeBlocker);
+  cancelTypeButton.addEventListener('click', closeConfirm);
   var addButton = appendContent(buttonWrapper, 'button', 'Add Quote', 'add-quote-button', 'form-button');
   addButton.type = 'button';
   addButton.setAttribute('quote-index', quoteIndex);
@@ -1813,7 +1961,7 @@ function addEditQuoteFields(element){
   var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-flow-form');
   formWrapper.onkeypress = stopReturnSubmit(formWrapper);
   var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
-  xButton.addEventListener('click', removeBlocker);
+  xButton.addEventListener('click', closeConfirm);
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   // add legend
@@ -1838,7 +1986,7 @@ function addEditQuoteFields(element){
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
   var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
   cancelTypeButton.type = 'button';
-  cancelTypeButton.addEventListener('click', removeBlocker);
+  cancelTypeButton.addEventListener('click', closeConfirm);
   var modifyButton = appendContent(buttonWrapper, 'button', 'Update Quote', 'modify-quote-button', 'form-button');
   modifyButton.type = 'button';
   modifyButton.setAttribute('quote-index', quoteIndex);
