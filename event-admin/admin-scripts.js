@@ -1754,7 +1754,6 @@ function updateEventsFromType(newCalendarEvents, eventIndex, eventsRange, newVal
           console.log('Event ' + eventID + ' updated in sheets.');
           var startDateTime = Date.parse(thisEvent.start.dateTime);
           var newEndDateTime = new Date(startDateTime + (parseInt(newValues.newRunTime)*60000)).toISOString();
-          console.log(newEndDateTime);
 
           // setting up data for calendar
           var newEvent = {
