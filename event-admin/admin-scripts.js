@@ -1752,11 +1752,18 @@ function updateEventsFromType(newCalendarEvents, eventIndex, eventsRange, newVal
            resource: eventRowBody
         }).then((response) => {
           console.log('Event ' + eventID + ' updated in sheets.');
+          var startDateTime = Date.parse(thisEvent.start.dateTime);
+          var newEndDateTime = new Date(startDateTime + (parseInt(newValues.newRunTime)*60000)).toISOString();
+          console.log(newEndDateTime);
+
           // setting up data for calendar
           var newEvent = {
             'summary': newValues.newEventTitle,
             'location': newValues.newZoomLink,
             'description': newValues.newDescription,
+            'end': {
+              'dateTime': newEndDateTime,
+            }
           }
           var request = gapi.client.calendar.events.patch({
             'calendarId': calendarID,
