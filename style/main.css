@@ -138,6 +138,21 @@ strong.large{
 .dark-blue {
   color: #28262B;
 }
+.brown-bg {
+  background-color: #5F2F17;
+}
+.yellow-bg {
+  background-color: #DBD282;
+}
+.white-bg {
+  background-color: white;
+}
+.light-blue-bg {
+  background-color: #9DB2C6;
+}
+.dark-blue-bg {
+  background-color: #28262B;
+}
 .center {
   text-align: center;
 }
@@ -456,6 +471,19 @@ strong.large{
   font-size: 1.3em;
   margin:.5em;
 }
+a.form-button {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  box-shadow: 5px 5px 5px rgba(0,0,0,0.3);
+  cursor: pointer;
+  padding: 12px;
+  border-radius: 5px;
+  border: none;
+  background-color: #28262B;
+  color: white;
+  margin:.5em;
+}
 .form-button > p {
   margin:0;
 }
@@ -539,14 +567,16 @@ div.min-width {
 }
 .tools-box{
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  justify-content:flex-start;
+  align-content: flex-start;
 }
 .tool {
   text-align: center;
   background-color:#28262B;
   color: white;
   width: calc(30% - 2rem);
-  flex: 1 1 30%;
+  flex: 1 1 25%;
   margin: 1rem 1rem;
   border-radius: 15px;
   padding: 0 1rem 1rem 1rem;

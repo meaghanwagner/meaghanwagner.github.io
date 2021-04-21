@@ -588,9 +588,9 @@ function loadEmailSignup(){
     formWrapper.addEventListener('submit', addEmail);
     appendContent(fieldSetWrapper, 'h2', 'Keep in Touch!');
     appendContent(fieldSetWrapper, 'p', 'Join our mailing list and be the first to hear about new workshops, free challenges, and more!');
-    var firstNameLabel = appendContent(fieldSetWrapper, 'label', 'First Name:', '','form-label-fw');
+    var firstNameLabel = appendContent(fieldSetWrapper, 'label', 'Name:', '','form-label-fw');
     firstNameLabel.for = 'first-name-input';
-    var firstNameInput = appendContent(firstNameLabel, 'input', '', 'first-name-input');
+    var firstNameInput = appendContent(firstNameLabel, 'input', '', 'name-input');
     firstNameInput.required = true;
     var emailLabel = appendContent(fieldSetWrapper, 'label', 'Email:', '', 'form-label-fw');
     emailLabel.for = 'email-input';
@@ -609,7 +609,7 @@ function addEmail(e){
   // get data from form
   var emailElement = document.getElementById('email-input');
   emailElement.disabled = true;
-  var nameElement = document.getElementById('first-name-input');
+  var nameElement = document.getElementById('name-input');
   nameElement.disabled = true;
   var confirmButton = document.getElementById('confirm-button');
   // update button text and disable

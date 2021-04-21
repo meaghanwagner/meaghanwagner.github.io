@@ -444,7 +444,7 @@ function listUpcomingEvents() {
 function displayFlowData() {
   gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: sheetID,
-    range: 'flows!A2:O',
+    range: 'flows!A2:R',
   }).then(function(response) {
     var range = response.result;
     if (range.values.length > 0) {
@@ -466,12 +466,13 @@ function displayFlowData() {
       // add flows from sheets data
       for (var sheetIndex = 0; sheetIndex < range.values.length; sheetIndex++) {
         var row = range.values[sheetIndex];
+        var important = (row[3] == 'TRUE');
         var flowsContainer = displayFlowsContainer;
         if(row[4] == 'FALSE'){
           flowsContainer = hiddenFlowsContainer;
         }
         var flowContainer = appendContent(flowsContainer, 'div', '', '', 'tool');
-        if(row[3] == 'TRUE'){
+        if(important){
           flowContainer.classList.add('important');
           flowContainer.classList.add('shiny');
         }
@@ -481,7 +482,28 @@ function displayFlowData() {
         flowLink.setAttribute('onclick', 'addEditFlowFields(this)');
         var flowTitle = appendContent(flowLink, 'h3', row[0], '', 'tool-header');
         var flowDescription = appendContent(flowLink, 'div', '', '', 'tool-description');
-        flowDescription.innerHTML = row[2];
+        flowDescriptionText = row[2];
+        if(flowDescriptionText.includes('[email-input]')){
+          if(important){
+            flowDescriptionText = flowDescriptionText.replace('<p>[email-input]</p>', '<form id="flow-form"><fieldset><label class="form-label-fw">Name:<input id="flow-name-input" class="white-bg"></label><label class="form-label-fw">Email:<input id="flow-email-input" type="email" class="white-bg"></label></div></fieldset></form></div>')
+          } else {
+            flowDescriptionText = flowDescriptionText.replace('<p>[email-input]</p>', '<form id="flow-form"><fieldset><label class="form-label-fw">Name:<input id="flow-name-input"></label><label class="form-label-fw">Email:<input id="flow-email-input" type="email"></label></div></fieldset></form></div>')
+          }
+        }
+        flowDescription.innerHTML = flowDescriptionText;
+
+        if(row[15] == 'file'){
+          var flowForm = document.getElementById('flow-form');
+          if(document.getElementById('flow-form') == null){
+            flowForm = flowLink;
+          }
+          var fileButton = appendContent(flowForm, 'button', '', '', 'form-button');
+          if (!important){
+            fileButton.classList += 'light-blue-button';
+          }
+          fileButton.innerHTML = row[16];
+          fileButton.type = 'button';
+        }
       }
       var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
       var newFlowButton = appendContent(buttonWrapper, 'button', 'Add New Flow', '','form-button');
@@ -511,6 +533,16 @@ function addNewFlowFields(e){
   appendContent(fieldSetWrapper, 'LEGEND', 'Add Flow');
   // add container div
   var contentHolder = appendContent(fieldSetWrapper, 'div', '', 'new-content-holder');
+  // add Category
+  var flowCategoryHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
+  var flowCategoryLabel = appendContent(flowCategoryHolder, 'label', 'Category:');
+  flowCategoryLabel.for = 'flow-category';
+  appendContent(flowCategoryHolder, 'br');
+  var flowCategorySelect = appendContent(flowCategoryHolder, 'select', '', 'flow-category');
+  appendContent(flowCategorySelect, 'option', 'event');
+  appendContent(flowCategorySelect, 'option', 'file');
+  flowCategorySelect.setAttribute('onchange', 'flowCategoryChanged(false)');
+  appendContent(flowCategoryHolder, 'br');
   // add Title
   var flowTitleHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
   var flowTitleLabel = appendContent(flowTitleHolder, 'label', 'Title:');
@@ -519,7 +551,7 @@ function addNewFlowFields(e){
   var eventTypeInput = appendContent(flowTitleHolder, 'input', '', 'flow-title');
   appendContent(flowTitleHolder, 'br');
   // add Event Types select
-  var eventTypesHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
+  var eventTypesHolder = appendContent(contentHolder, 'div', '', '', 'form-item event-holder');
   var eventTypesIncluded = appendContent(eventTypesHolder, 'label', 'Event Types:');
   eventTypesIncluded.for = 'event-types-select';
   appendContent(eventTypesHolder, 'br');
@@ -549,54 +581,71 @@ function addNewFlowFields(e){
   appendContent(linkHolder, 'br');
   var descInput = appendContent(linkHolder, 'textarea', '', 'desc-input', 'rich-text');
   appendContent(linkHolder, 'br');
+  // create div for event fields
+  var eventsHolder = appendContent(fieldSetWrapper, 'div', '', '', 'form-item event-holder');
   // add Sign Up Page Copy holder
-  var signupHolder = appendContent(linkHolder, 'div', '', 'signup-holder');
+  var signupHolder = appendContent(eventsHolder, 'div', '', 'signup-holder');
   // add Payment Page Copy
-  var payementPageCopyLabel = appendContent(linkHolder, 'label', 'Payment Page Copy:');
+  var payementPageCopyLabel = appendContent(eventsHolder, 'label', 'Payment Page Copy:');
   payementPageCopyLabel.for = 'payment-page-copy';
-  appendContent(linkHolder, 'br');
-  var payementPageCopyInput = appendContent(linkHolder, 'textarea', '', 'payment-page-copy', 'rich-text');
-  appendContent(linkHolder, 'br');
+  appendContent(eventsHolder, 'br');
+  var payementPageCopyInput = appendContent(eventsHolder, 'textarea', '', 'payment-page-copy', 'rich-text');
+  appendContent(eventsHolder, 'br');
   // add Thank You Page copy
-  var thankYouPageLabel = appendContent(linkHolder, 'label', 'Thank You Page Copy:');
+  var thankYouPageLabel = appendContent(eventsHolder, 'label', 'Thank You Page Copy:');
   thankYouPageLabel.for = 'thank-you-page-copy';
-  appendContent(linkHolder, 'br');
-  var thankYouPageInput = appendContent(linkHolder, 'textarea', '', 'thank-you-page-copy', 'rich-text');
-  appendContent(linkHolder, 'br');
+  appendContent(eventsHolder, 'br');
+  var thankYouPageInput = appendContent(eventsHolder, 'textarea', '', 'thank-you-page-copy', 'rich-text');
+  appendContent(eventsHolder, 'br');
   // add Cancellation Email
-  var cancellationEmailLabel = appendContent(linkHolder, 'label', 'Cancellation Email Copy:');
+  var cancellationEmailLabel = appendContent(eventsHolder, 'label', 'Cancellation Email Copy:');
   cancellationEmailLabel.for = 'cancellation-copy';
-  appendContent(linkHolder, 'br');
-  var cancellationEmailInput = appendContent(linkHolder, 'textarea', '', 'cancellation-copy', 'rich-text');
-  appendContent(linkHolder, 'br');
+  appendContent(eventsHolder, 'br');
+  var cancellationEmailInput = appendContent(eventsHolder, 'textarea', '', 'cancellation-copy', 'rich-text');
+  appendContent(eventsHolder, 'br');
   // add Confirmation Email Copy
-  var confirmationEmailCopyLabel = appendContent(linkHolder, 'label', 'Confirmation Email Copy:');
+  var confirmationEmailCopyLabel = appendContent(eventsHolder, 'label', 'Confirmation Email Copy:');
   confirmationEmailCopyLabel.for = 'confirmation-email-copy';
-  appendContent(linkHolder, 'br');
-  var confirmationEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'confirmation-email-copy', 'rich-text');
-  appendContent(linkHolder, 'br');
+  appendContent(eventsHolder, 'br');
+  var confirmationEmailCopyInput = appendContent(eventsHolder, 'textarea', '', 'confirmation-email-copy', 'rich-text');
+  appendContent(eventsHolder, 'br');
   // add Reminder Email holder
-  var reminderHolder = appendContent(linkHolder, 'div', '', 'reminder-holder');
+  var reminderHolder = appendContent(eventsHolder, 'div', '', 'reminder-holder');
   // add Follow up Email Copy
-  var followUpEmailCopyLabel = appendContent(linkHolder, 'label', 'Follow up Email Copy:');
+  var followUpEmailCopyLabel = appendContent(eventsHolder, 'label', 'Follow up Email Copy:');
   followUpEmailCopyLabel.for = 'follow-up-email-copy';
-  appendContent(linkHolder, 'br');
-  var followUpEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'follow-up-email-copy', 'rich-text');
-  appendContent(linkHolder, 'br');
+  appendContent(eventsHolder, 'br');
+  var followUpEmailCopyInput = appendContent(eventsHolder, 'textarea', '', 'follow-up-email-copy', 'rich-text');
+  appendContent(eventsHolder, 'br');
   // add Follow up Email CTA
-  var followUpEmailCTALabel = appendContent(linkHolder, 'label', 'Follow up Email CTA:');
+  var followUpEmailCTALabel = appendContent(eventsHolder, 'label', 'Follow up Email CTA:');
   followUpEmailCTALabel.for = 'follow-up-email-cta';
-  appendContent(linkHolder, 'br');
-  var followUpEmailCTAInput = appendContent(linkHolder, 'textarea', '', 'follow-up-email-cta', 'rich-text');
-  appendContent(linkHolder, 'br');
+  appendContent(eventsHolder, 'br');
+  var followUpEmailCTAInput = appendContent(eventsHolder, 'textarea', '', 'follow-up-email-cta', 'rich-text');
+  appendContent(eventsHolder, 'br');
   // add Follow up Email CTA Destination
-  var followUpEmailCTADestLabel = appendContent(linkHolder, 'label', 'Follow up Email CTA Destination:');
+  var followUpEmailCTADestLabel = appendContent(eventsHolder, 'label', 'Follow up Email CTA Destination:');
   followUpEmailCTADestLabel.for = 'follow-up-email-cta-dest';
-  appendContent(linkHolder, 'br');
-  var followUpEmailCTADestInput = appendContent(linkHolder, 'input', '', 'follow-up-email-cta-dest', 'full-width');
-  appendContent(linkHolder, 'br');
+  appendContent(eventsHolder, 'br');
+  var followUpEmailCTADestInput = appendContent(eventsHolder, 'input', '', 'follow-up-email-cta-dest', 'full-width');
+  appendContent(eventsHolder, 'br');
+  // create div for file fields
+  var fileHolder = appendContent(fieldSetWrapper, 'div', '', '', 'form-item file-holder');
+  // add File CTA
+  var fileCTALabel = appendContent(fileHolder, 'label', 'File CTA:');
+  fileCTALabel.for = 'file-cta';
+  appendContent(fileHolder, 'br');
+  var fileCTAInput = appendContent(fileHolder, 'textarea', '', 'file-cta', 'rich-text');
+  appendContent(fileHolder, 'br');
+  // add Follow up Email CTA Destination
+  var fileCTADestLabel = appendContent(fileHolder, 'label', 'Follow up Email CTA Destination:');
+  fileCTADestLabel.for = 'file-cta-dest';
+  appendContent(fileHolder, 'br');
+  var fileCTADestInput = appendContent(fileHolder, 'input', '', 'file-cta-dest', 'full-width');
+  appendContent(fileHolder, 'br');
   // Update event type specific fields
   eventTypesSelectionChanged(false);
+  flowCategoryChanged(false);
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
   var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
   cancelTypeButton.type = 'button';
@@ -620,6 +669,28 @@ function closeConfirm(){
     closeButton.type = 'button';
     closeButton.addEventListener('click', removeBlocker);
   }
+}
+function flowCategoryChanged(populateData=false){
+  var flowCategorySelect = document.getElementById('flow-category');
+  var flowCategoryValue = flowCategorySelect.value;
+  var eventHolders = document.getElementsByClassName('event-holder');
+  var fileHolders = document.getElementsByClassName('file-holder');
+  if(flowCategoryValue == 'event'){
+    for(var eventIndex = 0; eventIndex < eventHolders.length; eventIndex++){
+      eventHolders[eventIndex].style.display = 'block';
+    }
+    for(var fileIndex = 0; fileIndex < fileHolders.length; fileIndex++){
+      fileHolders[fileIndex].style.display = 'none';
+    }
+  } else if(flowCategoryValue == 'file'){
+    for(var eventIndex = 0; eventIndex < eventHolders.length; eventIndex++){
+        eventHolders[eventIndex].style.display = 'none';
+      }
+      for(var fileIndex = 0; fileIndex < fileHolders.length; fileIndex++){
+        fileHolders[fileIndex].style.display = 'block';
+      }
+    }
+
 }
 // Function to update the fields that vary based on eventTypesSelected
 function eventTypesSelectionChanged(populateData=false){
@@ -713,7 +784,10 @@ function addFlow(element){
       JSON.stringify(getRichTextArray('reminder-email-copy')),
       tinyMCE.get('follow-up-email-copy').getContent(),
       tinyMCE.get('follow-up-email-cta').getContent(),
-      document.getElementById('follow-up-email-cta-dest').value
+      document.getElementById('follow-up-email-cta-dest').value,
+      document.getElementById('flow-category').value,
+      tinyMCE.get('file-cta').getContent(),
+      document.getElementById('file-cta-dest').value
     ],
   ];
   var body = {
@@ -753,6 +827,17 @@ function addEditFlowFields(element){
   appendContent(fieldSetWrapper, 'LEGEND', 'Edit Flow');
   // add container div
   var contentHolder = appendContent(fieldSetWrapper, 'div', '', 'new-content-holder');
+  // add Category
+  var flowCategoryHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
+  var flowCategoryLabel = appendContent(flowCategoryHolder, 'label', 'Category:');
+  flowCategoryLabel.for = 'flow-category';
+  appendContent(flowCategoryHolder, 'br');
+  var flowCategorySelect = appendContent(flowCategoryHolder, 'select', '', 'flow-category');
+  appendContent(flowCategorySelect, 'option', 'event');
+  appendContent(flowCategorySelect, 'option', 'file');
+  flowCategorySelect.value = row[15];
+  flowCategorySelect.setAttribute('onchange', 'flowCategoryChanged(false)');
+  appendContent(flowCategoryHolder, 'br');
   // add Title
   var flowTitleHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
   var flowTitleLabel = appendContent(flowTitleHolder, 'label', 'Title:');
@@ -762,7 +847,7 @@ function addEditFlowFields(element){
   eventTypeInput.value = row[0];
   appendContent(flowTitleHolder, 'br');
   // add Event Types select
-  var eventTypesHolder = appendContent(contentHolder, 'div', '', '', 'form-item');
+  var eventTypesHolder = appendContent(contentHolder, 'div', '', '', 'form-item event-holder');
   var eventTypesIncluded = appendContent(eventTypesHolder, 'label', 'Event Types:');
   eventTypesIncluded.for = 'event-types-select';
   appendContent(eventTypesHolder, 'br');
@@ -808,61 +893,80 @@ function addEditFlowFields(element){
   var descInput = appendContent(linkHolder, 'textarea', '', 'desc-input', 'rich-text');
   descInput.value = row[2];
   appendContent(linkHolder, 'br');
+  // create div for event fields
+  var eventsHolder = appendContent(fieldSetWrapper, 'div', '', '', 'form-item event-holder');
   // add Sign Up Page Copy holder
-  var signupHolder = appendContent(linkHolder, 'div', '', 'signup-holder');
+  var signupHolder = appendContent(eventsHolder, 'div', '', 'signup-holder');
   // add Payment Page Copy
-  var payementPageCopyLabel = appendContent(linkHolder, 'label', 'Payment Page Copy:');
+  var payementPageCopyLabel = appendContent(eventsHolder, 'label', 'Payment Page Copy:');
   payementPageCopyLabel.for = 'payment-page-copy';
-  appendContent(linkHolder, 'br');
-  var payementPageCopyInput = appendContent(linkHolder, 'textarea', '', 'payment-page-copy', 'rich-text');
+  appendContent(eventsHolder, 'br');
+  var payementPageCopyInput = appendContent(eventsHolder, 'textarea', '', 'payment-page-copy', 'rich-text');
   payementPageCopyInput.value = row[7];
-  appendContent(linkHolder, 'br');
+  appendContent(eventsHolder, 'br');
   // add Thank You Page copy
-  var thankYouPageLabel = appendContent(linkHolder, 'label', 'Thank You Page Copy:');
+  var thankYouPageLabel = appendContent(eventsHolder, 'label', 'Thank You Page Copy:');
   thankYouPageLabel.for = 'thank-you-page-copy';
-  appendContent(linkHolder, 'br');
-  var thankYouPageInput = appendContent(linkHolder, 'textarea', '', 'thank-you-page-copy', 'rich-text');
+  appendContent(eventsHolder, 'br');
+  var thankYouPageInput = appendContent(eventsHolder, 'textarea', '', 'thank-you-page-copy', 'rich-text');
   thankYouPageInput.value = row[8];
-  appendContent(linkHolder, 'br');
+  appendContent(eventsHolder, 'br');
   // add Cancellation Email
-  var cancellationEmailLabel = appendContent(linkHolder, 'label', 'Cancellation Email Copy:');
+  var cancellationEmailLabel = appendContent(eventsHolder, 'label', 'Cancellation Email Copy:');
   cancellationEmailLabel.for = 'cancellation-copy';
-  appendContent(linkHolder, 'br');
-  var cancellationEmailInput = appendContent(linkHolder, 'textarea', '', 'cancellation-copy', 'rich-text');
+  appendContent(eventsHolder, 'br');
+  var cancellationEmailInput = appendContent(eventsHolder, 'textarea', '', 'cancellation-copy', 'rich-text');
   cancellationEmailInput.value = row[9];
-  appendContent(linkHolder, 'br');
+  appendContent(eventsHolder, 'br');
   // add Confirmation Email Copy
-  var confirmationEmailCopyLabel = appendContent(linkHolder, 'label', 'Confirmation Email Copy:');
+  var confirmationEmailCopyLabel = appendContent(eventsHolder, 'label', 'Confirmation Email Copy:');
   confirmationEmailCopyLabel.for = 'confirmation-email-copy';
-  appendContent(linkHolder, 'br');
-  var confirmationEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'confirmation-email-copy', 'rich-text');
+  appendContent(eventsHolder, 'br');
+  var confirmationEmailCopyInput = appendContent(eventsHolder, 'textarea', '', 'confirmation-email-copy', 'rich-text');
   confirmationEmailCopyInput.value = row[10];
-  appendContent(linkHolder, 'br');
+  appendContent(eventsHolder, 'br');
   // add Reminder Email holder
-  var reminderHolder = appendContent(linkHolder, 'div', '', 'reminder-holder');
+  var reminderHolder = appendContent(eventsHolder, 'div', '', 'reminder-holder');
   // add Follow up Email Copy
-  var followUpEmailCopyLabel = appendContent(linkHolder, 'label', 'Follow up Email Copy:');
+  var followUpEmailCopyLabel = appendContent(eventsHolder, 'label', 'Follow up Email Copy:');
   followUpEmailCopyLabel.for = 'follow-up-email-copy';
-  appendContent(linkHolder, 'br');
-  var followUpEmailCopyInput = appendContent(linkHolder, 'textarea', '', 'follow-up-email-copy', 'rich-text');
+  appendContent(eventsHolder, 'br');
+  var followUpEmailCopyInput = appendContent(eventsHolder, 'textarea', '', 'follow-up-email-copy', 'rich-text');
   followUpEmailCopyInput.value = row[12];
-  appendContent(linkHolder, 'br');
+  appendContent(eventsHolder, 'br');
   // add Follow up Email CTA
-  var followUpEmailCTALabel = appendContent(linkHolder, 'label', 'Follow up Email CTA:');
+  var followUpEmailCTALabel = appendContent(eventsHolder, 'label', 'Follow up Email CTA:');
   followUpEmailCTALabel.for = 'follow-up-email-cta';
-  appendContent(linkHolder, 'br');
-  var followUpEmailCTAInput = appendContent(linkHolder, 'textarea', '', 'follow-up-email-cta', 'rich-text');
+  appendContent(eventsHolder, 'br');
+  var followUpEmailCTAInput = appendContent(eventsHolder, 'textarea', '', 'follow-up-email-cta', 'rich-text');
   followUpEmailCTAInput.value = row[13];
-  appendContent(linkHolder, 'br');
+  appendContent(eventsHolder, 'br');
   // add Follow up Email CTA Destination
-  var followUpEmailCTADestLabel = appendContent(linkHolder, 'label', 'Follow up Email CTA Destination:');
+  var followUpEmailCTADestLabel = appendContent(eventsHolder, 'label', 'Follow up Email CTA Destination:');
   followUpEmailCTADestLabel.for = 'follow-up-email-cta-dest';
-  appendContent(linkHolder, 'br');
-  var followUpEmailCTADestInput = appendContent(linkHolder, 'input', '', 'follow-up-email-cta-dest', 'full-width');
+  appendContent(eventsHolder, 'br');
+  var followUpEmailCTADestInput = appendContent(eventsHolder, 'input', '', 'follow-up-email-cta-dest', 'full-width');
   followUpEmailCTADestInput.value = row[14];
-  appendContent(linkHolder, 'br');
+  appendContent(eventsHolder, 'br');
+  // create div for file fields
+  var fileHolder = appendContent(fieldSetWrapper, 'div', '', '', 'form-item file-holder');
+  // add File CTA
+  var fileCTALabel = appendContent(fileHolder, 'label', 'File CTA:');
+  fileCTALabel.for = 'file-cta';
+  appendContent(fileHolder, 'br');
+  var fileCTAInput = appendContent(fileHolder, 'textarea', '', 'file-cta', 'rich-text');
+  fileCTAInput.value = row[16];
+  appendContent(fileHolder, 'br');
+  // add Follow up Email CTA Destination
+  var fileCTADestLabel = appendContent(fileHolder, 'label', 'Follow up Email CTA Destination:');
+  fileCTADestLabel.for = 'file-cta-dest';
+  appendContent(fileHolder, 'br');
+  var fileCTADestInput = appendContent(fileHolder, 'input', '', 'file-cta-dest', 'full-width');
+  fileCTADestInput.value = row[17];
+  appendContent(fileHolder, 'br');
   // Enable rich text editors
   eventTypesSelectionChanged(true);
+  flowCategoryChanged(false);
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
   var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
   cancelTypeButton.type = 'button';
@@ -893,14 +997,17 @@ function editFlow(element){
       JSON.stringify(getRichTextArray('reminder-email-copy')),
       tinyMCE.get('follow-up-email-copy').getContent(),
       tinyMCE.get('follow-up-email-cta').getContent(),
-      document.getElementById('follow-up-email-cta-dest').value
+      document.getElementById('follow-up-email-cta-dest').value,
+      document.getElementById('flow-category').value,
+      tinyMCE.get('file-cta').getContent(),
+      document.getElementById('file-cta-dest').value
     ],
   ];
   var body = {
     values: values
   };
 
-  var range = 'flows!A' + (parseInt(flowIndex) + 2).toString() + ':O';
+  var range = 'flows!A' + (parseInt(flowIndex) + 2).toString() + ':R';
   var blockerDiv = document.getElementById('blocker');
   blockerDiv.innerHTML = '';
   var alertDiv = appendContent(blockerDiv, 'div', '', 'alert');
