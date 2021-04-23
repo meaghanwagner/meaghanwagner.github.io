@@ -11,6 +11,7 @@ var SCOPES = 'profile email https://www.googleapis.com/auth/spreadsheets https:/
 var sheetID = '1qvA4MoPhvNiN3oZ6R2kquw_i2labIn7QDddxOoNV_7E';
 var calendarID = '50be3j70c5a3rn6t55tii9r4g4@group.calendar.google.com';
 var valueInputOption = 'RAW';
+var callerKey = window.location.href;
 
 var promptElement = document.getElementById('prompt');
 var signInButton = document.getElementById('authorize_button');
@@ -42,8 +43,11 @@ document.onkeydown = function(evt) {
  *  as well as the credentials from php.
  */
 function handleClientLoad() {
+  callData = {
+    "caller": callerKey
+  }
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', 'https://meaghanwagner.com/php/getcreds.php');
+  xhr.open('POST', 'https://meaghanwagner.com/php/getapicreds.php');
   xhr.onload = function() {
     richTextInit();
     if(xhr.responseText.startsWith('0')){
@@ -56,7 +60,7 @@ function handleClientLoad() {
       promptElement.innerHTML = 'Could not sign in, please try again. If the problem persists, please contact the developer.';
     }
   }
-  xhr.send();
+  xhr.send(JSON.stringify(callData));
 }
 // Function to make textareas rich text based on class
 function richTextInit(){
@@ -107,7 +111,9 @@ function initClient() {
     authorizeButton.onclick = handleAuthClick;
     signoutButton.onclick = handleSignoutClick;
   }, function(error) {
-    appendContent(contentElement, 'p', JSON.stringify(error, null, 2));
+    appendContent(signedoutElement, 'p', "There was an error logging in, check the console.");
+    console.log(error)
+
   });
 }
 
@@ -483,6 +489,7 @@ function displayFlowData() {
         var flowTitle = appendContent(flowLink, 'h3', row[0], '', 'tool-header');
         var flowDescription = appendContent(flowLink, 'div', '', '', 'tool-description');
         flowDescriptionText = row[2];
+        // replace email input placeholder in description
         if(flowDescriptionText.includes('[email-input]')){
           if(important){
             flowDescriptionText = flowDescriptionText.replace('<p>[email-input]</p>', '<form id="flow-form"><fieldset><label class="form-label-fw">Name:<input id="flow-name-input" class="white-bg"></label><label class="form-label-fw">Email:<input id="flow-email-input" type="email" class="white-bg"></label></div></fieldset></form></div>')
@@ -491,7 +498,7 @@ function displayFlowData() {
           }
         }
         flowDescription.innerHTML = flowDescriptionText;
-
+        // add download button for file flows
         if(row[15] == 'file'){
           var flowForm = document.getElementById('flow-form');
           if(document.getElementById('flow-form') == null){
@@ -499,7 +506,7 @@ function displayFlowData() {
           }
           var fileButton = appendContent(flowForm, 'button', '', '', 'form-button');
           if (!important){
-            fileButton.classList += 'light-blue-button';
+            fileButton.classList += ' light-blue-bg dark-blue';
           }
           fileButton.innerHTML = row[16];
           fileButton.type = 'button';

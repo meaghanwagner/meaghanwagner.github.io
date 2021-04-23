@@ -605,15 +605,28 @@ function loadEmailSignup(){
 }
 // function to add email to sheets
 function addEmail(e){
-  e.preventDefault();
+  if(e != null){
+    e.preventDefault();
+  }
   // get data from form
   var emailElement = document.getElementById('email-input');
+  if(emailElement == null){
+    emailElement = document.getElementById('flow-email-input');
+  }
   emailElement.disabled = true;
   var nameElement = document.getElementById('name-input');
+  if(nameElement == null){
+    nameElement = document.getElementById('flow-name-input');
+  }
   nameElement.disabled = true;
   var confirmButton = document.getElementById('confirm-button');
+  if(confirmButton == null){
+    confirmButton = document.getElementById('flow-confirm-button');
+    confirmButton.innerHTML = 'Downloading...'
+  } else {
+    confirmButton.innerHTML = 'Signing up...'
+  }
   // update button text and disable
-  confirmButton.innerHTML = 'Signing up...'
   confirmButton.disabled = true;
   // setting up php variables
   var email = emailElement.value;
@@ -626,6 +639,9 @@ function addEmail(e){
     // check if there was an error
     var emailResponse = JSON.parse(emailXHR.responseText);
     if(emailResponse.updates.updatedCells > 0){
+      emailElement.value = "";
+      nameElement.value = "";
+      confirmButton.innerHTML = 'Downloaded!'
       // remove blocker if no error
       removeBlocker();
     } else {
@@ -658,7 +674,7 @@ function loadFlows(){
     for (const key in flowData) {
       var thisFlow = flowData[key];
       // check if the flow should be displayed
-      if(thisFlow.displayOnSite == 'TRUE'){
+      if(thisFlow.displayOnSite == 'TRUE' || thisFlow.flowId == 'download-your-own-may-2021-planner'){
         // append flow to flow box
         var flowContainer = appendContent(flowsBox, 'div', '', '', 'tool');
         // update style if important
@@ -667,13 +683,27 @@ function loadFlows(){
           flowContainer.classList.add('shiny');
         }
         // add link to flow
-        var flowLink = appendContent(flowContainer, 'a');
-        flowLink.setAttribute('onclick', "loadSignUp('" + key + "')");
+        if(thisFlow.flowCategory != 'file'){
+          var flowLink = appendContent(flowContainer, 'a');
+          flowLink.setAttribute('onclick', "loadSignUp('" + key + "')");
+        }else{
+          flowLink = flowContainer;
+        }
         // add title
         var flowTitle = appendContent(flowLink, 'h3', thisFlow.flowName, '', 'tool-header');
         // add description
         var flowDescription = appendContent(flowLink, 'div', '', '', 'tool-description');
         flowDescription.innerHTML = thisFlow.flowDescription;
+        // add button to file flows
+        if(thisFlow.flowCategory == 'file'){
+          var flowForm = document.getElementById(thisFlow.flowId + '-form');
+          flowForm.setAttribute('onsubmit', "openFlowFile('" + thisFlow.fileCTADest + "'); return false;");
+          var fileButton = appendContent(flowForm, 'button', '', 'flow-confirm-button', 'form-button');
+          if (thisFlow.important != 'TRUE'){
+            fileButton.classList += ' light-blue-bg dark-blue';
+          }
+          fileButton.innerHTML = thisFlow.fileCTA;
+        }
       }
     }
     // check if the # in the url has a flow in it
@@ -691,7 +721,7 @@ function buildFlowData(flowArray){
     // build flow object
     var thisFlow = flowArray[flowIndex];
     // create id from name
-    var flowId = thisFlow[0].toLowerCase().replace(/\W/g, '-').replace('--','-').replace(/-$/g, '');
+    var flowId = thisFlow[0].toLowerCase().replace(/\W/g, '-').replaceAll('--','-').replace(/-$/g, '');
     var thisFlowObj = {
       "flowName" : thisFlow[0],
       "eventTypesList" : JSON.parse(thisFlow[1]),
@@ -704,8 +734,20 @@ function buildFlowData(flowArray){
       "thankYouPageCopy" : thisFlow[8],
       "cancellationEmailCopy" : thisFlow[9],
       "confirmationEmailCopy" : thisFlow[10],
+      "flowCategory": thisFlow[15],
+      "fileCTA" : thisFlow[16],
+      "fileCTADest" : thisFlow[17],
       "flowId" : flowId
     }
+    // replace email input placeholder in description
+    if(thisFlowObj.flowDescription.includes('[email-input]')){
+      if(thisFlowObj.important == 'TRUE'){
+        thisFlowObj.flowDescription = thisFlowObj.flowDescription.replace('<p>[email-input]</p>', '<form id="'+thisFlowObj.flowId+'-form" class="flow-form"><fieldset><label class="form-label-fw">Name:<input id="flow-name-input" class="white-bg" required></label><label class="form-label-fw">Email:<input id="flow-email-input" type="email" class="white-bg" required></label></div></fieldset></form></div>')
+      } else {
+        thisFlowObj.flowDescription = thisFlowObj.flowDescription.replace('<p>[email-input]</p>', '<form id="'+thisFlowObj.flowId+'-form" class="flow-form"><fieldset><label class="form-label-fw">Name:<input id="flow-name-input" required></label><label class="form-label-fw">Email:<input id="flow-email-input" type="email"></label></div></fieldset></form></div>')
+      }
+    }
+
     flowData[flowId] = thisFlowObj;
   }
   // save flow holder object to window to access later
@@ -759,53 +801,68 @@ function loadSignUp(flowId, signUpIndex=0) {
   var blockerDiv = addBlocker();
   // add signup form
   var formWrapper = addFormToBlocker('sign-up-form', 'blocker-form');
-  // Check if signup is at the end of the event type list
-  var lastSignupPage = false;
-  if(signUpIndex == (thisFlow.eventTypesList.length -1)){
-    // check if payment page copy is N/A
-    if(thisFlow.paymentPageCopy.includes("N/A")){
-      formWrapper.addEventListener('submit', loadFreeSignup);
-    } else {
-      formWrapper.addEventListener('submit', loadPayment);
-    }
-    lastSignupPage = true;
-  } else {
-    // if not last event type list load next event type
-    formWrapper.setAttribute('onsubmit', "reloadSignUp('" + flowId + "', " + (signUpIndex + 1) + "); return false;");
-  }
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
-  // get signup copy from flow
-  var theSignUpCopy = thisFlow.signUpPageCopyList[thisFlow.eventTypesList[signUpIndex]];
-  // replace event list placeholder
-  if(theSignUpCopy.includes('[event-list]')){
-    theSignUpCopy = theSignUpCopy.replace('[event-list]', '<div id="event-holder"><p>Loading Upcoming Events...</p></div>')
-  } else {
-    // add it if it doesn't exist (shouldn't happen)
-    theSignUpCopy += '<div id="event-holder"><p>Loading Upcoming Events...</p></div>';
-  }
-  // replace attendee input holder
-  if(theSignUpCopy.includes('[attendee-input]')){
-    theSignUpCopy = theSignUpCopy.replace('[attendee-input]', '<div id="input-holder"></div>')
-  }
-  // add copy to page
-  fieldSetWrapper.innerHTML = theSignUpCopy;
-  // add cancel button
-  var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
-  // check if the event data has already been pulled
-  if(isEmpty(eventData)){
-    // get event data from php
-    var eventDataXHR = new XMLHttpRequest();
-    eventDataXHR.open('GET', 'https://meaghanwagner.com/php/echoEventData.php');
-    eventDataXHR.onload = function() {
-      var eventData = JSON.parse(eventDataXHR.responseText);
-      window.eventData = eventData;
+  if(thisFlow.flowCategory == 'file'){
+    formWrapper.setAttribute('onsubmit', "openFlowFile('" + thisFlow.fileCTADest + "'); return false;");
+    titleHolder = appendContent(fieldSetWrapper, 'h2', thisFlow.flowName);
+    descHolder = appendContent(fieldSetWrapper, 'p', '', 'center');
+    descHolder.innerHTML = thisFlow.flowDescription.replaceAll(" class=\"white-bg\"", "");
+    var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
+    var fileButton = appendContent(buttonWrapper, 'button', '', 'flow-confirm-button', 'form-button');
+    fileButton.innerHTML = thisFlow.fileCTA;
+  } else if(thisFlow.flowCategory == "event"){
+    // Check if signup is at the end of the event type list
+    var lastSignupPage = false;
+    if(signUpIndex == (thisFlow.eventTypesList.length -1)){
+      // check if payment page copy is N/A
+      if(thisFlow.paymentPageCopy.includes("N/A")){
+        formWrapper.addEventListener('submit', loadFreeSignup);
+      } else {
+        formWrapper.addEventListener('submit', loadPayment);
+      }
+      lastSignupPage = true;
+    } else {
+      // if not last event type list load next event type
+      formWrapper.setAttribute('onsubmit', "reloadSignUp('" + flowId + "', " + (signUpIndex + 1) + "); return false;");
+    }
+    // get signup copy from flow
+    var theSignUpCopy = thisFlow.signUpPageCopyList[thisFlow.eventTypesList[signUpIndex]];
+    // replace event list placeholder
+    if(theSignUpCopy.includes('[event-list]')){
+      theSignUpCopy = theSignUpCopy.replace('[event-list]', '<div id="event-holder"><p>Loading Upcoming Events...</p></div>')
+    } else {
+      // add it if it doesn't exist (shouldn't happen)
+      theSignUpCopy += '<div id="event-holder"><p>Loading Upcoming Events...</p></div>';
+    }
+    // replace attendee input holder
+    if(theSignUpCopy.includes('[attendee-input]')){
+      theSignUpCopy = theSignUpCopy.replace('[attendee-input]', '<div id="input-holder"></div>')
+    }
+    // add copy to page
+    fieldSetWrapper.innerHTML = theSignUpCopy;
+    // add cancel button
+    var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
+    // check if the event data has already been pulled
+    if(isEmpty(eventData)){
+      // get event data from php
+      var eventDataXHR = new XMLHttpRequest();
+      eventDataXHR.open('GET', 'https://meaghanwagner.com/php/echoEventData.php');
+      eventDataXHR.onload = function() {
+        var eventData = JSON.parse(eventDataXHR.responseText);
+        window.eventData = eventData;
+        loadSignupPage(signUpIndex);
+      }
+      eventDataXHR.send();
+    } else {
+      // don't pull data if it already exists
       loadSignupPage(signUpIndex);
     }
-    eventDataXHR.send();
-  } else {
-    // don't pull data if it already exists
-    loadSignupPage(signUpIndex);
   }
+}
+function openFlowFile(url){
+  event.preventDefault();
+  window.open(url, '_blank');
+  addEmail();
 }
 // function to populate signup page with event data
 function loadSignupPage(signUpIndex){

@@ -123,39 +123,6 @@ strong {
 strong.large{
   font-size: 1.1em;
 }
-.brown {
-  color: #5F2F17;
-}
-.yellow {
-  color: #DBD282;
-}
-.white {
-  color: white;
-}
-.light-blue {
-  color: #9DB2C6;
-}
-.dark-blue {
-  color: #28262B;
-}
-.brown-bg {
-  background-color: #5F2F17;
-}
-.yellow-bg {
-  background-color: #DBD282;
-}
-.white-bg {
-  background-color: white;
-}
-.light-blue-bg {
-  background-color: #9DB2C6;
-}
-.dark-blue-bg {
-  background-color: #28262B;
-}
-.center {
-  text-align: center;
-}
 /*Header stuff*/
 .branding {
   margin: .5rem;
@@ -348,6 +315,9 @@ strong.large{
 }
 .blocker-form {
   margin-top: 9rem;
+}
+.flow-form {
+  background-color: transparent ;
 }
 #email-form {
   max-width: 600px;
@@ -588,12 +558,12 @@ div.min-width {
 }
 .tool:hover{
   box-shadow: 7px 7px 7px rgba(0,0,0,0.5);
-  cursor: pointer;
 }
 .tool > a {
   display: block;
   width: 100%;
   height: 100%;
+  cursor: pointer;
 }
 .important{
   background-color: #9DB2C6;
@@ -752,11 +722,48 @@ div.min-width {
 #calendly-holder > iframe {
   height: calc(100% - 2rem);
 }
+/*overrides*/
+.brown {
+  color: #5F2F17;
+}
+.yellow {
+  color: #DBD282;
+}
+.white {
+  color: white;
+}
+.light-blue {
+  color: #9DB2C6;
+}
+.dark-blue {
+  color: #28262B;
+}
+.brown-bg {
+  background-color: #5F2F17;
+}
+.yellow-bg {
+  background-color: #DBD282;
+}
+.white-bg {
+  background-color: white;
+}
+.light-blue-bg {
+  background-color: #9DB2C6;
+}
+.dark-blue-bg {
+  background-color: #28262B;
+}
+.center {
+  text-align: center;
+}
 
 
 @media only screen and (max-width: 1124px) {
   .about-caption {
     font-size: 2em;
+  }
+  .tool{
+    flex: 1 1 30%;
   }
 }
 @media only screen and (max-width: 960px) {
