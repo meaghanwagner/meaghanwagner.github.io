@@ -806,7 +806,7 @@ function loadSignUp(flowId, signUpIndex=0) {
     formWrapper.setAttribute('onsubmit', "openFlowFile('" + thisFlow.fileCTADest + "'); return false;");
     titleHolder = appendContent(fieldSetWrapper, 'h2', thisFlow.flowName);
     descHolder = appendContent(fieldSetWrapper, 'p', '', 'center');
-    descHolder.innerHTML = thisFlow.flowDescription.replaceAll(" class=\"white-bg\"", "");
+    descHolder.innerHTML = thisFlow.flowDescription.replaceAll(" class=\"white-bg\"", "").replaceAll("flow-email-input", "email-input").replaceAll("flow-name-input", "name-input");
     var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
     var fileButton = appendContent(buttonWrapper, 'button', '', 'flow-confirm-button', 'form-button');
     fileButton.innerHTML = thisFlow.fileCTA;
