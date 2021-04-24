@@ -660,7 +660,7 @@ function loadFlows(){
     for (const key in flowData) {
       var thisFlow = flowData[key];
       // check if the flow should be displayed
-      if(thisFlow.displayOnSite == 'TRUE' || thisFlow.flowId == 'a-better-plan-for-a-better-month'){
+      if(thisFlow.displayOnSite == 'TRUE'){
         // append flow to flow box
         var flowContainer = appendContent(flowsBox, 'div', '', '', 'tool');
         // update style if important
