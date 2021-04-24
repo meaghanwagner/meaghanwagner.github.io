@@ -589,7 +589,7 @@ function loadEmailSignup(){
     appendContent(fieldSetWrapper, 'h2', 'Keep in Touch!');
     appendContent(fieldSetWrapper, 'p', 'Join our mailing list and be the first to hear about new workshops, free challenges, and more!');
     var firstNameLabel = appendContent(fieldSetWrapper, 'label', 'Name:', '','form-label-fw');
-    firstNameLabel.for = 'first-name-input';
+    firstNameLabel.for = 'name-input';
     var firstNameInput = appendContent(firstNameLabel, 'input', '', 'name-input');
     firstNameInput.required = true;
     var emailLabel = appendContent(fieldSetWrapper, 'label', 'Email:', '', 'form-label-fw');
@@ -610,22 +610,11 @@ function addEmail(e){
   }
   // get data from form
   var emailElement = document.getElementById('email-input');
-  if(emailElement == null){
-    emailElement = document.getElementById('flow-email-input');
-  }
   emailElement.disabled = true;
   var nameElement = document.getElementById('name-input');
-  if(nameElement == null){
-    nameElement = document.getElementById('flow-name-input');
-  }
   nameElement.disabled = true;
   var confirmButton = document.getElementById('confirm-button');
-  if(confirmButton == null){
-    confirmButton = document.getElementById('flow-confirm-button');
-    confirmButton.innerHTML = 'Downloading...'
-  } else {
-    confirmButton.innerHTML = 'Signing up...'
-  }
+  confirmButton.innerHTML = 'Signing up...'
   // update button text and disable
   confirmButton.disabled = true;
   // setting up php variables
@@ -639,9 +628,6 @@ function addEmail(e){
     // check if there was an error
     var emailResponse = JSON.parse(emailXHR.responseText);
     if(emailResponse.updates.updatedCells > 0){
-      emailElement.value = "";
-      nameElement.value = "";
-      confirmButton.innerHTML = 'Downloaded!'
       // remove blocker if no error
       removeBlocker();
     } else {
@@ -674,7 +660,7 @@ function loadFlows(){
     for (const key in flowData) {
       var thisFlow = flowData[key];
       // check if the flow should be displayed
-      if(thisFlow.displayOnSite == 'TRUE' || thisFlow.flowId == 'download-your-own-may-2021-planner'){
+      if(thisFlow.displayOnSite == 'TRUE' || thisFlow.flowId == 'a-better-plan-for-a-better-month'){
         // append flow to flow box
         var flowContainer = appendContent(flowsBox, 'div', '', '', 'tool');
         // update style if important
@@ -697,7 +683,7 @@ function loadFlows(){
         // add button to file flows
         if(thisFlow.flowCategory == 'file'){
           var flowForm = document.getElementById(thisFlow.flowId + '-form');
-          flowForm.setAttribute('onsubmit', "openFlowFile('" + thisFlow.fileCTADest + "'); return false;");
+          flowForm.setAttribute('onsubmit', "openFlowFile('" + thisFlow.flowId + "'); return false;");
           var fileButton = appendContent(flowForm, 'button', '', 'flow-confirm-button', 'form-button');
           if (thisFlow.important != 'TRUE'){
             fileButton.classList += ' light-blue-bg dark-blue';
@@ -742,9 +728,9 @@ function buildFlowData(flowArray){
     // replace email input placeholder in description
     if(thisFlowObj.flowDescription.includes('[email-input]')){
       if(thisFlowObj.important == 'TRUE'){
-        thisFlowObj.flowDescription = thisFlowObj.flowDescription.replace('<p>[email-input]</p>', '<form id="'+thisFlowObj.flowId+'-form" class="flow-form"><fieldset><label class="form-label-fw">Name:<input id="flow-name-input" class="white-bg" required></label><label class="form-label-fw">Email:<input id="flow-email-input" type="email" class="white-bg" required></label></div></fieldset></form></div>')
+        thisFlowObj.flowDescription = thisFlowObj.flowDescription.replace('<p>[email-input]</p>', '<form id="' + thisFlowObj.flowId + '-form" class="flow-form"><fieldset><label class="form-label-fw">Name:<input id="' + thisFlowObj.flowId + '-name-input" class="white-bg" required></label><label class="form-label-fw">Email:<input id="' + thisFlowObj.flowId + '-email-input" type="email" class="white-bg" required></label></div></fieldset></form></div>')
       } else {
-        thisFlowObj.flowDescription = thisFlowObj.flowDescription.replace('<p>[email-input]</p>', '<form id="'+thisFlowObj.flowId+'-form" class="flow-form"><fieldset><label class="form-label-fw">Name:<input id="flow-name-input" required></label><label class="form-label-fw">Email:<input id="flow-email-input" type="email"></label></div></fieldset></form></div>')
+        thisFlowObj.flowDescription = thisFlowObj.flowDescription.replace('<p>[email-input]</p>', '<form id="' + thisFlowObj.flowId + '-form" class="flow-form"><fieldset><label class="form-label-fw">Name:<input id="' + thisFlowObj.flowId + '-name-input" required></label><label class="form-label-fw">Email:<input id="' + thisFlowObj.flowId + '-email-input" type="email"></label></div></fieldset></form></div>')
       }
     }
 
@@ -803,12 +789,12 @@ function loadSignUp(flowId, signUpIndex=0) {
   var formWrapper = addFormToBlocker('sign-up-form', 'blocker-form');
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   if(thisFlow.flowCategory == 'file'){
-    formWrapper.setAttribute('onsubmit', "openFlowFile('" + thisFlow.fileCTADest + "'); return false;");
+    formWrapper.setAttribute('onsubmit', "openFlowFile('" + thisFlow.flowId + "-popup'); return false;");
     titleHolder = appendContent(fieldSetWrapper, 'h2', thisFlow.flowName);
     descHolder = appendContent(fieldSetWrapper, 'p', '', 'center');
-    descHolder.innerHTML = thisFlow.flowDescription.replaceAll(" class=\"white-bg\"", "").replaceAll("flow-email-input", "email-input").replaceAll("flow-name-input", "name-input");
+    descHolder.innerHTML = thisFlow.flowDescription.replaceAll(" class=\"white-bg\"", "").replaceAll(thisFlow.flowId, thisFlow.flowId + "-popup");
     var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
-    var fileButton = appendContent(buttonWrapper, 'button', '', 'flow-confirm-button', 'form-button');
+    var fileButton = appendContent(buttonWrapper, 'button', '', thisFlow.flowId + '-popup-confirm-button', 'form-button');
     fileButton.innerHTML = thisFlow.fileCTA;
   } else if(thisFlow.flowCategory == "event"){
     // Check if signup is at the end of the event type list
@@ -859,10 +845,50 @@ function loadSignUp(flowId, signUpIndex=0) {
     }
   }
 }
-function openFlowFile(url){
+function openFlowFile(flowId){
+
   event.preventDefault();
-  window.open(url, '_blank');
-  addEmail();
+  var thisform = event.currentTarget;
+  thisFlow = flowData[flowId.replaceAll("-popup", "")];
+  window.open(thisFlow.fileCTADest, '_blank');
+  var emailElement = document.getElementById(flowId + '-email-input');
+  if(emailElement != null){
+    emailElement.disabled = true;
+    var nameElement = document.getElementById(flowId + '-name-input');
+    nameElement.disabled = true;
+    var confirmButton = document.getElementById(flowId + '-confirm-button');
+    confirmButton.innerHTML = 'Downloading...'
+    // update button text and disable
+    confirmButton.disabled = true;
+    // setting up php variables
+    var email = emailElement.value;
+    var firstName = nameElement.value;
+    // send data
+    var emailXHR = new XMLHttpRequest();
+    emailXHR.open('POST', 'https://meaghanwagner.com/php/addemail.php');
+    emailXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    emailXHR.onload = function() {
+      // check if there was an error
+      var emailResponse = JSON.parse(emailXHR.responseText);
+      if(emailResponse.updates.updatedCells > 0){
+        thisform.setAttribute('onsubmit', "openFlowFileAgain('" + thisFlow.flowId + "'); return false;");
+        emailElement.disabled = false;
+        nameElement.disabled = false;
+        confirmButton.innerHTML = 'Download Again'
+        confirmButton.disabled = false;
+      } else {
+        // send error to console for debugging
+        console.error(emailXHR.responseText);
+      }
+    }
+    emailXHR.send('email_address=' + email + '&first_name=' + firstName);
+  }
+}
+function openFlowFileAgain(flowId){
+  event.preventDefault();
+  var thisform = event.currentTarget;
+  thisFlow = flowData[flowId];
+  window.open(thisFlow.fileCTADest, '_blank');
 }
 // function to populate signup page with event data
 function loadSignupPage(signUpIndex){
