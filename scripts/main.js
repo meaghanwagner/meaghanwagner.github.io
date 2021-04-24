@@ -684,7 +684,7 @@ function loadFlows(){
         if(thisFlow.flowCategory == 'file'){
           var flowForm = document.getElementById(thisFlow.flowId + '-form');
           flowForm.setAttribute('onsubmit', "openFlowFile('" + thisFlow.flowId + "'); return false;");
-          var fileButton = appendContent(flowForm, 'button', '', 'flow-confirm-button', 'form-button');
+          var fileButton = appendContent(flowForm, 'button', '', thisFlow.flowId + '-confirm-button', 'form-button');
           if (thisFlow.important != 'TRUE'){
             fileButton.classList += ' light-blue-bg dark-blue';
           }
