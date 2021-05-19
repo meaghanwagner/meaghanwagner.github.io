@@ -657,43 +657,45 @@ function loadFlows(){
     // get holder for flows
     flowsBox = document.getElementById('flow-box');
     // loop through flows
-    for (const key in flowData) {
-      var thisFlow = flowData[key];
-      // check if the flow should be displayed
-      if(thisFlow.displayOnSite == 'TRUE'){
-        // append flow to flow box
-        var flowContainer = appendContent(flowsBox, 'div', '', '', 'tool');
-        // update style if important
-        if(thisFlow.important == 'TRUE'){
-          flowContainer.classList.add('important');
-          flowContainer.classList.add('shiny');
-        }
-        // add link to flow
-        if(thisFlow.flowCategory != 'file'){
-          var flowLink = appendContent(flowContainer, 'a');
-          flowLink.setAttribute('onclick', "loadSignUp('" + key + "')");
-        }else{
-          flowLink = flowContainer;
-        }
-        // add title
-        var flowTitle = appendContent(flowLink, 'h3', thisFlow.flowName, '', 'tool-header');
-        // add description
-        var flowDescription = appendContent(flowLink, 'div', '', '', 'tool-description');
-        flowDescription.innerHTML = thisFlow.flowDescription;
-        // add button to file flows
-        if(thisFlow.flowCategory == 'file'){
-          var flowForm = document.getElementById(thisFlow.flowId + '-form');
-          flowForm.setAttribute('onsubmit', "openFlowFile('" + thisFlow.flowId + "'); return false;");
-          var fileButton = appendContent(flowForm, 'button', '', thisFlow.flowId + '-confirm-button', 'form-button');
-          if (thisFlow.important != 'TRUE'){
-            fileButton.classList += ' light-blue-bg dark-blue';
+    if(flowsBox != null){
+      for (const key in flowData) {
+        var thisFlow = flowData[key];
+        // check if the flow should be displayed
+        if(thisFlow.displayOnSite == 'TRUE'){
+          // append flow to flow box
+          var flowContainer = appendContent(flowsBox, 'div', '', '', 'tool');
+          // update style if important
+          if(thisFlow.important == 'TRUE'){
+            flowContainer.classList.add('important');
+            flowContainer.classList.add('shiny');
           }
-          fileButton.innerHTML = thisFlow.fileCTA;
+          // add link to flow
+          if(thisFlow.flowCategory != 'file'){
+            var flowLink = appendContent(flowContainer, 'a');
+            flowLink.setAttribute('onclick', "loadSignUp('" + key + "')");
+          }else{
+            flowLink = flowContainer;
+          }
+          // add title
+          var flowTitle = appendContent(flowLink, 'h3', thisFlow.flowName, '', 'tool-header');
+          // add description
+          var flowDescription = appendContent(flowLink, 'div', '', '', 'tool-description');
+          flowDescription.innerHTML = thisFlow.flowDescription;
+          // add button to file flows
+          if(thisFlow.flowCategory == 'file'){
+            var flowForm = document.getElementById(thisFlow.flowId + '-form');
+            flowForm.setAttribute('onsubmit', "openFlowFile('" + thisFlow.flowId + "'); return false;");
+            var fileButton = appendContent(flowForm, 'button', '', thisFlow.flowId + '-confirm-button', 'form-button');
+            if (thisFlow.important != 'TRUE'){
+              fileButton.classList += ' light-blue-bg dark-blue';
+            }
+            fileButton.innerHTML = thisFlow.fileCTA;
+          }
         }
       }
+      // check if the # in the url has a flow in it
+      checkHash();
     }
-    // check if the # in the url has a flow in it
-    checkHash();
   }
   flowDataXHR.send();
 }
