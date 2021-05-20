@@ -888,7 +888,7 @@ function addEditFlowFields(element){
   flowLinkLabel.for = 'flow-link';
   appendContent(linkHolder, 'br');
   var flowLinkTag = appendContent(linkHolder, 'a', '', 'flow-link');
-  var flowId = row[0].toLowerCase().replace(/\W/g, '-').replace('--','-').replace(/-$/g, '');
+  var flowId = row[0].toLowerCase().replace(/\W/g, '-').replaceAll('--','-').replace(/-$/g, '');
   flowLinkTag.innerHTML = "meaghanwagner.com#" + flowId;
   flowLinkTag.href = "https://meaghanwagner.com#" + flowId;
   flowLinkTag.target = '_blank';
