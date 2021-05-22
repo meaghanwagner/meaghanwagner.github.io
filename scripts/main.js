@@ -317,12 +317,9 @@ function submitRescheduledData(){
       }
       // call confirmation php if event changed
       if(sendConfirmation){
-        // add confirmation copy
-        emailData.flow.confirmationEmailCopy = attendeeData.flow.confirmationEmailCopy;
-
         // send confirmation email
         var confirmationXHR = new XMLHttpRequest();
-        confirmationXHR.open('POST', 'https://meaghanwagner.com/php/sendconfirmationemail.php');
+        confirmationXHR.open('POST', 'https://meaghanwagner.com/php/send_confirmation_email.php');
         confirmationXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
         confirmationXHR.onload = function() {
           if(confirmationXHR.responseText != 'confirmation email sent'){
@@ -1219,7 +1216,6 @@ function showThankYouPage() {
     flow: {
       flowName: signupData.flow.flowName,
       flowId: signupData.flow.flowId,
-      confirmationEmailCopy: signupData.flow.confirmationEmailCopy
     },
     events: {}
   }
@@ -1231,7 +1227,7 @@ function showThankYouPage() {
   }
   // send confirmation email
   var confirmationXHR = new XMLHttpRequest();
-  confirmationXHR.open('POST', 'https://meaghanwagner.com/php/sendconfirmationemail.php');
+  confirmationXHR.open('POST', 'https://meaghanwagner.com/php/send_confirmation_email.php');
   confirmationXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   confirmationXHR.onload = function() {
     if(confirmationXHR.responseText != 'confirmation email sent'){
