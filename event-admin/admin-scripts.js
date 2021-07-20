@@ -514,7 +514,7 @@ function displayFlowData() {
       }
       var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
       var newFlowButton = appendContent(buttonWrapper, 'button', 'Add New Flow', '','form-button');
-      displayQuotes();
+      displayLogos();
     } else {
       alertElement = appendContent(contentElement, 'P')
       alertElement.innerHTML = 'No data found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit" target="_blank">event-types sheet</a>.';
@@ -1952,6 +1952,181 @@ function timeFromDate12(date){
 function timeFromDate24(date){
   return date.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
 }
+
+// Function to display logos
+function displayLogos(){
+  gapi.client.sheets.spreadsheets.values.get({
+    spreadsheetId: sheetID,
+    range: 'logos!A2:B',
+  }).then(function(response) {
+    var range = response.result;
+    if (range.values.length > 0) {
+      window.logoSheetsValues = range.values;
+      // add form
+      var formWrapper = appendContent(contentElement, 'FORM', '', 'logos-form');
+      formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+      formWrapper.addEventListener('submit', addNewLogo);
+      // add fieldset
+      var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
+      // add legend
+      appendContent(fieldSetWrapper, 'LEGEND', 'Featured In:');
+      // add logos div
+      logosContainer = appendContent(fieldSetWrapper, 'div', '' , '', 'logos-container');
+      // add logos from sheets data
+      for (var sheetIndex = 0; sheetIndex < range.values.length; sheetIndex++) {
+        var row = range.values[sheetIndex];
+        var editLogoLink = appendContent(logosContainer, 'a', '', '', 'logo-link');
+        editLogoLink.setAttribute('logo-index', sheetIndex);
+        editLogoLink.setAttribute('onclick', 'addEditlogoFields(this)');
+        var logoImage = appendContent(editLogoLink, 'img', '', '', 'logo-image');
+        logoImage.setAttribute('src', row[0]);
+      }
+      // add button
+      var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
+      var newFlowButton = appendContent(buttonWrapper, 'button', 'Add New Logo', '','form-button');
+      displayQuotes();
+    } else {
+      alertElement = appendContent(contentElement, 'P')
+      alertElement.innerHTML = 'No data found in <a href="https://docs.google.com/spreadsheets/d/' + sheetID + '/edit" target="_blank">event-types sheet</a>.';
+    }
+  }, function(response) {
+    appendContent(contentElement, 'P', 'Error: ' + response.result.error.message);
+  });
+}
+
+function addNewLogo(e){
+  e.preventDefault();
+  var logoIndex = logoSheetsValues.length;
+  // add blocker to prevent accidentally clicking other buttons
+  var blockerDiv = addBlocker();
+  // add form
+  var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-logo-form');
+  formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
+  xButton.addEventListener('click', closeConfirm);
+  // add fieldset
+  var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
+  // add legend
+  appendContent(fieldSetWrapper, 'LEGEND', 'Add Logo');
+  var itemHolder = appendContent(fieldSetWrapper, 'div', '', '', 'form-item');
+  // add logo url
+  var logoImageLabel = appendContent(itemHolder, 'label', 'Logo Image URL:');
+  logoImageLabel.for = 'logo-img-input';
+  appendContent(itemHolder, 'br');
+  var logoImageInput = appendContent(itemHolder, 'textarea', '', 'logo-img-input', 'full-width');
+  appendContent(itemHolder, 'br');
+  // add logo link
+  var logoLinkLabel = appendContent(itemHolder, 'label', 'Logo Link URL:');
+  logoLinkLabel.for = 'logo-link-input';
+  appendContent(itemHolder, 'br');
+  var logoLinkInput = appendContent(itemHolder, 'input', '', 'logo-link-input', 'full-width');
+  appendContent(itemHolder, 'br');
+  // Update event type specific fields
+  var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
+  var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
+  cancelTypeButton.type = 'button';
+  cancelTypeButton.addEventListener('click', closeConfirm);
+  var addButton = appendContent(buttonWrapper, 'button', 'Add Logo', 'add-logo-button', 'form-button');
+  addButton.type = 'button';
+  addButton.setAttribute('logo-index', logoIndex);
+  addButton.setAttribute('onclick', 'addLogo(this)');
+}
+function addLogo(element){
+  var logoIndex = element.getAttribute('logo-index');
+  var values = [
+    [
+      document.getElementById('logo-img-input').value,
+      document.getElementById('logo-link-input').value
+    ],
+  ];
+  var body = {
+    values: values
+  };
+  var blockerDiv = document.getElementById('blocker');
+  blockerDiv.innerHTML = '';
+  var alertDiv = appendContent(blockerDiv, 'div', '', 'alert');
+  var alertHeader = appendContent(alertDiv, 'h2', 'Adding Logo...','alert-header');
+  gapi.client.sheets.spreadsheets.values.append({
+     spreadsheetId: sheetID,
+     range: 'logos',
+     valueInputOption: valueInputOption,
+     resource: body
+  }).then((response) => {
+    var result = response.result;
+    console.log(`${result.updatedCells} cells updated.`);
+    refreshData();
+  });
+}
+function addEditlogoFields(element){
+  var logoIndex = element.getAttribute('logo-index');
+  var row = logoSheetsValues[logoIndex]
+
+  // add blocker to prevent accidentally clicking other buttons
+  var blockerDiv = addBlocker();
+  // add form
+  var formWrapper = appendContent(blockerDiv, 'FORM' ,'', 'new-logo-form');
+  formWrapper.onkeypress = stopReturnSubmit(formWrapper);
+  var xButton = appendContent(formWrapper, 'a', 'x', 'x-button');
+  xButton.addEventListener('click', closeConfirm);
+  // add fieldset
+  var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
+  // add legend
+  appendContent(fieldSetWrapper, 'LEGEND', 'Edit Logo');
+  // add container div
+  var contentHolder = appendContent(fieldSetWrapper, 'div', '', 'new-content-holder');
+  var itemHolder = appendContent(fieldSetWrapper, 'div', '', '', 'form-item');
+  // add logo body
+  var logoImageLabel = appendContent(itemHolder, 'label', 'Logo Image URL:');
+  logoImageLabel.for = 'logo-img-input';
+  appendContent(itemHolder, 'br');
+  var logoImageInput = appendContent(itemHolder, 'textarea', '', 'logo-img-input', 'full-width');
+  logoImageInput.value = row[0];
+  appendContent(itemHolder, 'br');
+  // add logo link
+  var logoLinkLabel = appendContent(itemHolder, 'label', 'Logo Link URL:');
+  logoLinkLabel.for = 'logo-link-input';
+  appendContent(itemHolder, 'br');
+  var logoLinkInput = appendContent(itemHolder, 'input', '', 'logo-link-input', 'full-width');
+  logoLinkInput.value = row[1];
+  appendContent(itemHolder, 'br');
+  var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
+  var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
+  cancelTypeButton.type = 'button';
+  cancelTypeButton.addEventListener('click', closeConfirm);
+  var modifyButton = appendContent(buttonWrapper, 'button', 'Update Logo', 'modify-logo-button', 'form-button');
+  modifyButton.type = 'button';
+  modifyButton.setAttribute('logo-index', logoIndex);
+  modifyButton.setAttribute('onclick', 'editLogo(this)');
+}
+function editLogo(element){
+  var logoIndex = element.getAttribute('logo-index');
+  var values = [
+    [
+      document.getElementById('logo-img-input').value,
+      document.getElementById('logo-link-input').value
+    ],
+  ];
+  var body = {
+    values: values
+  };
+  var range = 'logos!A' + (parseInt(logoIndex) + 2).toString() + ':B';
+  var blockerDiv = document.getElementById('blocker');
+  blockerDiv.innerHTML = '';
+  var alertDiv = appendContent(blockerDiv, 'div', '', 'alert');
+  var alertHeader = appendContent(alertDiv, 'h2', 'Updating Logo...','alert-header');
+  gapi.client.sheets.spreadsheets.values.update({
+     spreadsheetId: sheetID,
+     range: range,
+     valueInputOption: valueInputOption,
+     resource: body
+  }).then((response) => {
+    var result = response.result;
+    console.log(`${result.updatedCells} cells updated.`);
+    refreshData();
+  });
+}
+
+// function to display quotes
 function displayQuotes() {
   gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: sheetID,
@@ -1980,7 +2155,7 @@ function displayQuotes() {
       nextButton.setAttribute('onclick', 'plusSlides(1)');
       // add dot container
       var dotContainer = appendContent(slideshowContainer, 'div', '', '', 'dot-container');
-      // add flows from sheets data
+      // add quotes from sheets data
       for (var sheetIndex = 0; sheetIndex < range.values.length; sheetIndex++) {
         var row = range.values[sheetIndex];
         var quoteHolder = appendContent(slideHolder, 'div', '', '', 'mySlides');
@@ -2020,19 +2195,19 @@ function addNewQuote(e){
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   // add legend
   appendContent(fieldSetWrapper, 'LEGEND', 'Add Quote');
-  var linkHolder = appendContent(fieldSetWrapper, 'div', '', '', 'form-item');
+  var itemHolder = appendContent(fieldSetWrapper, 'div', '', '', 'form-item');
   // add quote body
-  var quoteLabel = appendContent(linkHolder, 'label', 'Quote:');
+  var quoteLabel = appendContent(itemHolder, 'label', 'Quote:');
   quoteLabel.for = 'quote-input';
-  appendContent(linkHolder, 'br');
-  var quoteInput = appendContent(linkHolder, 'textarea', '', 'quote-input', 'full-width');
-  appendContent(linkHolder, 'br');
+  appendContent(itemHolder, 'br');
+  var quoteInput = appendContent(itemHolder, 'textarea', '', 'quote-input', 'full-width');
+  appendContent(itemHolder, 'br');
   // add quote by
-  var quoteByLabel = appendContent(linkHolder, 'label', 'Quote By:');
+  var quoteByLabel = appendContent(itemHolder, 'label', 'Quote By:');
   quoteByLabel.for = 'quote-by-input';
-  appendContent(linkHolder, 'br');
-  var quoteByInput = appendContent(linkHolder, 'input', '', 'quote-by-input', 'full-width');
-  appendContent(linkHolder, 'br');
+  appendContent(itemHolder, 'br');
+  var quoteByInput = appendContent(itemHolder, 'input', '', 'quote-by-input', 'full-width');
+  appendContent(itemHolder, 'br');
   // Update event type specific fields
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
   var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
@@ -2044,7 +2219,7 @@ function addNewQuote(e){
   addButton.setAttribute('onclick', 'addQuote(this)');
 }
 function addQuote(element){
-  var quoteIndex = element.getAttribute('flow-index');
+  var quoteIndex = element.getAttribute('quote-index');
   var values = [
     [
       document.getElementById('quote-input').value,
@@ -2085,24 +2260,24 @@ function addEditQuoteFields(element){
   // add fieldset
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   // add legend
-  appendContent(fieldSetWrapper, 'LEGEND', 'Edit Flow');
+  appendContent(fieldSetWrapper, 'LEGEND', 'Edit Quote');
   // add container div
   var contentHolder = appendContent(fieldSetWrapper, 'div', '', 'new-content-holder');
-  var linkHolder = appendContent(fieldSetWrapper, 'div', '', '', 'form-item');
+  var itemHolder = appendContent(fieldSetWrapper, 'div', '', '', 'form-item');
   // add quote body
-  var quoteLabel = appendContent(linkHolder, 'label', 'Quote:');
+  var quoteLabel = appendContent(itemHolder, 'label', 'Quote:');
   quoteLabel.for = 'quote-input';
-  appendContent(linkHolder, 'br');
-  var quoteInput = appendContent(linkHolder, 'textarea', '', 'quote-input', 'full-width');
+  appendContent(itemHolder, 'br');
+  var quoteInput = appendContent(itemHolder, 'textarea', '', 'quote-input', 'full-width');
   quoteInput.value = row[0];
-  appendContent(linkHolder, 'br');
+  appendContent(itemHolder, 'br');
   // add quote by
-  var quoteByLabel = appendContent(linkHolder, 'label', 'Quote By:');
+  var quoteByLabel = appendContent(itemHolder, 'label', 'Quote By:');
   quoteByLabel.for = 'quote-by-input';
-  appendContent(linkHolder, 'br');
-  var quoteByInput = appendContent(linkHolder, 'input', '', 'quote-by-input', 'full-width');
+  appendContent(itemHolder, 'br');
+  var quoteByInput = appendContent(itemHolder, 'input', '', 'quote-by-input', 'full-width');
   quoteByInput.value = row[1];
-  appendContent(linkHolder, 'br');
+  appendContent(itemHolder, 'br');
   var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
   var cancelTypeButton = appendContent(buttonWrapper, 'button', 'Cancel', 'cancel-button', 'form-button');
   cancelTypeButton.type = 'button';

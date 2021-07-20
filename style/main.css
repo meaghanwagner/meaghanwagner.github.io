@@ -632,6 +632,18 @@ div.min-width {
   font-size: 1.5rem;
   line-height: 1.2;
 }
+.logos-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-around;
+}
+.logo-link{
+  cursor: pointer;
+  min-width: 18%;
+  max-width: 23%;
+  margin: 1%;
+}
 .motto {
   font-family: 'Montserrat', sans-serif;
   font-size: 1.5rem;
