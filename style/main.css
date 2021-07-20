@@ -250,6 +250,12 @@ strong.large{
 .pad-5 {
   padding:5vh 1.5rem;
 }
+.pad-2 {
+  padding:2vh 1.5rem;
+}
+.pad-1 {
+  padding:1vh 1.5rem;
+}
 .wrapper{
   width: 100%;
   max-width: 1180px;
@@ -644,6 +650,9 @@ div.min-width {
   max-width: 23%;
   margin: 1%;
 }
+.logo-link > img {
+  width: 100%;
+}
 .motto {
   font-family: 'Montserrat', sans-serif;
   font-size: 1.5rem;
@@ -882,4 +891,12 @@ div.min-width {
   #email-form {
     width: calc(100%-20px);
   }
+  .logos-container {
+    display: block;
+  }
+  .logo-link{
+    cursor: pointer;
+    width: 98%;
+  }
+
 }

@@ -1320,6 +1320,36 @@ function isEmpty(obj) {
   }
   return JSON.stringify(obj) === JSON.stringify({});
 }
+/* Display Logos */
+function displayLogos(){
+  var logosXHR = new XMLHttpRequest();
+  logosXHR.open('GET', 'https://meaghanwagner.com/php/echoQuoteData.php');
+  logosXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  logosXHR.onload = function() {
+    var logosData = JSON.parse(logosXHR.responseText).values;
+    var logosCount = Object.keys(logosData).length;
+    // check if there are logos to populate the carousel
+    if(logosCount > 0){
+      slideHolder = document.getElementById('slide-holder');
+      slideHolder.innerHTML = '';
+      dotContainer = document.getElementsByClassName('dot-container')[0];
+      dotContainer.innerHTML = '';
+
+      for(var logoIndex = 0; logoIndex < logosCount; logoIndex++){
+        var row = logosData[logoIndex];
+        var logoLink = appendContent(logosContainer, 'a', '', '', 'logo-link');
+        logoLink.setAttribute('href', row[1]);
+        var logoImage = appendContent(editLogoLink, 'img', '', '', 'logo-image');
+        logoImage.setAttribute('src', row[0]);
+      }
+    } else {
+      // nothing to show
+      console.log("No logos to display from sheets. Leaving defaults.")
+    }
+  }
+  logosXHR.send();
+
+}
 
 /* Quotes carousel */
 var slideIndex = 1;
