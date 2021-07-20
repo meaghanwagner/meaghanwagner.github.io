@@ -340,7 +340,7 @@ strong.large{
   justify-content: center;
   margin: 5px;
 }
-#name-holder {
+#name-holder, .name-holder {
   display:flex;
   justify-content: center;
 }

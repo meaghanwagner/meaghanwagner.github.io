@@ -585,10 +585,15 @@ function loadEmailSignup(){
     formWrapper.addEventListener('submit', addEmail);
     appendContent(fieldSetWrapper, 'h2', 'Keep in Touch!');
     appendContent(fieldSetWrapper, 'p', 'Join our mailing list and be the first to hear about new workshops, free challenges, and more!');
-    var firstNameLabel = appendContent(fieldSetWrapper, 'label', 'Name:', '','form-label-fw');
+    var nameHolder = appendContent(fieldSetWrapper, 'div', '', 'name-holder')
+    var firstNameLabel = appendContent(nameHolder, 'label', 'First Name:', '','form-label');
     firstNameLabel.for = 'name-input';
-    var firstNameInput = appendContent(firstNameLabel, 'input', '', 'name-input');
+    var firstNameInput = appendContent(firstNameLabel, 'input', '', 'first-name-input', 'name-input');
     firstNameInput.required = true;
+    var lastNameLabel = appendContent(nameHolder, 'label', 'Last Name:', '','form-label');
+    lastNameLabel.for = 'name-input';
+    var lastNameInput = appendContent(lastNameLabel, 'input', '', 'last-name-input', 'name-input');
+    lastNameInput.required = true;
     var emailLabel = appendContent(fieldSetWrapper, 'label', 'Email:', '', 'form-label-fw');
     emailLabel.for = 'email-input';
     var emailInput = appendContent(emailLabel, 'input', '', 'email-input');
@@ -608,21 +613,25 @@ function addEmail(e){
   // get data from form
   var emailElement = document.getElementById('email-input');
   emailElement.disabled = true;
-  var nameElement = document.getElementById('name-input');
-  nameElement.disabled = true;
+  var firstNameElement = document.getElementById('first-name-input');
+  firstNameElement.disabled = true;
+  var lastNameElement = document.getElementById('last-name-input');
+  lastNameElement.disabled = true;
   var confirmButton = document.getElementById('confirm-button');
   confirmButton.innerHTML = 'Signing up...'
   // update button text and disable
   confirmButton.disabled = true;
   // setting up php variables
   var email = emailElement.value;
-  var firstName = nameElement.value;
+  var firstName = firstNameElement.value;
+  var lastName = lastNameElement.value;
   // send data
   var emailXHR = new XMLHttpRequest();
-  emailXHR.open('POST', 'https://meaghanwagner.com/php/addemail.php');
+  emailXHR.open('POST', 'https://meaghanwagner.com/php/addemail_new.php');
   emailXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   emailXHR.onload = function() {
     // check if there was an error
+    console.log(emailXHR.responseText);
     var emailResponse = JSON.parse(emailXHR.responseText);
     if(emailResponse.updates.updatedCells > 0){
       // remove blocker if no error
@@ -632,7 +641,7 @@ function addEmail(e){
       console.error(emailXHR.responseText);
     }
   }
-  emailXHR.send('email_address=' + email + '&first_name=' + firstName);
+  emailXHR.send('email_address=' + email + '&first_name=' + firstName + '&last_name=' + lastName);
 }
 
 // empty object to hold flow data
@@ -727,9 +736,9 @@ function buildFlowData(flowArray){
     // replace email input placeholder in description
     if(thisFlowObj.flowDescription.includes('[email-input]')){
       if(thisFlowObj.important == 'TRUE'){
-        thisFlowObj.flowDescription = thisFlowObj.flowDescription.replace('<p>[email-input]</p>', '<form id="' + thisFlowObj.flowId + '-form" class="flow-form"><fieldset><label class="form-label-fw">Name:<input id="' + thisFlowObj.flowId + '-name-input" class="white-bg" required></label><label class="form-label-fw">Email:<input id="' + thisFlowObj.flowId + '-email-input" type="email" class="white-bg" required></label></div></fieldset></form></div>')
+        thisFlowObj.flowDescription = thisFlowObj.flowDescription.replace('<p>[email-input]</p>', '<form id="' + thisFlowObj.flowId + '-form" class="flow-form"><fieldset><div class="name-holder"><label class="form-label">First Name:<input id="' + thisFlowObj.flowId + '-first-name-input" class="white-bg" required></label><label class="form-label">Last Name:<input id="' + thisFlowObj.flowId + '-last-name-input" class="white-bg" required></label></div><label class="form-label-fw">Email:<input id="' + thisFlowObj.flowId + '-email-input" type="email" class="white-bg" required></label></div></fieldset></form></div>')
       } else {
-        thisFlowObj.flowDescription = thisFlowObj.flowDescription.replace('<p>[email-input]</p>', '<form id="' + thisFlowObj.flowId + '-form" class="flow-form"><fieldset><label class="form-label-fw">Name:<input id="' + thisFlowObj.flowId + '-name-input" required></label><label class="form-label-fw">Email:<input id="' + thisFlowObj.flowId + '-email-input" type="email"></label></div></fieldset></form></div>')
+        thisFlowObj.flowDescription = thisFlowObj.flowDescription.replace('<p>[email-input]</p>', '<form id="' + thisFlowObj.flowId + '-form" class="flow-form"><fieldset><div class="name-holder"><label class="form-label">First Name:<input id="' + thisFlowObj.flowId + '-first-name-input" required></label><label class="form-label">Last Name:<input id="' + thisFlowObj.flowId + '-last-name-input" required></label></div><label class="form-label-fw">Email:<input id="' + thisFlowObj.flowId + '-email-input" type="email"></label></div></fieldset></form></div>')
       }
     }
 
@@ -853,18 +862,21 @@ function openFlowFile(flowId){
   var emailElement = document.getElementById(flowId + '-email-input');
   if(emailElement != null){
     emailElement.disabled = true;
-    var nameElement = document.getElementById(flowId + '-name-input');
-    nameElement.disabled = true;
+    var firstNameElement = document.getElementById(flowId + '-first-name-input');
+    firstNameElement.disabled = true;
+    var lastNameElement = document.getElementById(flowId + '-last-name-input');
+    lastNameElement.disabled = true;
     var confirmButton = document.getElementById(flowId + '-confirm-button');
     confirmButton.innerHTML = 'Downloading...'
     // update button text and disable
     confirmButton.disabled = true;
     // setting up php variables
     var email = emailElement.value;
-    var firstName = nameElement.value;
+    var firstName = firstNameElement.value;
+    var lastName = lastNameElement.value;
     // send data
     var emailXHR = new XMLHttpRequest();
-    emailXHR.open('POST', 'https://meaghanwagner.com/php/addemail.php');
+    emailXHR.open('POST', 'https://meaghanwagner.com/php/addemail_new.php');
     emailXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     emailXHR.onload = function() {
       // check if there was an error
@@ -872,7 +884,8 @@ function openFlowFile(flowId){
       if(emailResponse.updates.updatedCells > 0){
         thisform.setAttribute('onsubmit', "openFlowFileAgain('" + thisFlow.flowId + "'); return false;");
         emailElement.disabled = false;
-        nameElement.disabled = false;
+        firstNameElement.disabled = false;
+        lastNameElement.disabled = false;
         confirmButton.innerHTML = 'Download Again'
         confirmButton.disabled = false;
       } else {
@@ -880,7 +893,7 @@ function openFlowFile(flowId){
         console.error(emailXHR.responseText);
       }
     }
-    emailXHR.send('email_address=' + email + '&first_name=' + firstName);
+    emailXHR.send('email_address=' + email + '&first_name=' + firstName + '&last_name=' + lastName);
   }
 }
 function openFlowFileAgain(flowId){
