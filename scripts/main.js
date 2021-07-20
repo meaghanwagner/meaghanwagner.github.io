@@ -631,7 +631,6 @@ function addEmail(e){
   emailXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   emailXHR.onload = function() {
     // check if there was an error
-    console.log(emailXHR.responseText);
     var emailResponse = JSON.parse(emailXHR.responseText);
     if(emailResponse.updates.updatedCells > 0){
       // remove blocker if no error
@@ -1336,23 +1335,21 @@ function isEmpty(obj) {
 /* Display Logos */
 function displayLogos(){
   var logosXHR = new XMLHttpRequest();
-  logosXHR.open('GET', 'https://meaghanwagner.com/php/echoQuoteData.php');
+  logosXHR.open('GET', 'https://meaghanwagner.com/php/echoLogosData.php');
   logosXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   logosXHR.onload = function() {
     var logosData = JSON.parse(logosXHR.responseText).values;
     var logosCount = Object.keys(logosData).length;
     // check if there are logos to populate the carousel
     if(logosCount > 0){
-      slideHolder = document.getElementById('slide-holder');
-      slideHolder.innerHTML = '';
-      dotContainer = document.getElementsByClassName('dot-container')[0];
-      dotContainer.innerHTML = '';
-
+      var logosContainer = document.getElementById('logos');
+      logosContainer.innerHTML = '';
       for(var logoIndex = 0; logoIndex < logosCount; logoIndex++){
         var row = logosData[logoIndex];
         var logoLink = appendContent(logosContainer, 'a', '', '', 'logo-link');
         logoLink.setAttribute('href', row[1]);
-        var logoImage = appendContent(editLogoLink, 'img', '', '', 'logo-image');
+        logoLink.setAttribute('target', '_blank')
+        var logoImage = appendContent(logoLink, 'img', '', '', 'logo-image');
         logoImage.setAttribute('src', row[0]);
       }
     } else {
