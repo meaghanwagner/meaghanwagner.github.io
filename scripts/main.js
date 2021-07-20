@@ -627,7 +627,7 @@ function addEmail(e){
   var lastName = lastNameElement.value;
   // send data
   var emailXHR = new XMLHttpRequest();
-  emailXHR.open('POST', 'https://meaghanwagner.com/php/addemail_new.php');
+  emailXHR.open('POST', 'https://meaghanwagner.com/php/addemail.php');
   emailXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   emailXHR.onload = function() {
     // check if there was an error
@@ -876,7 +876,7 @@ function openFlowFile(flowId){
     var lastName = lastNameElement.value;
     // send data
     var emailXHR = new XMLHttpRequest();
-    emailXHR.open('POST', 'https://meaghanwagner.com/php/addemail_new.php');
+    emailXHR.open('POST', 'https://meaghanwagner.com/php/addemail.php');
     emailXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     emailXHR.onload = function() {
       // check if there was an error
