@@ -79,6 +79,9 @@ form {
 fieldset{
   border: none;
 }
+label {
+  text-align: left;
+}
 legend{
   font-family: 'Montserrat', sans-serif;
   font-weight: 700;
