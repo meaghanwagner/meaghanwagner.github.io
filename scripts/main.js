@@ -675,7 +675,7 @@ function loadFlows(){
             flowContainer.classList.add('shiny');
           }
           // add link to flow
-          if(thisFlow.flowCategory != 'file'){
+          if(thisFlow.flowCategory != 'file' && thisFlow.flowCategory != 'link'){
             var flowLink = appendContent(flowContainer, 'a');
             flowLink.setAttribute('onclick', "loadSignUp('" + key + "')");
           }else{
@@ -687,10 +687,15 @@ function loadFlows(){
           var flowDescription = appendContent(flowLink, 'div', '', '', 'tool-description');
           flowDescription.innerHTML = thisFlow.flowDescription;
           // add button to file flows
-          if(thisFlow.flowCategory == 'file'){
+          if(thisFlow.flowCategory == 'file' || thisFlow.flowCategory == 'link'){
             var flowForm = document.getElementById(thisFlow.flowId + '-form');
-            flowForm.setAttribute('onsubmit', "openFlowFile('" + thisFlow.flowId + "'); return false;");
-            var fileButton = appendContent(flowForm, 'button', '', thisFlow.flowId + '-confirm-button', 'form-button');
+            if(flowForm != null){
+              flowForm.setAttribute('onsubmit', "openFlowLink('" + thisFlow.flowId + "'); return false;");
+              var fileButton = appendContent(flowForm, 'button', '', thisFlow.flowId + '-confirm-button', 'form-button');
+            } else {
+              var fileButton = appendContent(flowLink, 'button', '', thisFlow.flowId + '-confirm-button', 'form-button');
+              fileButton.setAttribute('onclick', "openFlowLink('" + thisFlow.flowId + "'); return false;");
+            }
             if (thisFlow.important != 'TRUE'){
               fileButton.classList += ' light-blue-bg dark-blue';
             }
@@ -796,7 +801,7 @@ function loadSignUp(flowId, signUpIndex=0) {
   var formWrapper = addFormToBlocker('sign-up-form', 'blocker-form');
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
   if(thisFlow.flowCategory == 'file'){
-    formWrapper.setAttribute('onsubmit', "openFlowFile('" + thisFlow.flowId + "-popup'); return false;");
+    formWrapper.setAttribute('onsubmit', "openFlowLink('" + thisFlow.flowId + "-popup'); return false;");
     titleHolder = appendContent(fieldSetWrapper, 'h2', thisFlow.flowName);
     descHolder = appendContent(fieldSetWrapper, 'p', '', 'center');
     descHolder.innerHTML = thisFlow.flowDescription.replaceAll(" class=\"white-bg\"", "").replaceAll(thisFlow.flowId, thisFlow.flowId + "-popup");
@@ -852,7 +857,7 @@ function loadSignUp(flowId, signUpIndex=0) {
     }
   }
 }
-function openFlowFile(flowId){
+function openFlowLink(flowId){
 
   event.preventDefault();
   var thisform = event.currentTarget;
@@ -881,11 +886,11 @@ function openFlowFile(flowId){
       // check if there was an error
       var emailResponse = JSON.parse(emailXHR.responseText);
       if(emailResponse.updates.updatedCells > 0){
-        thisform.setAttribute('onsubmit', "openFlowFileAgain('" + thisFlow.flowId + "'); return false;");
+        thisform.setAttribute('onsubmit', "openFlowLinkAgain('" + thisFlow.flowId + "'); return false;");
         emailElement.disabled = false;
         firstNameElement.disabled = false;
         lastNameElement.disabled = false;
-        confirmButton.innerHTML = 'Download Again'
+        confirmButton.innerHTML = 'Open Again'
         confirmButton.disabled = false;
       } else {
         // send error to console for debugging
@@ -895,7 +900,7 @@ function openFlowFile(flowId){
     emailXHR.send('email_address=' + email + '&first_name=' + firstName + '&last_name=' + lastName);
   }
 }
-function openFlowFileAgain(flowId){
+function openFlowLinkAgain(flowId){
   event.preventDefault();
   var thisform = event.currentTarget;
   thisFlow = flowData[flowId];

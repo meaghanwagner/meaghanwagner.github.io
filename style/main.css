@@ -343,9 +343,15 @@ strong.large{
   justify-content: center;
   margin: 5px;
 }
-#name-holder, .name-holder {
-  display:flex;
-  justify-content: center;
+#name-holder{
+  display: flex;
+}
+.name-holder{
+  display: block;
+}
+.name-holder > label {
+  width: 95%;
+  margin-left: 2.5%;
 }
 #message-label {
   width: 95%;

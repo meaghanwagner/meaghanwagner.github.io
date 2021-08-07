@@ -499,7 +499,7 @@ function displayFlowData() {
         }
         flowDescription.innerHTML = flowDescriptionText;
         // add download button for file flows
-        if(row[15] == 'file'){
+        if(row[15] == 'file' || row[15] == 'link' ){
           var flowForm = document.getElementById('flow-form');
           if(document.getElementById('flow-form') == null){
             flowForm = flowLink;
@@ -547,7 +547,7 @@ function addNewFlowFields(e){
   appendContent(flowCategoryHolder, 'br');
   var flowCategorySelect = appendContent(flowCategoryHolder, 'select', '', 'flow-category');
   appendContent(flowCategorySelect, 'option', 'event');
-  appendContent(flowCategorySelect, 'option', 'file');
+  appendContent(flowCategorySelect, 'option', 'link');
   flowCategorySelect.setAttribute('onchange', 'flowCategoryChanged(false)');
   appendContent(flowCategoryHolder, 'br');
   // add Title
@@ -639,13 +639,13 @@ function addNewFlowFields(e){
   // create div for file fields
   var fileHolder = appendContent(fieldSetWrapper, 'div', '', '', 'form-item file-holder');
   // add File CTA
-  var fileCTALabel = appendContent(fileHolder, 'label', 'File CTA:');
+  var fileCTALabel = appendContent(fileHolder, 'label', 'Link CTA:');
   fileCTALabel.for = 'file-cta';
   appendContent(fileHolder, 'br');
   var fileCTAInput = appendContent(fileHolder, 'textarea', '', 'file-cta', 'rich-text');
   appendContent(fileHolder, 'br');
   // add Follow up Email CTA Destination
-  var fileCTADestLabel = appendContent(fileHolder, 'label', 'Follow up Email CTA Destination:');
+  var fileCTADestLabel = appendContent(fileHolder, 'label', 'Link CTA Destination:');
   fileCTADestLabel.for = 'file-cta-dest';
   appendContent(fileHolder, 'br');
   var fileCTADestInput = appendContent(fileHolder, 'input', '', 'file-cta-dest', 'full-width');
@@ -689,7 +689,7 @@ function flowCategoryChanged(populateData=false){
     for(var fileIndex = 0; fileIndex < fileHolders.length; fileIndex++){
       fileHolders[fileIndex].style.display = 'none';
     }
-  } else if(flowCategoryValue == 'file'){
+  } else if(flowCategoryValue == 'link'){
     for(var eventIndex = 0; eventIndex < eventHolders.length; eventIndex++){
         eventHolders[eventIndex].style.display = 'none';
       }
@@ -841,7 +841,7 @@ function addEditFlowFields(element){
   appendContent(flowCategoryHolder, 'br');
   var flowCategorySelect = appendContent(flowCategoryHolder, 'select', '', 'flow-category');
   appendContent(flowCategorySelect, 'option', 'event');
-  appendContent(flowCategorySelect, 'option', 'file');
+  appendContent(flowCategorySelect, 'option', 'link');
   flowCategorySelect.value = row[15];
   flowCategorySelect.setAttribute('onchange', 'flowCategoryChanged(false)');
   appendContent(flowCategoryHolder, 'br');
@@ -958,14 +958,14 @@ function addEditFlowFields(element){
   // create div for file fields
   var fileHolder = appendContent(fieldSetWrapper, 'div', '', '', 'form-item file-holder');
   // add File CTA
-  var fileCTALabel = appendContent(fileHolder, 'label', 'File CTA:');
+  var fileCTALabel = appendContent(fileHolder, 'label', 'Link CTA:');
   fileCTALabel.for = 'file-cta';
   appendContent(fileHolder, 'br');
   var fileCTAInput = appendContent(fileHolder, 'textarea', '', 'file-cta', 'rich-text');
   fileCTAInput.value = row[16];
   appendContent(fileHolder, 'br');
   // add Follow up Email CTA Destination
-  var fileCTADestLabel = appendContent(fileHolder, 'label', 'Follow up Email CTA Destination:');
+  var fileCTADestLabel = appendContent(fileHolder, 'label', 'Link CTA Destination:');
   fileCTADestLabel.for = 'file-cta-dest';
   appendContent(fileHolder, 'br');
   var fileCTADestInput = appendContent(fileHolder, 'input', '', 'file-cta-dest', 'full-width');
