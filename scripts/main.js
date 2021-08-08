@@ -739,10 +739,11 @@ function buildFlowData(flowArray){
     }
     // replace email input placeholder in description
     if(thisFlowObj.flowDescription.includes('[email-input]')){
+      thisFlowObj.flowDescription = thisFlowObj.flowDescription.replace('<br />[email-input]', '</p><p>[email-input]');
       if(thisFlowObj.important == 'TRUE'){
-        thisFlowObj.flowDescription = thisFlowObj.flowDescription.replace('<p>[email-input]</p>', '<form id="' + thisFlowObj.flowId + '-form" class="flow-form"><fieldset><div class="name-holder"><label class="form-label">First Name:<input id="' + thisFlowObj.flowId + '-first-name-input" class="white-bg" required></label><label class="form-label">Last Name:<input id="' + thisFlowObj.flowId + '-last-name-input" class="white-bg" required></label></div><label class="form-label-fw">Email:<input id="' + thisFlowObj.flowId + '-email-input" type="email" class="white-bg" required></label></div></fieldset></form></div>')
+        thisFlowObj.flowDescription = thisFlowObj.flowDescription.replace('<p>[email-input]</p>', '<form id="' + thisFlowObj.flowId + '-form" class="flow-form"><fieldset><div class="name-holder"><label class="form-label">First Name:<input id="' + thisFlowObj.flowId + '-first-name-input" class="white-bg" required></label><label class="form-label">Last Name:<input id="' + thisFlowObj.flowId + '-last-name-input" class="white-bg" required></label></div><label class="form-label-fw">Email:<input id="' + thisFlowObj.flowId + '-email-input" type="email" class="white-bg" required></label></div></fieldset></form></div>');
       } else {
-        thisFlowObj.flowDescription = thisFlowObj.flowDescription.replace('<p>[email-input]</p>', '<form id="' + thisFlowObj.flowId + '-form" class="flow-form"><fieldset><div class="name-holder"><label class="form-label">First Name:<input id="' + thisFlowObj.flowId + '-first-name-input" required></label><label class="form-label">Last Name:<input id="' + thisFlowObj.flowId + '-last-name-input" required></label></div><label class="form-label-fw">Email:<input id="' + thisFlowObj.flowId + '-email-input" type="email"></label></div></fieldset></form></div>')
+        thisFlowObj.flowDescription = thisFlowObj.flowDescription.replace('<p>[email-input]</p>', '<form id="' + thisFlowObj.flowId + '-form" class="flow-form"><fieldset><div class="name-holder"><label class="form-label">First Name:<input id="' + thisFlowObj.flowId + '-first-name-input" required></label><label class="form-label">Last Name:<input id="' + thisFlowObj.flowId + '-last-name-input" required></label></div><label class="form-label-fw">Email:<input id="' + thisFlowObj.flowId + '-email-input" type="email"></label></div></fieldset></form></div>');
       }
     }
 

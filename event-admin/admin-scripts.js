@@ -491,10 +491,11 @@ function displayFlowData() {
         flowDescriptionText = row[2];
         // replace email input placeholder in description
         if(flowDescriptionText.includes('[email-input]')){
+          flowDescriptionText = flowDescriptionText.replace('<br />[email-input]', '</p><p>[email-input]');
           if(important){
-            flowDescriptionText = flowDescriptionText.replace('<p>[email-input]</p>', '<form id="flow-form"><fieldset><label class="form-label-fw">Name:<input id="flow-name-input" class="white-bg"></label><label class="form-label-fw">Email:<input id="flow-email-input" type="email" class="white-bg"></label></div></fieldset></form></div>')
+            flowDescriptionText = flowDescriptionText.replace('<p>[email-input]</p>', '<form id="flow-form"><fieldset><label class="form-label-fw">Name:<input id="flow-name-input" class="white-bg"></label><label class="form-label-fw">Email:<input id="flow-email-input" type="email" class="white-bg"></label></div></fieldset></form></div>');
           } else {
-            flowDescriptionText = flowDescriptionText.replace('<p>[email-input]</p>', '<form id="flow-form"><fieldset><label class="form-label-fw">Name:<input id="flow-name-input"></label><label class="form-label-fw">Email:<input id="flow-email-input" type="email"></label></div></fieldset></form></div>')
+            flowDescriptionText = flowDescriptionText.replace('<p>[email-input]</p>', '<form id="flow-form"><fieldset><label class="form-label-fw">Name:<input id="flow-name-input"></label><label class="form-label-fw">Email:<input id="flow-email-input" type="email"></label></div></fieldset></form></div>');
           }
         }
         flowDescription.innerHTML = flowDescriptionText;
