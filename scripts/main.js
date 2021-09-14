@@ -801,7 +801,7 @@ function loadSignUp(flowId, signUpIndex=0) {
   // add signup form
   var formWrapper = addFormToBlocker('sign-up-form', 'blocker-form');
   var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
-  if(thisFlow.flowCategory == 'file'){
+  if(thisFlow.flowCategory == 'link'){
     formWrapper.setAttribute('onsubmit', "openFlowLink('" + thisFlow.flowId + "-popup'); return false;");
     titleHolder = appendContent(fieldSetWrapper, 'h2', thisFlow.flowName);
     descHolder = appendContent(fieldSetWrapper, 'p', '', 'center');
