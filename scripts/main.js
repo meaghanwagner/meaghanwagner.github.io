@@ -583,6 +583,10 @@ function loadEmailSignup(){
     var formWrapper = addFormToBlocker('email-form', 'blocker-form');
     var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
     formWrapper.addEventListener('submit', addEmail);
+    appendContent(fieldSetWrapper,'div', '', 'fd-form-62224a2fe4da3a4464c2fdee')
+    appendContent(fieldSetWrapper,'script', "window.fd('form', {formId: '62224a2fe4da3a4464c2fdee',    containerEl: '#fd-form-62224a2fe4da3a4464c2fdee'});")
+    /*
+    // old handler for posterity (I will remove this later)
     appendContent(fieldSetWrapper, 'h2', 'Keep in Touch!');
     appendContent(fieldSetWrapper, 'p', 'Join our mailing list and be the first to hear about new workshops, free challenges, and more!');
     var nameHolder = appendContent(fieldSetWrapper, 'div', '', 'name-holder')
@@ -603,6 +607,8 @@ function loadEmailSignup(){
     disclaimerText.innerHTML = 'Unsubscribe at any time. Your data and information are protected in accordance with my <a href="privacy" target="_blank">Privacy Policy<a>';
     var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
     var confirmButton = appendContent(buttonWrapper, 'button', 'Sign Up!', 'confirm-button', 'form-button');
+    */
+
   }
 }
 // function to add email to sheets
