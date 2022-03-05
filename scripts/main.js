@@ -582,71 +582,15 @@ function loadEmailSignup(){
     // add email form
     var formWrapper = addFormToBlocker('email-form', 'blocker-form');
     var fieldSetWrapper = appendContent(formWrapper, 'FIELDSET');
-    formWrapper.addEventListener('submit', addEmail);
+    formWrapper.addEventListener('submit', doNothing);
     appendContent(fieldSetWrapper,'div', '', 'fd-form-62224a2fe4da3a4464c2fdee')
     appendContent(fieldSetWrapper,'script', "window.fd('form', {formId: '62224a2fe4da3a4464c2fdee',    containerEl: '#fd-form-62224a2fe4da3a4464c2fdee'});")
-    /*
-    // old handler for posterity (I will remove this later)
-    appendContent(fieldSetWrapper, 'h2', 'Keep in Touch!');
-    appendContent(fieldSetWrapper, 'p', 'Join our mailing list and be the first to hear about new workshops, free challenges, and more!');
-    var nameHolder = appendContent(fieldSetWrapper, 'div', '', 'name-holder')
-    var firstNameLabel = appendContent(nameHolder, 'label', 'First Name:', '','form-label');
-    firstNameLabel.for = 'name-input';
-    var firstNameInput = appendContent(firstNameLabel, 'input', '', 'first-name-input', 'name-input');
-    firstNameInput.required = true;
-    var lastNameLabel = appendContent(nameHolder, 'label', 'Last Name:', '','form-label');
-    lastNameLabel.for = 'name-input';
-    var lastNameInput = appendContent(lastNameLabel, 'input', '', 'last-name-input', 'name-input');
-    lastNameInput.required = true;
-    var emailLabel = appendContent(fieldSetWrapper, 'label', 'Email:', '', 'form-label-fw');
-    emailLabel.for = 'email-input';
-    var emailInput = appendContent(emailLabel, 'input', '', 'email-input');
-    emailInput.type = "email";
-    emailInput.required = true;
-    var disclaimerText = appendContent(fieldSetWrapper, 'p', '', '', 'disclaimer');
-    disclaimerText.innerHTML = 'Unsubscribe at any time. Your data and information are protected in accordance with my <a href="privacy" target="_blank">Privacy Policy<a>';
-    var buttonWrapper = appendContent(fieldSetWrapper, 'div', '', 'button-wrapper');
-    var confirmButton = appendContent(buttonWrapper, 'button', 'Sign Up!', 'confirm-button', 'form-button');
-    */
-
   }
 }
-// function to add email to sheets
-function addEmail(e){
+function doNothing(e){
   if(e != null){
     e.preventDefault();
   }
-  // get data from form
-  var emailElement = document.getElementById('email-input');
-  emailElement.disabled = true;
-  var firstNameElement = document.getElementById('first-name-input');
-  firstNameElement.disabled = true;
-  var lastNameElement = document.getElementById('last-name-input');
-  lastNameElement.disabled = true;
-  var confirmButton = document.getElementById('confirm-button');
-  confirmButton.innerHTML = 'Signing up...'
-  // update button text and disable
-  confirmButton.disabled = true;
-  // setting up php variables
-  var email = emailElement.value;
-  var firstName = firstNameElement.value;
-  var lastName = lastNameElement.value;
-  // send data
-  var emailXHR = new XMLHttpRequest();
-  emailXHR.open('POST', 'https://meaghanwagner.com/php/addemail.php');
-  emailXHR.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  emailXHR.onload = function() {
-    // check if there was an error
-    var emailResponse = JSON.parse(emailXHR.responseText);
-    if(emailResponse.updates.updatedCells > 0){
-      // remove blocker if no error
-      removeBlocker();
-    } else {
-      // send error to console for debugging
-      console.error(emailXHR.responseText);
-    }
-  }
-  emailXHR.send('email_address=' + email + '&first_name=' + firstName + '&last_name=' + lastName);
 }
 
 // empty object to hold flow data
